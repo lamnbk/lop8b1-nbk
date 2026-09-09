@@ -176,7 +176,7 @@
     .filter-chip.active { background:var(--teal-gradient); color:#fff; border-color:var(--primary-color); box-shadow:0 2px 6px rgba(13,148,136,.25); }
 
     .timetable { overflow-x: auto; overflow-y: hidden; width: 100%; padding-bottom: 6px; }
-    .timetable-grid { display:grid; grid-template-columns:95px repeat(6,minmax(145px,1fr)); gap:1px; background:#cbd5e1; border:1px solid #cbd5e1; min-width:960px; border-radius:14px; overflow:hidden; }
+    .timetable-grid { display:grid; grid-template-columns:110px repeat(6,minmax(140px,1fr)); gap:1px; background:#cbd5e1; border:1px solid #cbd5e1; min-width:960px; border-radius:14px; overflow:hidden; margin-left: 0; }
     .tt-cell { background:white; min-height:72px; padding:8px; }
     .tt-head { background:var(--teal-gradient); color:white; font-weight:900; display:flex;align-items:center;justify-content:center;min-height:50px; text-align: center; }
     .tt-time { background:#f0fdfa; font-weight:800; color:#0f766e; display:flex;flex-direction:column;justify-content:center;text-align:center; }
@@ -354,6 +354,7 @@ function initFirebaseSync(){
       if(!Array.isArray(remote.subjects)) remote.subjects = SUBJECTS.slice();
       if(!remote.attendance) remote.attendance = {};
       if(!remote.seating) remote.seating = {};
+      if(!remote.slotTimes) remote.slotTimes = {};
 
       const localPage = state.currentPage;
       state = remote;
@@ -404,7 +405,7 @@ function defaultState(){
  const names=[['Nguyễn Hải Đăng','Nam'],['Trần Quỳnh Chi','Nữ'],['Lê Đức Minh','Nam'],['Phạm Thùy Dương','Nữ'],['Vũ Anh Khoa','Nam'],['Hoàng Ngọc Hà','Nữ'],['Đặng Minh Quân','Nam'],['Bùi Khánh An','Nữ'],['Đỗ Gia Bảo','Nam'],['Ngô Phương Linh','Nữ'],['Dương Nhật Huy','Nam'],['Mai Thu Trang','Nữ'],['Phan Hoàng Long','Nam'],['Lý Bảo Châu','Nữ'],['Tạ Minh Phúc','Nam']];
  const students=names.map((n,i)=>({id:'s'+(i+1),classId:cls,name:n[0],gender:n[1],coins:i===0?10:0,avatar:'',favorite:i<3,note:''}));
  return {
-  version:8, activeClassId:cls, currentPage:'home',
+  version:9, activeClassId:cls, currentPage:'home',
   settingPassword: 'admin8b1',
   adminPassword: '123',
   teacher:{name:'Giáo viên Chủ nhiệm',role:'GVCN',subject:'Tin học',school:'Trường THCS',avatar:''},
@@ -412,12 +413,16 @@ function defaultState(){
   attendance:{},attendanceDate:today(),
   seating:{[cls]:{type:'2x7x4',lanes:2,seats:14,mode:'2d',assignments:{}}},
   timetable:{morning:true,afternoon:true,morningCount:5,afternoonCount:4,entries:[
-    {id:uid('tt'),classId:cls,day:0,slot:'S1',subject:'Chào cờ',time:'07:30 - 08:05'},
-    {id:uid('tt'),classId:cls,day:1,slot:'S1',subject:'Toán',time:'07:30 - 08:05'},
-    {id:uid('tt'),classId:cls,day:2,slot:'S1',subject:'Tiếng Việt',time:'07:30 - 08:05'},
-    {id:uid('tt'),classId:cls,day:3,slot:'S2',subject:'Tin học',time:'08:15 - 08:50'},
-    {id:uid('tt'),classId:cls,day:4,slot:'C1',subject:'Sinh hoạt lớp',time:'13:30 - 14:05'}
+    {id:uid('tt'),classId:cls,day:0,slot:'S1',subject:'Chào cờ'},
+    {id:uid('tt'),classId:cls,day:1,slot:'S1',subject:'Toán'},
+    {id:uid('tt'),classId:cls,day:2,slot:'S1',subject:'Tiếng Việt'},
+    {id:uid('tt'),classId:cls,day:3,slot:'S2',subject:'Tin học'},
+    {id:uid('tt'),classId:cls,day:4,slot:'C1',subject:'Sinh hoạt lớp'}
   ]},
+  slotTimes:{
+    'S1':'07:30 - 08:05','S2':'08:15 - 08:50','S3':'09:05 - 09:40','S4':'09:50 - 10:25','S5':'10:35 - 11:10','S6':'11:15 - 11:50',
+    'C1':'13:30 - 14:05','C2':'14:15 - 14:50','C3':'15:05 - 15:40','C4':'15:50 - 16:25','C5':'16:35 - 17:10'
+  },
   rewards:[{id:'r1',name:'Bút',cost:10,emoji:'🖊️',stock:10},{id:'r2',name:'Thước',cost:15,emoji:'📏',stock:8},{id:'r3',name:'Sticker',cost:5,emoji:'🌟',stock:30},{id:'r4',name:'Sổ tay',cost:25,emoji:'📒',stock:5}],
   redemptions:[],transactions:[],wheelHistory:[],dailyPhotos:[],links:[{id:'l1',name:'Học liệu lớp học',url:'https://',category:'Học liệu & SGK',desc:'Liên kết mẫu - hãy chỉnh sửa',pinned:true}],
   subjects:SUBJECTS.slice(), settings:{wheelExclude:true,tickLast10:false,timerColor:'#0d9488'},
@@ -448,6 +453,7 @@ function loadState(){
       if(!Array.isArray(x.subjects)) x.subjects = SUBJECTS.slice();
       if(!x.attendance) x.attendance = {};
       if(!x.seating) x.seating = {};
+      if(!x.slotTimes) x.slotTimes = {};
       if(!Array.isArray(x.wheelExcluded)) x.wheelExcluded = [];
 
       return x;
@@ -770,7 +776,7 @@ function renderHome(){const ss=classStudents(),att=state.attendance[state.active
 <div class="section-head"><div><h2><i class="fa-solid fa-sparkles text-primary me-2"></i>Chào mừng đến ${esc(activeClass().name)} - ${esc(activeClass().grade)}</h2><p>Quản lý lớp học, thi đua và hoạt động tương tác trong một nơi.</p></div><div class="d-flex gap-2"><button class="btn btn-outline-primary" onclick="navigate('students')"><i class="fa-solid fa-user-plus me-1"></i> Học sinh</button><button class="btn btn-primary" onclick="navigate('weekly')"><i class="fa-solid fa-calendar-check me-1"></i> Nhật kí tuần</button></div></div>
 <div class="stats-grid mb-3"><div class="stat-card"><div class="label">Sĩ số lớp</div><div class="value">${ss.length}</div><small>${activeClass().grade}</small><i class="fa-solid fa-users"></i></div><div class="stat-card"><div class="label">Đi học hôm nay</div><div class="value">${present}/${ss.length}</div><small>${ss.length?Math.round(present/ss.length*100):0}% chuyên cần</small><i class="fa-solid fa-clipboard-check"></i></div><div class="stat-card"><div class="label">Tổng điểm thi đua</div><div class="value">${totalCoins}</div><small>${state.transactions.filter(x=>x.classId===state.activeClassId).length} lượt ghi nhận</small><i class="fa-solid fa-award"></i></div><div class="stat-card"><div class="label">Phần thưởng</div><div class="value">${state.redemptions.filter(x=>x.classId===state.activeClassId).length}</div><small>${state.rewards.length} loại quà</small><i class="fa-solid fa-gift"></i></div></div>
 <div class="grid-2 mt-3"><div class="card p-3"><div class="d-flex justify-content-between align-items-center mb-2"><h5 class="fw-bold m-0">Thi đua lớp học</h5><span class="badge bg-success">Theo thời gian thực</span></div><div style="height:280px"><canvas id="homeChart"></canvas></div></div><div class="card p-3"><h5 class="fw-bold">Top học sinh</h5>${top.length?top.map((s,i)=>rankRow(s,i)).join(''):'<div class="empty">Chưa có học sinh</div>'}</div></div>
-<div class="grid-equal mt-3"><div class="card p-3"><div class="d-flex justify-content-between"><h5 class="fw-bold">Thời khóa biểu hôm nay</h5><button class="btn btn-sm btn-outline-primary" onclick="navigate('timetable')">Xem lịch</button></div>${todayLessons.length?todayLessons.map(l=>`<div class="lesson mt-2"><strong>${esc(l.subject)}</strong><div class="text-muted">${esc(l.time)}</div></div>`).join(''):'<div class="empty">Hôm nay chưa có tiết học được xếp.</div>'}</div><div class="card p-3"><h5 class="fw-bold">Thao tác nhanh</h5><div class="d-grid gap-2 mt-2"><button class="btn btn-outline-primary text-start" onclick="navigate('attendance')"><i class="fa-solid fa-clipboard-check me-2"></i>Điểm danh lớp</button><button class="btn btn-outline-primary text-start" onclick="navigate('weekly')"><i class="fa-solid fa-calendar-check me-2"></i>Xem nhật kí tuần</button><button class="btn btn-outline-primary text-start" onclick="navigate('seating')"><i class="fa-solid fa-border-all me-2"></i>Xếp sơ đồ chỗ ngồi</button></div></div></div>`}
+<div class="grid-equal mt-3"><div class="card p-3"><div class="d-flex justify-content-between"><h5 class="fw-bold">Thời khóa biểu hôm nay</h5><button class="btn btn-sm btn-outline-primary" onclick="navigate('timetable')">Xem lịch</button></div>${todayLessons.length?todayLessons.map(l=>{const slotTime=(state.slotTimes&&state.slotTimes[l.slot])||'';return `<div class="lesson mt-2"><strong>${esc(l.subject)}</strong>${slotTime?`<div class="text-muted">${esc(slotTime)}</div>`:''}</div>`}).join(''):'<div class="empty">Hôm nay chưa có tiết học được xếp.</div>'}</div><div class="card p-3"><h5 class="fw-bold">Thao tác nhanh</h5><div class="d-grid gap-2 mt-2"><button class="btn btn-outline-primary text-start" onclick="navigate('attendance')"><i class="fa-solid fa-clipboard-check me-2"></i>Điểm danh lớp</button><button class="btn btn-outline-primary text-start" onclick="navigate('weekly')"><i class="fa-solid fa-calendar-check me-2"></i>Xem nhật kí tuần</button><button class="btn btn-outline-primary text-start" onclick="navigate('seating')"><i class="fa-solid fa-border-all me-2"></i>Xếp sơ đồ chỗ ngồi</button></div></div></div>`}
 function rankRow(s,i){const max=Math.max(1,...classStudents().map(x=>Math.max(0,x.coins||0)));const pct=s.coins>0?Math.round(s.coins/max*100):0;return `<div class="rank-row"><div class="rank-no">${i+1}</div>${renderAvatar(s,'mini-avatar')}<div><div class="fw-bold">${esc(s.name)}</div><div class="progress-thin"><div style="width:${pct}%;background:${s.coins<0?'#ef4444':'var(--teal-gradient)'}"></div></div></div><span class="coin-pill ${s.coins<0?'negative':''}" onclick="viewStudentViolations('${s.id}')"><i class="fa-solid fa-award"></i>${s.coins||0} điểm</span></div>`}
 function drawHomeChart(){const ctx=document.getElementById('homeChart');if(!ctx)return;const ss=[...classStudents()].sort((a,b)=>b.coins-a.coins).slice(0,8);chartRefs.push(new Chart(ctx,{type:'bar',data:{labels:ss.map(s=>s.name.split(' ').slice(-2).join(' ')),datasets:[{label:'Điểm',data:ss.map(s=>s.coins||0),backgroundColor:ss.map(s=>(s.coins||0)<0?'rgba(239, 68, 68, 0.75)':'rgba(13,148,136,.65)'),borderColor:ss.map(s=>(s.coins||0)<0?'#ef4444':'#0d9488'),borderWidth:1,borderRadius:8}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{y:{ticks:{precision:0}}}}}))}
 function renderClasses(){return `<div class="section-head"><div><h2><i class="fa-solid fa-school text-primary me-2"></i>Quản lý Danh sách Lớp học</h2><p>Tạo thêm lớp mới hoặc chuyển nhanh không gian quản lý giữa các lớp học.</p></div><button class="btn btn-primary" onclick="openClassModal()"><i class="fa-solid fa-plus me-1"></i>Tạo lớp học mới</button></div><div class="student-grid">${state.classes.map(c=>`<div class="card hover-lift p-3"><div class="d-flex justify-content-between"><div class="avatar">${esc(c.logoText||c.name)}</div>${c.id===state.activeClassId?'<span class="badge bg-success align-self-start">Lớp đang chọn</span>':''}</div><h4 class="fw-bold mt-3 mb-1">${esc(c.name)}</h4><div class="text-muted">${esc(c.grade)} · Năm học ${esc(c.year)}</div><div class="coin-pill mt-2"><i class="fa-solid fa-users"></i>${classStudentsFor(c.id).length} học sinh</div><div class="d-flex justify-content-between align-items-center mt-3 pt-3 border-top"><button class="btn btn-sm btn-outline-primary" onclick="switchClass('${c.id}')">Vào không gian lớp</button><div><button class="icon-btn d-inline-grid" onclick="openClassModal('${c.id}')"><i class="fa-solid fa-pen"></i></button> <button class="icon-btn d-inline-grid text-danger" onclick="deleteClass('${c.id}')"><i class="fa-solid fa-trash"></i></button></div></div></div>`).join('')}</div>`}
@@ -1809,16 +1815,127 @@ async function chooseSeat(idx){
 
 async function exportSeatingPNG(){const el=document.getElementById('seatingExport');const c=await html2canvas(el,{scale:2,backgroundColor:'#ffffff'});const a=document.createElement('a');a.download=`so-do-lop-${activeClass().name}.png`;a.href=c.toDataURL('image/png');a.click();toast('Đã xuất ảnh sơ đồ')}
 
-function timeSlots(){const t=[];const sm=['07:30 - 08:05','08:15 - 08:50','09:05 - 09:40','09:50 - 10:25','10:35 - 11:10','11:15 - 11:50'];const ch=['13:30 - 14:05','14:15 - 14:50','15:05 - 15:40','15:50 - 16:25','16:35 - 17:10'];if(state.timetable.morning)for(let i=0;i<state.timetable.morningCount;i++)t.push({id:'S'+(i+1),label:'Tiết '+(i+1)+' Sáng',time:sm[i]});if(state.timetable.afternoon)for(let i=0;i<state.timetable.afternoonCount;i++)t.push({id:'C'+(i+1),label:'Tiết '+(i+1)+' Chiều',time:ch[i]});return t}
-function renderTimetable(){const slots=timeSlots();return `<div class="section-head"><div><h2><i class="fa-solid fa-calendar-days text-primary me-2"></i>Thời Khóa Biểu ${esc(activeClass().name)}</h2><p>Bấm ô trống để thêm tiết; bấm tiết đã có để chỉnh sửa (yêu cầu mật khẩu GVCN).</p></div><button class="btn btn-outline-primary" onclick="openTimetableConfigSecure()"><i class="fa-solid fa-sliders me-1"></i>Cấu hình thời khóa biểu</button></div><div class="timetable"><div class="timetable-grid"><div class="tt-head">TIẾT</div>${DAYS.map(d=>`<div class="tt-head">${d}</div>`).join('')}${slots.map(slot=>`<div class="tt-cell tt-time"><strong>${slot.label}</strong><small>${slot.time}</small></div>${DAYS.map((d,di)=>{const e=state.timetable.entries.find(x=>x.classId===state.activeClassId&&x.day===di&&x.slot===slot.id);return `<div class="tt-cell" onclick="openLessonModalSecure(${di},'${slot.id}','${e?.id||''}')">${e?`<div class="lesson"><strong>${esc(e.subject)}</strong>${e.teacher?`<div class="text-primary fw-bold" style="font-size:0.75rem">${esc(e.teacher)}</div>`:''}<div class="text-muted">${esc(e.time)}</div></div>`:'<div class="text-muted text-center mt-3"><i class="fa-solid fa-plus"></i> Thêm tiết</div>'}</div>`}).join('')}`).join('')}</div></div>`}
+function timeSlots(){
+  const t=[];
+  const defaultSm=['07:30 - 08:05','08:15 - 08:50','09:05 - 09:40','09:50 - 10:25','10:35 - 11:10','11:15 - 11:50'];
+  const defaultCh=['13:30 - 14:05','14:15 - 14:50','15:05 - 15:40','15:50 - 16:25','16:35 - 17:10'];
+  if(!state.slotTimes) state.slotTimes = {};
+
+  if(state.timetable.morning){
+    for(let i=0;i<state.timetable.morningCount;i++){
+      const id = 'S'+(i+1);
+      const timeVal = state.slotTimes[id] !== undefined ? state.slotTimes[id] : (defaultSm[i] || '');
+      t.push({id, label:'Tiết '+(i+1)+' Sáng', time: timeVal});
+    }
+  }
+  if(state.timetable.afternoon){
+    for(let i=0;i<state.timetable.afternoonCount;i++){
+      const id = 'C'+(i+1);
+      const timeVal = state.slotTimes[id] !== undefined ? state.slotTimes[id] : (defaultCh[i] || '');
+      t.push({id, label:'Tiết '+(i+1)+' Chiều', time: timeVal});
+    }
+  }
+  return t;
+}
+
+function renderTimetable(){
+  const slots=timeSlots();
+  return `
+    <div class="section-head">
+      <div>
+        <h2><i class="fa-solid fa-calendar-days text-primary me-2"></i>Thời Khóa Biểu ${esc(activeClass().name)}</h2>
+        <p>Bấm ô trống để thêm tiết; bấm tiết đã có để chỉnh sửa (yêu cầu mật khẩu GVCN).</p>
+      </div>
+      <button class="btn btn-outline-primary" onclick="openTimetableConfigSecure()"><i class="fa-solid fa-sliders me-1"></i>Cấu hình thời khóa biểu</button>
+    </div>
+    <div class="timetable">
+      <div class="timetable-grid">
+        <div class="tt-head">TIẾT</div>
+        ${DAYS.map(d=>`<div class="tt-head">${d}</div>`).join('')}
+        ${slots.map(slot=>`
+          <div class="tt-cell tt-time">
+            <strong>${slot.label}</strong>
+            <small class="text-muted" style="font-size:0.72rem">${esc(slot.time || '')}</small>
+          </div>
+          ${DAYS.map((d,di)=>{
+            const e=state.timetable.entries.find(x=>x.classId===state.activeClassId&&x.day===di&&x.slot===slot.id);
+            return `<div class="tt-cell" onclick="openLessonModalSecure(${di},'${slot.id}','${e?.id||''}')">${e?`<div class="lesson"><strong>${esc(e.subject)}</strong>${e.teacher?`<div class="text-primary fw-bold" style="font-size:0.75rem">${esc(e.teacher)}</div>`:''}</div>`:'<div class="text-muted text-center mt-3"><i class="fa-solid fa-plus"></i> Thêm tiết</div>'}</div>`;
+          }).join('')}
+        `).join('')}
+      </div>
+    </div>
+  `;
+}
 
 async function openTimetableConfigSecure(){
   const ok = await verifyAdminAccess();
   if(!ok) return;
   openTimetableConfig();
 }
-function openTimetableConfig(){showModal('Cấu hình Thời Khóa Biểu',`<form onsubmit="saveTimetableConfig(event)"><div class="grid-equal"><div class="card p-3"><div class="form-check form-switch"><input id="morningOn" class="form-check-input" type="checkbox" ${state.timetable.morning?'checked':''}><label class="form-check-label fw-bold">☀️ Buổi Sáng</label></div><label class="mt-3 form-label">Số tiết sáng</label><select id="morningCount" class="form-select">${[3,4,5,6].map(n=>`<option ${state.timetable.morningCount===n?'selected':''}>${n}</option>`).join('')}</select></div><div class="card p-3"><div class="form-check form-switch"><input id="afternoonOn" class="form-check-input" type="checkbox" ${state.timetable.afternoon?'checked':''}><label class="form-check-label fw-bold">🌇 Buổi Chiều</label></div><label class="mt-3 form-label">Số tiết chiều</label><select id="afternoonCount" class="form-select">${[2,3,4,5].map(n=>`<option ${state.timetable.afternoonCount===n?'selected':''}>${n}</option>`).join('')}</select></div></div><div class="text-end mt-3"><button class="btn btn-primary">Áp dụng cấu hình</button></div></form>`)}
-function saveTimetableConfig(e){e.preventDefault();state.timetable.morning=document.getElementById('morningOn').checked;state.timetable.afternoon=document.getElementById('afternoonOn').checked;state.timetable.morningCount=+document.getElementById('morningCount').value;state.timetable.afternoonCount=+document.getElementById('afternoonCount').value;saveState();mainModal.hide();renderPage()}
+
+function openTimetableConfig(){
+  const currentSlots = timeSlots();
+  showModal('Cấu hình Thời Khóa Biểu & Thời gian Tiết',`
+    <form onsubmit="saveTimetableConfig(event)">
+      <div class="grid-equal mb-3">
+        <div class="card p-3">
+          <div class="form-check form-switch">
+            <input id="morningOn" class="form-check-input" type="checkbox" ${state.timetable.morning?'checked':''}>
+            <label class="form-check-label fw-bold">☀️ Buổi Sáng</label>
+          </div>
+          <label class="mt-3 form-label">Số tiết sáng</label>
+          <select id="morningCount" class="form-select">${[3,4,5,6].map(n=>`<option ${state.timetable.morningCount===n?'selected':''}>${n}</option>`).join('')}</select>
+        </div>
+        <div class="card p-3">
+          <div class="form-check form-switch">
+            <input id="afternoonOn" class="form-check-input" type="checkbox" ${state.timetable.afternoon?'checked':''}>
+            <label class="form-check-label fw-bold">🌇 Buổi Chiều</label>
+          </div>
+          <label class="mt-3 form-label">Số tiết chiều</label>
+          <select id="afternoonCount" class="form-select">${[2,3,4,5].map(n=>`<option ${state.timetable.afternoonCount===n?'selected':''}>${n}</option>`).join('')}</select>
+        </div>
+      </div>
+
+      <div class="card p-3 mb-3">
+        <h6 class="fw-bold mb-2 text-primary"><i class="fa-solid fa-clock me-1"></i>Nhập khung thời gian cho các tiết (Nếu để trống, các thứ sẽ không hiển thị giờ)</h6>
+        <div class="row g-2" style="max-height:220px; overflow-y:auto">
+          ${currentSlots.map(s => `
+            <div class="col-md-6">
+              <label class="form-label small fw-bold mb-1">${s.label}</label>
+              <input id="time_slot_${s.id}" class="form-control form-control-sm" value="${esc(s.time || '')}" placeholder="Ví dụ: 07:30 - 08:05">
+            </div>
+          `).join('')}
+        </div>
+      </div>
+
+      <div class="text-end">
+        <button class="btn btn-primary"><i class="fa-solid fa-floppy-disk me-1"></i>Lưu cấu hình</button>
+      </div>
+    </form>
+  `);
+}
+
+function saveTimetableConfig(e){
+  e.preventDefault();
+  state.timetable.morning = document.getElementById('morningOn').checked;
+  state.timetable.afternoon = document.getElementById('afternoonOn').checked;
+  state.timetable.morningCount = +document.getElementById('morningCount').value;
+  state.timetable.afternoonCount = +document.getElementById('afternoonCount').value;
+
+  if(!state.slotTimes) state.slotTimes = {};
+  const currentSlots = timeSlots();
+  currentSlots.forEach(s => {
+    const input = document.getElementById('time_slot_' + s.id);
+    if(input){
+      state.slotTimes[s.id] = input.value.trim();
+    }
+  });
+
+  saveState();
+  mainModal.hide();
+  renderPage();
+  toast('Đã lưu cấu hình thời khóa biểu!');
+}
 
 async function openLessonModalSecure(day,slot,id=''){
   const ok = await verifyAdminAccess();
@@ -1826,22 +1943,49 @@ async function openLessonModalSecure(day,slot,id=''){
   openLessonModal(day,slot,id);
 }
 function openLessonModal(day,slot,id=''){
-  const sl=timeSlots().find(x=>x.id===slot);
-  const e=state.timetable.entries.find(x=>x.id===id)||{subject:'',teacher:'',time:sl?.time||''};
-  showModal(id?'Sửa tiết học':'Thêm tiết học',`<form onsubmit="saveLesson(event,${day},'${slot}','${id}')"><div class="mb-3"><label class="form-label fw-bold">Chọn nhanh môn học phổ biến</label><div>${state.subjects.map(x=>`<button type="button" class="subject-chip" onclick="document.getElementById('lessonSubject').value='${esc(x)}'">${esc(x)}</button>`).join('')}</div></div><div class="mb-3"><label class="form-label fw-bold">Tên môn học / Hoạt động *</label><input id="lessonSubject" class="form-control" required value="${esc(e.subject)}"></div><div class="row g-3"><div class="col-md-6"><label class="form-label fw-bold">Giáo viên giảng dạy</label><input id="lessonTeacher" class="form-control" value="${esc(e.teacher || state.teacher.name)}" placeholder="Nhập tên giáo viên..."></div><div class="col-md-6"><label class="form-label fw-bold">Khung giờ tiết học</label><input id="lessonTime" class="form-control" value="${esc(e.time)}"></div></div><div class="d-flex justify-content-between mt-4">${id?`<button type="button" class="btn btn-outline-danger" onclick="deleteLesson('${id}')">Xóa tiết</button>`:'<span></span>'}<button class="btn btn-primary">Lưu tiết học</button></div></form>`);
+  const e=state.timetable.entries.find(x=>x.id===id)||{subject:'',teacher:''};
+  showModal(id?'Sửa tiết học':'Thêm tiết học',`
+    <form onsubmit="saveLesson(event,${day},'${slot}','${id}')">
+      <div class="mb-3">
+        <label class="form-label fw-bold">Chọn nhanh môn học phổ biến</label>
+        <div>${state.subjects.map(x=>`<button type="button" class="subject-chip" onclick="document.getElementById('lessonSubject').value='${esc(x)}'">${esc(x)}</button>`).join('')}</div>
+      </div>
+      <div class="mb-3">
+        <label class="form-label fw-bold">Tên môn học / Hoạt động *</label>
+        <input id="lessonSubject" class="form-control" required value="${esc(e.subject)}">
+      </div>
+      <div class="mb-3">
+        <label class="form-label fw-bold">Giáo viên giảng dạy</label>
+        <input id="lessonTeacher" class="form-control" value="${esc(e.teacher || '')}" placeholder="Nhập tên giáo viên...">
+      </div>
+      <div class="d-flex justify-content-between mt-4">
+        ${id?`<button type="button" class="btn btn-outline-danger" onclick="deleteLesson('${id}')">Xóa tiết</button>`:'<span></span>'}
+        <button class="btn btn-primary">Lưu tiết học</button>
+      </div>
+    </form>
+  `);
 }
+
 function saveLesson(e,day,slot,id){
   e.preventDefault();
   const d={
     subject:document.getElementById('lessonSubject').value.trim(),
-    teacher:document.getElementById('lessonTeacher').value.trim(),
-    time:document.getElementById('lessonTime').value.trim()
+    teacher:document.getElementById('lessonTeacher').value.trim()
   };
-  if(id)Object.assign(state.timetable.entries.find(x=>x.id===id),d);
-  else state.timetable.entries.push({id:uid('tt'),classId:state.activeClassId,day,slot,...d});
-  saveState();mainModal.hide();renderPage();
+  if(id) Object.assign(state.timetable.entries.find(x=>x.id===id), d);
+  else state.timetable.entries.push({id:uid('tt'), classId:state.activeClassId, day, slot, ...d});
+  saveState();
+  mainModal.hide();
+  renderPage();
 }
-function deleteLesson(id){state.timetable.entries=state.timetable.entries.filter(x=>x.id!==id);saveState();mainModal.hide();renderPage()}
+
+function deleteLesson(id){
+  state.timetable.entries=state.timetable.entries.filter(x=>x.id!==id);
+  saveState();
+  mainModal.hide();
+  renderPage();
+}
+
 function renderRewards(){return `<div class="section-head"><div><h2><i class="fa-solid fa-gift text-primary me-2"></i>Cửa hàng đổi thưởng</h2><p>Học sinh dùng điểm thi đua tích lũy để đổi quà.</p></div><button class="btn btn-primary" onclick="openRewardModal()"><i class="fa-solid fa-plus me-1"></i>Thêm phần thưởng</button></div><div class="reward-grid">${state.rewards.map(r=>`<div class="card reward-card hover-lift"><div class="reward-visual">${esc(r.emoji||'🎁')}</div><div class="reward-body"><div class="d-flex justify-content-between"><h5 class="fw-bold">${esc(r.name)}</h5><span class="coin-pill">${r.cost} điểm</span></div><div class="text-muted small">Còn ${r.stock} phần</div><div class="d-flex gap-2 mt-3"><button class="btn btn-primary flex-fill" onclick="redeemReward('${r.id}')">Đổi phần thưởng</button><button class="icon-btn" onclick="openRewardModal('${r.id}')"><i class="fa-solid fa-pen"></i></button><button class="icon-btn text-danger" onclick="deleteReward('${r.id}')"><i class="fa-solid fa-trash"></i></button></div></div></div>`).join('')}</div><div class="card p-3 mt-3"><h5 class="fw-bold">Lịch sử đổi thưởng</h5>${state.redemptions.filter(x=>x.classId===state.activeClassId).slice(0,20).map(x=>`<div class="history-item"><span><strong>${esc(x.studentName)}</strong> đổi ${esc(x.rewardName)}</span><span class="text-muted">-${x.cost} điểm · ${new Date(x.time).toLocaleString('vi-VN')}</span></div>`).join('')||'<div class="empty">Chưa có lượt đổi quà</div>'}</div>`}
 function openRewardModal(id=''){const r=state.rewards.find(x=>x.id===id)||{name:'',cost:10,emoji:'🎁',stock:10};showModal(id?'Sửa phần thưởng':'Thêm phần thưởng',`<form onsubmit="saveReward(event,'${id}')"><div class="row g-3"><div class="col-md-6"><label class="form-label fw-bold">Tên quà</label><input id="rName" class="form-control" required value="${esc(r.name)}"></div><div class="col-md-2"><label class="form-label fw-bold">Emoji</label><input id="rEmoji" class="form-control" value="${esc(r.emoji)}"></div><div class="col-md-2"><label class="form-label fw-bold">Điểm đổi</label><input id="rCost" type="number" min="1" class="form-control" value="${r.cost}"></div><div class="col-md-2"><label class="form-label fw-bold">Tồn</label><input id="rStock" type="number" min="0" class="form-control" value="${r.stock}"></div></div><div class="text-end mt-4"><button class="btn btn-primary">Lưu phần thưởng</button></div></form>`)}
 function saveReward(e,id){e.preventDefault();const d={name:document.getElementById('rName').value.trim(),emoji:document.getElementById('rEmoji').value||'🎁',cost:+document.getElementById('rCost').value||1,stock:+document.getElementById('rStock').value||0};if(id)Object.assign(state.rewards.find(x=>x.id===id),d);else state.rewards.push({id:uid('r'),...d});saveState();mainModal.hide();renderPage()}
@@ -1864,7 +2008,7 @@ function awardWinner(id,n){logTransaction(id,n,'Thưởng trò chơi','Ghi chung
 function restoreWheel(id){state.wheelExcluded=state.wheelExcluded.filter(x=>x!==id);saveState(false);renderPage()}function restoreAllWheel(){state.wheelExcluded=[];saveState(false);renderPage()}function clearWheelHistory(){state.wheelHistory=state.wheelHistory.filter(x=>x.classId!==state.activeClassId);saveState();renderPage()}
 
 /* ========================================================
-   TAB: ẢNH THƯỜNG NGÀY (Thay thế Cuộn phim)
+   TAB: ẢNH THƯỜNG NGÀY (Có bảo mật GVCN)
    ======================================================== */
 function renderDailyPhotos(){
   const photos = Array.isArray(state.dailyPhotos) ? state.dailyPhotos.filter(p => p.classId === state.activeClassId) : [];
