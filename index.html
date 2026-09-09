@@ -305,9 +305,6 @@
 const STORAGE_KEY='lopHocVuiVeTeal_lop8B1_v3';
 const RECOVERY_EMAIL = 'doanvanlamvb@gmail.com';
 
-/* ========================================================
-   FIREBASE REALTIME DATABASE
-   ======================================================== */
 const firebaseConfig = {
   apiKey: "AIzaSyDq2DxzfurfZpDQq6d49QuQVTbJJpdJAKI",
   authDomain: "doanvanlam-95238.firebaseapp.com",
@@ -353,7 +350,6 @@ function initFirebaseSync(){
       if(!remote.settingPassword) remote.settingPassword = 'admin8b1';
       if(!remote.adminPassword) remote.adminPassword = '123';
       
-      // Bổ sung an toàn cho dữ liệu từ remote
       if(!Array.isArray(remote.transactions)) remote.transactions = [];
       if(!Array.isArray(remote.students)) remote.students = [];
       if(!Array.isArray(remote.rewards)) remote.rewards = [];
@@ -362,6 +358,8 @@ function initFirebaseSync(){
       if(!Array.isArray(remote.filmHistory)) remote.filmHistory = [];
       if(!Array.isArray(remote.links)) remote.links = [];
       if(!Array.isArray(remote.subjects)) remote.subjects = SUBJECTS.slice();
+      if(!remote.attendance) remote.attendance = {};
+      if(!remote.seating) remote.seating = {};
 
       const localPage = state.currentPage;
       state = remote;
@@ -446,7 +444,6 @@ function loadState(){
       if(!x.settingPassword) x.settingPassword = 'admin8b1';
       if(!x.adminPassword) x.adminPassword = '123';
       
-      // Đảm bảo không bị thiếu các mảng dữ liệu dẫn đến lỗi undefined
       if(!Array.isArray(x.transactions)) x.transactions = [];
       if(!Array.isArray(x.students)) x.students = [];
       if(!Array.isArray(x.rewards)) x.rewards = [];
@@ -455,6 +452,10 @@ function loadState(){
       if(!Array.isArray(x.filmHistory)) x.filmHistory = [];
       if(!Array.isArray(x.links)) x.links = [];
       if(!Array.isArray(x.subjects)) x.subjects = SUBJECTS.slice();
+      if(!x.attendance) x.attendance = {};
+      if(!x.seating) x.seating = {};
+      if(!Array.isArray(x.wheelExcluded)) x.wheelExcluded = [];
+      if(!Array.isArray(x.filmExcluded)) x.filmExcluded = [];
 
       return x;
     }
@@ -652,8 +653,8 @@ function updateAuthBtnUI(){
 }
 
 function activeClass(){return state.classes.find(c=>c.id===state.activeClassId)||state.classes[0]}
-function classStudents(){return state.students.filter(s=>s.classId===state.activeClassId)}
-function renderAvatar(person,cls=''){return person.avatar?`<div class="${cls||'avatar'}"><img src="${person.avatar}" alt=""></div>`:`<div class="${cls||'avatar'}">${esc(initials(person.name))}</div>`}
+function classStudents(){return Array.isArray(state.students) ? state.students.filter(s=>s.classId===state.activeClassId) : []}
+function renderAvatar(person,cls=''){return person && person.avatar?`<div class="${cls||'avatar'}"><img src="${person.avatar}" alt=""></div>`:`<div class="${cls||'avatar'}">${esc(initials(person?.name))}</div>`}
 function toast(title,icon='success'){Swal.fire({toast:true,position:'top-end',icon,title,showConfirmButton:false,timer:1600,timerProgressBar:true})}
 function beep(freq=660,dur=.18,vol=.12){try{const ac=new (window.AudioContext||window.webkitAudioContext)();const o=ac.createOscillator(),g=ac.createGain();o.frequency.value=freq;o.connect(g);g.connect(ac.destination);g.gain.value=vol;o.start();setTimeout(()=>{o.stop();ac.close()},dur*1000)}catch(e){}}
 function toggleSidebar(){document.getElementById('sidebar').classList.toggle('open')}
@@ -684,7 +685,7 @@ function renderHeader(){
 
   updateAuthBtnUI();
 }
-function classStudentsFor(id){return state.students.filter(s=>s.classId===id)}
+function classStudentsFor(id){return Array.isArray(state.students) ? state.students.filter(s=>s.classId===id) : []}
 
 async function navigate(page){
   if(page === 'settings' || page === 'data'){
@@ -702,8 +703,44 @@ async function navigate(page){
 }
 
 function switchClass(id){state.activeClassId=id;state.wheelExcluded=[];state.filmExcluded=[];saveState();buildNav();renderHeader();renderPage()}
-function renderPage(){chartRefs.forEach(c=>{try{c.destroy()}catch(e){}});chartRefs=[];const root=document.getElementById('appContent');root.classList.remove('fade-in');void root.offsetWidth;root.classList.add('fade-in');const fn={home:renderHome,classes:renderClasses,students:renderStudents,attendance:renderAttendance,weekly:renderWeekly,seating:renderSeating,timetable:renderTimetable,rewards:renderRewards,wheel:renderWheel,film:renderFilm,noise:renderNoise,countdown:renderCountdown,links:renderLinks,stats:renderStats,data:renderData,settings:renderSettings}[state.currentPage]||renderHome;root.innerHTML=fn(); setTimeout(afterRender,0)}
-function afterRender(){if(state.currentPage==='home')drawHomeChart();if(state.currentPage==='stats')drawStatsCharts();if(state.currentPage==='wheel')positionWheelBalls();if(state.currentPage==='countdown')updateCountdownUI()}
+function renderPage(){
+  chartRefs.forEach(c=>{try{c.destroy()}catch(e){}});
+  chartRefs=[];
+  const root=document.getElementById('appContent');
+  root.classList.remove('fade-in');
+  void root.offsetWidth;
+  root.classList.add('fade-in');
+  
+  const fnMap = {
+    home:renderHome,
+    classes:renderClasses,
+    students:renderStudents,
+    attendance:renderAttendance,
+    weekly:renderWeekly,
+    seating:renderSeating,
+    timetable:renderTimetable,
+    rewards:renderRewards,
+    wheel:renderWheel,
+    film:renderFilm,
+    noise:renderNoise,
+    countdown:renderCountdown,
+    links:renderLinks,
+    stats:renderStats,
+    data:renderData,
+    settings:renderSettings
+  };
+  
+  const fn = fnMap[state.currentPage] || renderHome;
+  root.innerHTML = fn(); 
+  setTimeout(afterRender,0);
+}
+
+function afterRender(){
+  if(state.currentPage==='home')drawHomeChart();
+  if(state.currentPage==='stats')drawStatsCharts();
+  if(state.currentPage==='wheel')positionWheelBalls();
+  if(state.currentPage==='countdown')updateCountdownUI();
+}
 
 function logTransaction(studentId,amount,reason='Điều chỉnh điểm',subject='Ghi chung / Nề nếp'){
   const s=state.students.find(x=>x.id===studentId);
@@ -1394,14 +1431,6 @@ async function resetCoins(){
   saveState();renderPage();
 }
 
-async function pasteStudentList(){
-  const ok = await verifyAdminAccess();
-  if(!ok) return;
-  const {value}=await Swal.fire({title:'Dán danh sách học sinh',input:'textarea',inputPlaceholder:'Mỗi dòng một học sinh\nNguyễn Văn A\nTrần Thị B',showCancelButton:true,confirmButtonText:'Thêm danh sách'});
-  if(!value)return;
-  value.split(/\r?\n/).map(x=>x.trim()).filter(Boolean).forEach(name=>state.students.push({id:uid('s'),classId:state.activeClassId,name,gender:'',coins:0,avatar:'',favorite:false,note:''}));saveState();buildNav();renderHeader();renderPage();
-}
-
 async function handleStudentExcelFile(input){
   const file = input.files[0];
   if(!file) return;
@@ -1522,7 +1551,7 @@ async function handleStudentExcelFile(input){
 function attKey(){return state.activeClassId+'_'+(document.getElementById('attDate')?.value||state.attendanceDate||today())}
 function changeAttendanceDate(v){state.attendanceDate=v;saveState(false);renderPage()}
 function attendanceStatusInfo(status){return ({present:{label:'Có mặt',icon:'fa-circle-check'},late:{label:'Đi muộn',icon:'fa-clock'},excused:{label:'Có phép',icon:'fa-envelope-open-text'},unexcused:{label:'Không phép',icon:'fa-circle-xmark'}})[status]||{label:'Có mặt',icon:'fa-circle-check'}}
-function renderAttendance(){const ss=classStudents(),date=state.attendanceDate||today(),att=state.attendance[state.activeClassId+'_'+date]||{};return `<div class="section-head"><div><h2><i class="fa-solid fa-clipboard-check text-primary me-2"></i>Điểm danh lớp ${esc(activeClass().name)}</h2><p>Ảnh học sinh cạnh tên đã được thu nhỏ lại để không che bố cục. Bấm nhanh vào 1 trong 4 trạng thái cho từng em.</p></div><div class="d-flex gap-2 flex-wrap"><input id="attDate" type="date" class="form-control" style="width:160px" value="${date}" onchange="changeAttendanceDate(this.value)"><button class="btn btn-outline-primary" onclick="exportAttendance()"><i class="fa-solid fa-file-excel me-1"></i>Xuất Excel</button><button class="btn btn-primary" onclick="saveState();toast('Đã lưu điểm danh')"><i class="fa-solid fa-floppy-disk me-1"></i>Lưu điểm danh</button></div></div>${attendanceSummary(att,ss)}<div class="card p-3 mt-3"><div class="d-flex justify-content-between align-items-center flex-wrap gap-2"><div><div class="fw-bold text-primary">Danh sách điểm danh</div><div class="small text-muted">Ảnh cạnh tên là avatar nhỏ, không còn bị phóng lớn như trước.</div></div><div class="small text-muted">Sĩ số: <strong>${ss.length}</strong> học sinh</div></div><div class="attendance-grid">${ss.map((s,i)=>{const st=att[s.id]||'present';const info=attendanceStatusInfo(st);return `<div class="attendance-card"><div class="attendance-card-head"><div class="attendance-stt">${i+1}</div>${renderAvatar(s,'mini-avatar')}<div class="attendance-info"><div class="attendance-name">${esc(s.name)}</div><div class="attendance-meta">${esc(activeClass().name)}${s.gender?` · ${esc(s.gender)}`:''}</div><div class="status-pill ${st}"><i class="fa-solid ${info.icon}"></i>${info.label}</div></div></div><div class="attendance-actions">${[['present','Có mặt','fa-circle-check'],['late','Đi muộn','fa-clock'],['excused','Có phép','fa-envelope-open-text'],['unexcused','Không phép','fa-circle-xmark']].map(([k,l,icon])=>`<button class="attendance-btn ${k} ${st===k?'active':''}" onclick="setAttendance('${s.id}','${k}')"><i class="fa-solid ${icon}"></i>${l}</button>`).join('')}</div><div class="attendance-note">${s.note?esc(s.note):'Có thể thêm hoặc đổi ảnh học sinh ở mục Học sinh.'}</div></div>`}).join('')}</div></div>`}
+function renderAttendance(){const ss=classStudents(),date=document.getElementById('attDate')?.value||state.attendanceDate||today(),att=state.attendance[state.activeClassId+'_'+date]||{};return `<div class="section-head"><div><h2><i class="fa-solid fa-clipboard-check text-primary me-2"></i>Điểm danh lớp ${esc(activeClass().name)}</h2><p>Ảnh học sinh cạnh tên đã được thu nhỏ lại để không che bố cục. Bấm nhanh vào 1 trong 4 trạng thái cho từng em.</p></div><div class="d-flex gap-2 flex-wrap"><input id="attDate" type="date" class="form-control" style="width:160px" value="${date}" onchange="changeAttendanceDate(this.value)"><button class="btn btn-outline-primary" onclick="exportAttendance()"><i class="fa-solid fa-file-excel me-1"></i>Xuất Excel</button><button class="btn btn-primary" onclick="saveState();toast('Đã lưu điểm danh')"><i class="fa-solid fa-floppy-disk me-1"></i>Lưu điểm danh</button></div></div>${attendanceSummary(att,ss)}<div class="card p-3 mt-3"><div class="d-flex justify-content-between align-items-center flex-wrap gap-2"><div><div class="fw-bold text-primary">Danh sách điểm danh</div><div class="small text-muted">Ảnh cạnh tên là avatar nhỏ, không còn bị phóng lớn như trước.</div></div><div class="small text-muted">Sĩ số: <strong>${ss.length}</strong> học sinh</div></div><div class="attendance-grid">${ss.map((s,i)=>{const st=att[s.id]||'present';const info=attendanceStatusInfo(st);return `<div class="attendance-card"><div class="attendance-card-head"><div class="attendance-stt">${i+1}</div>${renderAvatar(s,'mini-avatar')}<div class="attendance-info"><div class="attendance-name">${esc(s.name)}</div><div class="attendance-meta">${esc(activeClass().name)}${s.gender?` · ${esc(s.gender)}`:''}</div><div class="status-pill ${st}"><i class="fa-solid ${info.icon}"></i>${info.label}</div></div></div><div class="attendance-actions">${[['present','Có mặt','fa-circle-check'],['late','Đi muộn','fa-clock'],['excused','Có phép','fa-envelope-open-text'],['unexcused','Không phép','fa-circle-xmark']].map(([k,l,icon])=>`<button class="attendance-btn ${k} ${st===k?'active':''}" onclick="setAttendance('${s.id}','${k}')"><i class="fa-solid ${icon}"></i>${l}</button>`).join('')}</div><div class="attendance-note">${s.note?esc(s.note):'Có thể thêm hoặc đổi ảnh học sinh ở mục Học sinh.'}</div></div>`}).join('')}</div></div>`}
 function attendanceSummary(att,ss){const counts={present:0,late:0,excused:0,unexcused:0};ss.forEach(s=>counts[att[s.id]||'present']++);return `<div class="attendance-summary"><div class="att-box present"><strong>${counts.present}</strong>Có mặt</div><div class="att-box late"><strong>${counts.late}</strong>Đi muộn</div><div class="att-box excused"><strong>${counts.excused}</strong>Có phép</div><div class="att-box unexcused"><strong>${counts.unexcused}</strong>Không phép</div></div>`}
 function setAttendance(id,status){const k=attKey();if(!state.attendance[k])state.attendance[k]={};state.attendance[k][id]=status;saveState(false);renderPage()}
 function exportAttendance(){const date=document.getElementById('attDate')?.value||today(),att=state.attendance[state.activeClassId+'_'+date]||{};const rows=classStudents().map((s,i)=>({'STT':i+1,'Họ tên':s.name,'Trạng thái':({present:'Có mặt',late:'Đi muộn',excused:'Có phép',unexcused:'Không phép'})[att[s.id]||'present']}));downloadXlsx([['Điểm danh',rows]],`diem-danh-${activeClass().name}-${date}.xlsx`)}
@@ -1542,7 +1571,8 @@ function seatingCfg(){
 
 function renderSeating(){
   const cfg=seatingCfg(), ss=classStudents();
-  const assigned=new Set(Object.values(cfg.assignments||{}));
+  if(!cfg.assignments) cfg.assignments = {};
+  const assigned=new Set(Object.values(cfg.assignments));
   const unassigned=ss.filter(s=>!assigned.has(s.id));
   const isBenchLayout = cfg.type === '2x6x4' || cfg.type === '2x7x4';
   const rowsPerLane = cfg.type === '2x7x4' ? 7 : 6;
@@ -1640,11 +1670,13 @@ function benchSlotHtml(benchIdx, slot, cfg){
 }
 
 function renderStandardBoard(cfg){
-  return `<div class="seat-grid" style="grid-template-columns:repeat(${cfg.lanes},minmax(130px,1fr))">
-    ${Array.from({length:cfg.lanes},(_,lane)=>`
+  const lanes = cfg.lanes || 2;
+  const seats = cfg.seats || 14;
+  return `<div class="seat-grid" style="grid-template-columns:repeat(${lanes},minmax(130px,1fr))">
+    ${Array.from({length:lanes},(_,laneIndex)=>`
       <div class="seat-lane">
-        <div class="lane-label">📌 DÃY ${lane+1}</div>
-        ${seatIndicesForLane(cfg.seats,cfg.lanes,lane).map(idx=>seatHtml(idx,cfg)).join('')}
+        <div class="lane-label">📌 DÃY ${laneIndex+1}</div>
+        ${seatIndicesForLane(seats,lanes,laneIndex).map(idx=>seatHtml(idx,cfg)).join('')}
       </div>
     `).join('')}
   </div>`;
@@ -1918,8 +1950,8 @@ function renderSettings(){
       <div class="card setting-box">
         <h5 class="fw-bold text-primary">✨ Cơ Chế Bảo Mật An Toàn</h5>
         <ul class="mt-3">
-          <li class="mb-2"><b>Mật khẩu Lớp 1 (Cài đặt):</b> Mặc định là <code>admin8b1</code>. Không hiển thị sẵn trên giao diện mã nguồn để chống nhìn trộm. Nhập sai quá 5 lần khóa 1 giờ. Quên mật khẩu bấm gửi về: <b>${RECOVERY_EMAIL}</b>.</li>
-          <li class="mb-2"><b>Mật khẩu Lớp 2 (Thao tác):</b> Mặc định là <code>123</code>. Dùng mỗi khi cộng/trừ điểm hoặc sửa/xóa các lỗi vi phạm trong tuần.</li>
+          <li class="mb-2"><b>Mật khẩu Lớp 1 (Cài đặt):</b> Mặc định là <code>admin8b1</code>. Chuyên khóa tab Cài đặt & Dữ liệu. Không hiển thị sẵn trong mã nguồn giao diện để bảo mật. Nhập sai quá 5 lần khóa 1 giờ. Khi quên có thể bấm nút gửi về email: <b>${RECOVERY_EMAIL}</b>.</li>
+          <li class="mb-2"><b>Mật khẩu Lớp 2 (Thao tác):</b> Mặc định là <code>123</code>. Dùng để mở quyền thao tác hàng ngày cho GVCN (Cộng/trừ điểm, sửa/xóa vi phạm).</li>
           <li class="mb-2">Học sinh và phụ huynh khi mở trang web sẽ ở chế độ <b>Chỉ xem</b>, không thể mở Cài đặt và không thể xóa hay cộng trừ điểm.</li>
           <li>Xuất file JSON sao lưu định kỳ để dữ liệu của lớp luôn tuyệt đối an toàn.</li>
         </ul>
