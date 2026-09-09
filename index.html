@@ -1549,9 +1549,24 @@ async function handleStudentExcelFile(input){
 function attKey(){return state.activeClassId+'_'+(document.getElementById('attDate')?.value||state.attendanceDate||today())}
 function changeAttendanceDate(v){state.attendanceDate=v;saveState(false);renderPage()}
 function attendanceStatusInfo(status){return ({present:{label:'Có mặt',icon:'fa-circle-check'},late:{label:'Đi muộn',icon:'fa-clock'},excused:{label:'Có phép',icon:'fa-envelope-open-text'},unexcused:{label:'Không phép',icon:'fa-circle-xmark'}})[status]||{label:'Có mặt',icon:'fa-circle-check'}}
-function renderAttendance(){const ss=classStudents(),date=document.getElementById('attDate')?.value||state.attendanceDate||today(),att=state.attendance[state.activeClassId+'_'+date]||{};return `<div class="section-head"><div><h2><i class="fa-solid fa-clipboard-check text-primary me-2"></i>Điểm danh lớp ${esc(activeClass().name)}</h2><p>Ảnh học sinh cạnh tên đã được thu nhỏ lại để không che bố cục. Bấm nhanh vào 1 trong 4 trạng thái cho từng em.</p></div><div class="d-flex gap-2 flex-wrap"><input id="attDate" type="date" class="form-control" style="width:160px" value="${date}" onchange="changeAttendanceDate(this.value)"><button class="btn btn-outline-primary" onclick="exportAttendance()"><i class="fa-solid fa-file-excel me-1"></i>Xuất Excel</button><button class="btn btn-primary" onclick="saveState();toast('Đã lưu điểm danh')"><i class="fa-solid fa-floppy-disk me-1"></i>Lưu điểm danh</button></div></div>${attendanceSummary(att,ss)}<div class="card p-3 mt-3"><div class="d-flex justify-content-between align-items-center flex-wrap gap-2"><div><div class="fw-bold text-primary">Danh sách điểm danh</div><div class="small text-muted">Ảnh cạnh tên là avatar nhỏ, không còn bị phóng lớn như trước.</div></div><div class="small text-muted">Sĩ số: <strong>${ss.length}</strong> học sinh</div></div><div class="attendance-grid">${ss.map((s,i)=>{const st=att[s.id]||'present';const info=attendanceStatusInfo(st);return `<div class="attendance-card"><div class="attendance-card-head"><div class="attendance-stt">${i+1}</div>${renderAvatar(s,'mini-avatar')}<div class="attendance-info"><div class="attendance-name">${esc(s.name)}</div><div class="attendance-meta">${esc(activeClass().name)}${s.gender?` · ${esc(s.gender)}`:''}</div><div class="status-pill ${st}"><i class="fa-solid ${info.icon}"></i>${info.label}</div></div></div><div class="attendance-actions">${[['present','Có mặt','fa-circle-check'],['late','Đi muộn','fa-clock'],['excused','Có phép','fa-envelope-open-text'],['unexcused','Không phép','fa-circle-xmark']].map(([k,l,icon])=>`<button class="attendance-btn ${k} ${st===k?'active':''}" onclick="setAttendance('${s.id}','${k}')"><i class="fa-solid ${icon}"></i>${l}</button>`).join('')}</div><div class="attendance-note">${s.note?esc(s.note):'Có thể thêm hoặc đổi ảnh học sinh ở mục Học sinh.'}</div></div>`}).join('')}</div></div>`}
+function renderAttendance(){const ss=classStudents(),date=document.getElementById('attDate')?.value||state.attendanceDate||today(),att=state.attendance[state.activeClassId+'_'+date]||{};return `<div class="section-head"><div><h2><i class="fa-solid fa-clipboard-check text-primary me-2"></i>Điểm danh lớp ${esc(activeClass().name)}</h2><p>Ảnh học sinh cạnh tên đã được thu nhỏ lại để không che bố cục. Bấm nhanh vào 1 trong 4 trạng thái cho từng em.</p></div><div class="d-flex gap-2 flex-wrap"><input id="attDate" type="date" class="form-control" style="width:160px" value="${date}" onchange="changeAttendanceDate(this.value)"><button class="btn btn-outline-primary" onclick="exportAttendance()"><i class="fa-solid fa-file-excel me-1"></i>Xuất Excel</button><button class="btn btn-primary" onclick="saveAttendanceSec()"><i class="fa-solid fa-floppy-disk me-1"></i>Lưu điểm danh</button></div></div>${attendanceSummary(att,ss)}<div class="card p-3 mt-3"><div class="d-flex justify-content-between align-items-center flex-wrap gap-2"><div><div class="fw-bold text-primary">Danh sách điểm danh</div><div class="small text-muted">Ảnh cạnh tên là avatar nhỏ, không còn bị phóng lớn như trước.</div></div><div class="small text-muted">Sĩ số: <strong>${ss.length}</strong> học sinh</div></div><div class="attendance-grid">${ss.map((s,i)=>{const st=att[s.id]||'present';const info=attendanceStatusInfo(st);return `<div class="attendance-card"><div class="attendance-card-head"><div class="attendance-stt">${i+1}</div>${renderAvatar(s,'mini-avatar')}<div class="attendance-info"><div class="attendance-name">${esc(s.name)}</div><div class="attendance-meta">${esc(activeClass().name)}${s.gender?` · ${esc(s.gender)}`:''}</div><div class="status-pill ${st}"><i class="fa-solid ${info.icon}"></i>${info.label}</div></div></div><div class="attendance-actions">${[['present','Có mặt','fa-circle-check'],['late','Đi muộn','fa-clock'],['excused','Có phép','fa-envelope-open-text'],['unexcused','Không phép','fa-circle-xmark']].map(([k,l,icon])=>`<button class="attendance-btn ${k} ${st===k?'active':''}" onclick="setAttendance('${s.id}','${k}')"><i class="fa-solid ${icon}"></i>${l}</button>`).join('')}</div><div class="attendance-note">${s.note?esc(s.note):'Có thể thêm hoặc đổi ảnh học sinh ở mục Học sinh.'}</div></div>`}).join('')}</div></div>`}
+async function saveAttendanceSec(){
+  const ok = await verifyAdminAccess();
+  if(!ok) return;
+  saveState(true);
+  toast('Đã lưu điểm danh thành công!');
+}
 function attendanceSummary(att,ss){const counts={present:0,late:0,excused:0,unexcused:0};ss.forEach(s=>counts[att[s.id]||'present']++);return `<div class="attendance-summary"><div class="att-box present"><strong>${counts.present}</strong>Có mặt</div><div class="att-box late"><strong>${counts.late}</strong>Đi muộn</div><div class="att-box excused"><strong>${counts.excused}</strong>Có phép</div><div class="att-box unexcused"><strong>${counts.unexcused}</strong>Không phép</div></div>`}
-function setAttendance(id,status){const k=attKey();if(!state.attendance[k])state.attendance[k]={};state.attendance[k][id]=status;saveState(false);renderPage()}
+function setAttendance(id,status){
+  verifyAdminAccess().then(ok=>{
+    if(!ok) return;
+    const k=attKey();
+    if(!state.attendance[k])state.attendance[k]={};
+    state.attendance[k][id]=status;
+    saveState(false);
+    renderPage();
+  });
+}
 function exportAttendance(){const date=document.getElementById('attDate')?.value||today(),att=state.attendance[state.activeClassId+'_'+date]||{};const rows=classStudents().map((s,i)=>({'STT':i+1,'Họ tên':s.name,'Trạng thái':({present:'Có mặt',late:'Đi muộn',excused:'Có phép',unexcused:'Không phép'})[att[s.id]||'present']}));downloadXlsx([['Điểm danh',rows]],`diem-danh-${activeClass().name}-${date}.xlsx`)}
 
 function seatingCfg(){
@@ -1580,23 +1595,23 @@ function renderSeating(){
   <div class="section-head">
     <div>
       <h2><i class="fa-solid fa-border-all text-primary me-2"></i>Sơ đồ chỗ ngồi ${esc(activeClass().name)}</h2>
-      <p>Chọn dạng sơ đồ lớp, xếp ngẫu nhiên hoặc bấm từng chỗ để chọn học sinh (có thể để trống 1 ghế khi bàn ngồi 3).</p>
+      <p>Chọn dạng sơ đồ lớp, xếp ngẫu nhiên hoặc bấm từng chỗ để chọn học sinh (yêu cầu mật khẩu GVCN để thay đổi).</p>
     </div>
     <div class="d-flex gap-2 flex-wrap align-items-center">
       <div class="btn-group">
         <button class="btn ${cfg.mode==='3d'?'btn-primary':'btn-outline-primary'}" onclick="setSeatMode('3d')"><i class="fa-solid fa-cube"></i> 3D</button>
         <button class="btn ${cfg.mode!=='3d'?'btn-primary':'btn-outline-primary'}" onclick="setSeatMode('2d')"><i class="fa-solid fa-layer-group"></i> 2D</button>
       </div>
-      <select class="form-select" style="width:275px" onchange="setSeatingType(this.value)">
+      <select class="form-select" style="width:275px" onchange="checkAndSetSeatingType(this.value)">
         <option value="2x7x4" ${cfg.type==='2x7x4'?'selected':''}>2 Dãy (mỗi dãy 7 bàn, 4 chỗ/bàn - 56 chỗ)</option>
         <option value="2x6x4" ${cfg.type==='2x6x4'?'selected':''}>2 Dãy (mỗi dãy 6 bàn, 4 chỗ/bàn - 48 chỗ)</option>
         <option value="standard" ${cfg.type==='standard'?'selected':''}>Bố cục tự do (Bàn đơn/đôi)</option>
       </select>
       ${!isBenchLayout?`
-        <select class="form-select" style="width:110px" onchange="setLanes(+this.value)">
+        <select class="form-select" style="width:110px" onchange="checkAndSetLanes(+this.value)">
           ${[2,3,4,6].map(x=>`<option ${cfg.lanes===x?'selected':''} value="${x}">${x} Dãy</option>`).join('')}
         </select>
-        <select class="form-select" style="width:125px" onchange="setSeatCount(+this.value)">
+        <select class="form-select" style="width:125px" onchange="checkAndSetSeatCount(+this.value)">
           ${[ss.length,16,20,24,30,36,48,56].filter((x,i,a)=>x>0&&a.indexOf(x)===i).sort((a,b)=>a-b).map(x=>`<option ${cfg.seats===x?'selected':''} value="${x}">${x} bàn</option>`).join('')}
         </select>
       `:''}
@@ -1686,6 +1701,11 @@ function seatHtml(idx,cfg){
   return `<div class="seat ${s?'filled':''}" onclick="chooseSeat(${idx})"><div><small>Bàn ${idx+1}</small>${s?`<div class="d-flex gap-2 align-items-center mt-1">${renderAvatar(s,'mini-avatar')}<strong style="font-size:.8rem">${esc(s.name)}</strong></div>`:'<div class="text-muted mt-2 text-center"><i class="fa-solid fa-plus"></i> Bàn trống</div>'}</div></div>`;
 }
 
+async function checkAndSetSeatingType(type){
+  const ok = await verifyAdminAccess();
+  if(!ok) { renderPage(); return; }
+  setSeatingType(type);
+}
 function setSeatingType(type){
   const cfg=seatingCfg();
   cfg.type=type;
@@ -1701,7 +1721,19 @@ function setSeatingType(type){
 }
 
 function setSeatMode(m){seatingCfg().mode=m;saveState(false);renderPage()}
+
+async function checkAndSetLanes(n){
+  const ok = await verifyAdminAccess();
+  if(!ok) { renderPage(); return; }
+  setLanes(n);
+}
 function setLanes(n){seatingCfg().lanes=n;saveState(false);renderPage()}
+
+async function checkAndSetSeatCount(n){
+  const ok = await verifyAdminAccess();
+  if(!ok) { renderPage(); return; }
+  setSeatCount(n);
+}
 function setSeatCount(n){
   seatingCfg().seats=n;
   Object.keys(seatingCfg().assignments).forEach(k=>{
@@ -1711,7 +1743,9 @@ function setSeatCount(n){
   renderPage();
 }
 
-function randomSeat(){
+async function randomSeat(){
+  const ok = await verifyAdminAccess();
+  if(!ok) return;
   const cfg=seatingCfg(), ids=classStudents().map(s=>s.id).sort(()=>Math.random()-.5);
   cfg.assignments={};
   if(cfg.type==='2x7x4' || cfg.type==='2x6x4'){
@@ -1741,6 +1775,8 @@ async function clearSeats(){
 }
 
 async function chooseBenchSeat(key, title){
+  const ok = await verifyAdminAccess();
+  if(!ok) return;
   const cfg=seatingCfg();
   const used=new Set(Object.values(cfg.assignments));
   const options=classStudents().filter(s=>!used.has(s.id)||cfg.assignments[key]===s.id);
@@ -1760,6 +1796,8 @@ async function chooseBenchSeat(key, title){
 }
 
 async function chooseSeat(idx){
+  const ok = await verifyAdminAccess();
+  if(!ok) return;
   const cfg=seatingCfg();
   const used=new Set(Object.values(cfg.assignments));
   const options=classStudents().filter(s=>!used.has(s.id)||cfg.assignments[idx]===s.id);
@@ -1780,9 +1818,21 @@ async function chooseSeat(idx){
 async function exportSeatingPNG(){const el=document.getElementById('seatingExport');const c=await html2canvas(el,{scale:2,backgroundColor:'#ffffff'});const a=document.createElement('a');a.download=`so-do-lop-${activeClass().name}.png`;a.href=c.toDataURL('image/png');a.click();toast('Đã xuất ảnh sơ đồ')}
 
 function timeSlots(){const t=[];const sm=['07:30 - 08:05','08:15 - 08:50','09:05 - 09:40','09:50 - 10:25','10:35 - 11:10','11:15 - 11:50'];const ch=['13:30 - 14:05','14:15 - 14:50','15:05 - 15:40','15:50 - 16:25','16:35 - 17:10'];if(state.timetable.morning)for(let i=0;i<state.timetable.morningCount;i++)t.push({id:'S'+(i+1),label:'Tiết '+(i+1)+' Sáng',time:sm[i]});if(state.timetable.afternoon)for(let i=0;i<state.timetable.afternoonCount;i++)t.push({id:'C'+(i+1),label:'Tiết '+(i+1)+' Chiều',time:ch[i]});return t}
-function renderTimetable(){const slots=timeSlots();return `<div class="section-head"><div><h2><i class="fa-solid fa-calendar-days text-primary me-2"></i>Thời Khóa Biểu ${esc(activeClass().name)}</h2><p>Bấm ô trống để thêm tiết; bấm tiết đã có để chỉnh sửa.</p></div><button class="btn btn-outline-primary" onclick="openTimetableConfig()"><i class="fa-solid fa-sliders me-1"></i>Cấu hình thời khóa biểu</button></div><div class="timetable"><div class="timetable-grid"><div class="tt-head">TIẾT</div>${DAYS.map(d=>`<div class="tt-head">${d}</div>`).join('')}${slots.map(slot=>`<div class="tt-cell tt-time"><strong>${slot.label}</strong><small>${slot.time}</small></div>${DAYS.map((d,di)=>{const e=state.timetable.entries.find(x=>x.classId===state.activeClassId&&x.day===di&&x.slot===slot.id);return `<div class="tt-cell" onclick="openLessonModal(${di},'${slot.id}','${e?.id||''}')">${e?`<div class="lesson"><strong>${esc(e.subject)}</strong><div>${esc(e.time)}</div></div>`:'<div class="text-muted text-center mt-3"><i class="fa-solid fa-plus"></i> Thêm tiết</div>'}</div>`}).join('')}`).join('')}</div></div>`}
+function renderTimetable(){const slots=timeSlots();return `<div class="section-head"><div><h2><i class="fa-solid fa-calendar-days text-primary me-2"></i>Thời Khóa Biểu ${esc(activeClass().name)}</h2><p>Bấm ô trống để thêm tiết; bấm tiết đã có để chỉnh sửa (yêu cầu mật khẩu GVCN).</p></div><button class="btn btn-outline-primary" onclick="openTimetableConfigSecure()"><i class="fa-solid fa-sliders me-1"></i>Cấu hình thời khóa biểu</button></div><div class="timetable"><div class="timetable-grid"><div class="tt-head">TIẾT</div>${DAYS.map(d=>`<div class="tt-head">${d}</div>`).join('')}${slots.map(slot=>`<div class="tt-cell tt-time"><strong>${slot.label}</strong><small>${slot.time}</small></div>${DAYS.map((d,di)=>{const e=state.timetable.entries.find(x=>x.classId===state.activeClassId&&x.day===di&&x.slot===slot.id);return `<div class="tt-cell" onclick="openLessonModalSecure(${di},'${slot.id}','${e?.id||''}')">${e?`<div class="lesson"><strong>${esc(e.subject)}</strong><div>${esc(e.time)}</div></div>`:'<div class="text-muted text-center mt-3"><i class="fa-solid fa-plus"></i> Thêm tiết</div>'}</div>`}).join('')}`).join('')}</div></div>`}
+
+async function openTimetableConfigSecure(){
+  const ok = await verifyAdminAccess();
+  if(!ok) return;
+  openTimetableConfig();
+}
 function openTimetableConfig(){showModal('Cấu hình Thời Khóa Biểu',`<form onsubmit="saveTimetableConfig(event)"><div class="grid-equal"><div class="card p-3"><div class="form-check form-switch"><input id="morningOn" class="form-check-input" type="checkbox" ${state.timetable.morning?'checked':''}><label class="form-check-label fw-bold">☀️ Buổi Sáng</label></div><label class="mt-3 form-label">Số tiết sáng</label><select id="morningCount" class="form-select">${[3,4,5,6].map(n=>`<option ${state.timetable.morningCount===n?'selected':''}>${n}</option>`).join('')}</select></div><div class="card p-3"><div class="form-check form-switch"><input id="afternoonOn" class="form-check-input" type="checkbox" ${state.timetable.afternoon?'checked':''}><label class="form-check-label fw-bold">🌇 Buổi Chiều</label></div><label class="mt-3 form-label">Số tiết chiều</label><select id="afternoonCount" class="form-select">${[2,3,4,5].map(n=>`<option ${state.timetable.afternoonCount===n?'selected':''}>${n}</option>`).join('')}</select></div></div><div class="text-end mt-3"><button class="btn btn-primary">Áp dụng cấu hình</button></div></form>`)}
 function saveTimetableConfig(e){e.preventDefault();state.timetable.morning=document.getElementById('morningOn').checked;state.timetable.afternoon=document.getElementById('afternoonOn').checked;state.timetable.morningCount=+document.getElementById('morningCount').value;state.timetable.afternoonCount=+document.getElementById('afternoonCount').value;saveState();mainModal.hide();renderPage()}
+
+async function openLessonModalSecure(day,slot,id=''){
+  const ok = await verifyAdminAccess();
+  if(!ok) return;
+  openLessonModal(day,slot,id);
+}
 function openLessonModal(day,slot,id=''){const sl=timeSlots().find(x=>x.id===slot);const e=state.timetable.entries.find(x=>x.id===id)||{subject:'',time:sl?.time||''};showModal(id?'Sửa tiết học':'Thêm tiết học',`<form onsubmit="saveLesson(event,${day},'${slot}','${id}')"><div class="mb-3"><label class="form-label fw-bold">Chọn nhanh môn học phổ biến</label><div>${state.subjects.map(x=>`<button type="button" class="subject-chip" onclick="document.getElementById('lessonSubject').value='${esc(x)}'">${esc(x)}</button>`).join('')}</div></div><div class="mb-3"><label class="form-label fw-bold">Tên môn học / Hoạt động *</label><input id="lessonSubject" class="form-control" required value="${esc(e.subject)}"></div><div class="row g-3"><div class="col-md-6"><label class="form-label fw-bold">Giáo viên giảng dạy</label><input class="form-control" value="${esc(state.teacher.name)}" disabled></div><div class="col-md-6"><label class="form-label fw-bold">Khung giờ tiết học</label><input id="lessonTime" class="form-control" value="${esc(e.time)}"></div></div><div class="d-flex justify-content-between mt-4">${id?`<button type="button" class="btn btn-outline-danger" onclick="deleteLesson('${id}')">Xóa tiết</button>`:'<span></span>'}<button class="btn btn-primary">Lưu tiết học</button></div></form>`)}
 function saveLesson(e,day,slot,id){e.preventDefault();const d={subject:document.getElementById('lessonSubject').value.trim(),time:document.getElementById('lessonTime').value.trim()};if(id)Object.assign(state.timetable.entries.find(x=>x.id===id),d);else state.timetable.entries.push({id:uid('tt'),classId:state.activeClassId,day,slot,...d});saveState();mainModal.hide();renderPage()}
 function deleteLesson(id){state.timetable.entries=state.timetable.entries.filter(x=>x.id!==id);saveState();mainModal.hide();renderPage()}
