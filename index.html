@@ -314,13 +314,13 @@ const RECOVERY_EMAIL = 'doanvanlamvb@gmail.com';
      dự án Firebase của chính bạn (xem hướng dẫn đi kèm).
    ======================================================== */
 const firebaseConfig = {
-  apiKey: "AIzaSyDq2DxzfurfZpDQq6d49QuQVTbJJpdJAKI",
-  authDomain: "doanvanlam-95238.firebaseapp.com",
-  databaseURL: "https://doanvanlam-95238-default-rtdb.asia-southeast1.firebasedatabase.app",
-  projectId: "doanvanlam-95238",
-  storageBucket: "doanvanlam-95238.firebasestorage.app",
-  messagingSenderId: "359527127604",
-  appId: "1:359527127604:web:754b1b472ebd46ba0f8861"
+  apiKey: "DÁN_API_KEY_CỦA_BẠN_VÀO_ĐÂY",
+  authDomain: "DÁN_AUTH_DOMAIN_CỦA_BẠN.firebaseapp.com",
+  databaseURL: "https://DÁN_TÊN_DỰ_ÁN-default-rtdb.asia-southeast1.firebasedatabase.app",
+  projectId: "DÁN_PROJECT_ID_CỦA_BẠN",
+  storageBucket: "DÁN_TÊN_DỰ_ÁN.appspot.com",
+  messagingSenderId: "DÁN_SENDER_ID",
+  appId: "DÁN_APP_ID"
 };
 const FIREBASE_DB_PATH = 'classroom_8b1_v3'; // đường dẫn lưu dữ liệu trên Firebase
 
@@ -361,7 +361,12 @@ function initFirebaseSync(){
       if(!remote.classes.some(c=>c.id===remote.activeClassId)) remote.activeClassId = remote.classes[0].id;
       if(!remote.settingPassword) remote.settingPassword = 'admin8b1';
       if(!remote.adminPassword) remote.adminPassword = '123';
+      // Giữ nguyên trang đang xem trên CHÍNH thiết bị này - "đang xem tab nào" là
+      // chuyện riêng của từng thiết bị, không phải dữ liệu dùng chung, tránh bị
+      // kéo ngược về tab cũ mỗi khi có cập nhật từ nơi khác.
+      const localPage = state.currentPage;
       state = remote;
+      state.currentPage = localPage || 'home';
       localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); // giữ bản cache offline
       fbReady = true;
       buildNav(); renderHeader(); renderPage();
@@ -455,11 +460,19 @@ function saveState(show=true){
   try{
     const json = JSON.stringify(state);
     localStorage.setItem(STORAGE_KEY, json); // bản cache tạm trên máy, phòng khi mất mạng
+
+    // Bản đẩy lên Firebase: bỏ "currentPage" vì đó chỉ là tab đang xem trên
+    // từng thiết bị, không phải dữ liệu lớp học dùng chung - tránh việc GV
+    // chuyển tab lại vô tình kéo tab của phụ huynh nhảy theo.
+    const syncState = Object.assign({}, state);
+    delete syncState.currentPage;
+    const syncJSON = JSON.stringify(syncState);
+
     if(p) p.innerHTML='<i class="fa-solid fa-cloud-arrow-up fa-fade me-1"></i>Đang lưu...';
 
     if(fbDbRef){
-      fbLastPushedJSON = json;
-      fbDbRef.set(state).then(()=>{
+      fbLastPushedJSON = syncJSON;
+      fbDbRef.set(syncState).then(()=>{
         if(p) p.innerHTML='<i class="fa-solid fa-circle-check me-1"></i>Đã lưu '+nowTime();
       }).catch(err=>{
         console.error('Lỗi khi lưu lên Firebase:', err);
