@@ -11,6 +11,9 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+  <!-- Firebase: dùng để đồng bộ dữ liệu thời gian thực giữa GV và phụ huynh -->
+  <script src="https://www.gstatic.com/firebasejs/10.13.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.13.0/firebase-database-compat.js"></script>
   <style>
     :root {
       --primary-color: #0d9488;
@@ -301,6 +304,78 @@
 'use strict';
 const STORAGE_KEY='lopHocVuiVeTeal_lop8B1_v3';
 const RECOVERY_EMAIL = 'doanvanlamvb@gmail.com';
+
+/* ========================================================
+   FIREBASE REALTIME DATABASE
+   - Thay thế localStorage (chỉ lưu trên 1 máy) bằng dữ liệu
+     dùng chung trên mạng, để phụ huynh mở lên là thấy ngay
+     bản mới nhất, không cần bấm gì thêm.
+   - Bạn PHẢI thay firebaseConfig bên dưới bằng cấu hình
+     dự án Firebase của chính bạn (xem hướng dẫn đi kèm).
+   ======================================================== */
+const firebaseConfig = {
+  apiKey: "AIzaSyDq2DxzfurfZpDQq6d49QuQVTbJJpdJAKI",
+  authDomain: "doanvanlam-95238.firebaseapp.com",
+  databaseURL: "https://doanvanlam-95238-default-rtdb.asia-southeast1.firebasedatabase.app",
+  projectId: "doanvanlam-95238",
+  storageBucket: "doanvanlam-95238.firebasestorage.app",
+  messagingSenderId: "359527127604",
+  appId: "1:359527127604:web:754b1b472ebd46ba0f8861"
+};
+const FIREBASE_DB_PATH = 'classroom_8b1_v3'; // đường dẫn lưu dữ liệu trên Firebase
+
+let fbApp = null, fbDbRef = null, fbReady = false, fbLastPushedJSON = '';
+
+function isFirebaseConfigured(){
+  // Phát hiện nếu bạn CHƯA thay các giá trị "DÁN_..." bằng cấu hình Firebase thật
+  const vals = Object.values(firebaseConfig);
+  return vals.every(v => typeof v === 'string' && v && !v.includes('DÁN_'));
+}
+
+function initFirebaseSync(){
+  const pill = document.getElementById('savePill');
+  if(!isFirebaseConfigured()){
+    console.warn('Chưa điền firebaseConfig thật -> đang chạy ở chế độ chỉ lưu trên máy này (localStorage).');
+    if(pill) pill.innerHTML = '<i class="fa-solid fa-circle-info me-1"></i>Chưa cấu hình máy chủ - chỉ lưu trên máy này';
+    return; // KHÔNG cố kết nối Firebase, tránh chặn thao tác thêm/sửa/lưu bình thường
+  }
+  try{
+    fbApp = firebase.initializeApp(firebaseConfig);
+    fbDbRef = firebase.database().ref(FIREBASE_DB_PATH);
+  }catch(e){
+    console.error('Lỗi khởi tạo Firebase:', e);
+    if(pill) pill.innerHTML = '<i class="fa-solid fa-triangle-exclamation me-1"></i>Chưa kết nối được máy chủ';
+    return;
+  }
+
+  // Lắng nghe realtime: bất kỳ ai lưu, mọi thiết bị khác đang mở trang sẽ tự cập nhật
+  fbDbRef.on('value', snap => {
+    const remote = snap.val();
+    if(remote && remote.version && Array.isArray(remote.classes) && remote.classes.length>0){
+      const remoteJSON = JSON.stringify(remote);
+      if(remoteJSON === fbLastPushedJSON){
+        // Đây chính là dữ liệu mình vừa lưu lên -> khỏi vẽ lại toàn trang
+        fbReady = true;
+        return;
+      }
+      if(!remote.classes.some(c=>c.id===remote.activeClassId)) remote.activeClassId = remote.classes[0].id;
+      if(!remote.settingPassword) remote.settingPassword = 'admin8b1';
+      if(!remote.adminPassword) remote.adminPassword = '123';
+      state = remote;
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); // giữ bản cache offline
+      fbReady = true;
+      buildNav(); renderHeader(); renderPage();
+      if(pill) pill.innerHTML = '<i class="fa-solid fa-cloud-arrow-down me-1"></i>Đã đồng bộ '+nowTime();
+    } else if(remote === null){
+      // Chưa có dữ liệu trên máy chủ -> đẩy dữ liệu hiện tại (mặc định) lên làm bản gốc
+      fbReady = true;
+      saveState(false);
+    }
+  }, err=>{
+    console.error('Lỗi đồng bộ Firebase:', err);
+    if(pill) pill.innerHTML = '<i class="fa-solid fa-triangle-exclamation me-1"></i>Mất kết nối máy chủ, đang dùng bản lưu tạm trên máy';
+  });
+}
 const SUBJECTS=['Ghi chung / Nề nếp','Toán','Tiếng Việt','Tiếng Anh','Tự nhiên & Xã hội','Khoa học','Lịch sử & Địa lý','Tin học','Công nghệ','Mĩ thuật','Âm nhạc','Giáo dục thể chất','Đạo đức','Hoạt động trải nghiệm','Sinh hoạt lớp','Chào cờ'];
 const DAYS=['Thứ Hai','Thứ Ba','Thứ Tư','Thứ Năm','Thứ Sáu'];
 const NAV=[
@@ -376,11 +451,23 @@ function loadState(){
 }
 
 function saveState(show=true){
+  const p=document.getElementById('savePill');
   try{
-    localStorage.setItem(STORAGE_KEY,JSON.stringify(state));
-    const p=document.getElementById('savePill');
-    if(p){
-      p.innerHTML='<i class="fa-solid fa-circle-check me-1"></i>Đã lưu '+nowTime();
+    const json = JSON.stringify(state);
+    localStorage.setItem(STORAGE_KEY, json); // bản cache tạm trên máy, phòng khi mất mạng
+    if(p) p.innerHTML='<i class="fa-solid fa-cloud-arrow-up fa-fade me-1"></i>Đang lưu...';
+
+    if(fbDbRef){
+      fbLastPushedJSON = json;
+      fbDbRef.set(state).then(()=>{
+        if(p) p.innerHTML='<i class="fa-solid fa-circle-check me-1"></i>Đã lưu '+nowTime();
+      }).catch(err=>{
+        console.error('Lỗi khi lưu lên Firebase:', err);
+        if(p) p.innerHTML='<i class="fa-solid fa-triangle-exclamation me-1"></i>Lưu tạm trên máy, chưa lên được máy chủ';
+        toast('Không kết nối được máy chủ dữ liệu. Đã lưu tạm trên máy này, hãy kiểm tra mạng và thử lại.', 'warning');
+      });
+    } else if(p){
+      p.innerHTML='<i class="fa-solid fa-circle-check me-1"></i>Đã lưu '+nowTime()+' (chỉ trên máy này)';
     }
   }catch(err){
     console.error("Lỗi khi lưu localStorage:", err);
@@ -1907,8 +1994,9 @@ document.addEventListener('DOMContentLoaded',()=>{
   mainModal=new bootstrap.Modal(document.getElementById('mainModal'));
   buildNav();
   renderHeader();
-  renderPage();
+  renderPage(); // vẽ tạm bằng dữ liệu cache trên máy, tránh trang trắng khi chờ mạng
   document.getElementById('hiddenImport').addEventListener('change',e=>{if(e.target.files[0])importJSON(e.target.files[0]);e.target.value=''});
+  initFirebaseSync(); // sau đó đồng bộ dữ liệu thật từ máy chủ, mọi người thấy cùng 1 bản
 });
 </script>
 </body>
