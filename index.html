@@ -1304,10 +1304,8 @@ function exportWeeklyExcel(){
 function filterStudents(q){q=q.toLowerCase();document.querySelectorAll('#studentGrid .student-card').forEach(x=>x.style.display=x.dataset.name.includes(q)?'':'none')}
 
 async function openStudentModal(id=''){
-  if(id){
-    const ok = await verifyAdminAccess();
-    if(!ok) return;
-  }
+  const ok = await verifyAdminAccess();
+  if(!ok) return;
 
   const s=state.students.find(x=>x.id===id)||{name:'',gender:'Nữ',coins:0,avatar:'',note:'',favorite:false};
   showModal(id?'Sửa học sinh':'Thêm học sinh',`<form onsubmit="saveStudent(event,'${id}')"><div class="row g-3"><div class="col-md-8"><label class="form-label fw-bold">Họ và tên *</label><input id="sName" class="form-control" required value="${esc(s.name)}"></div><div class="col-md-4"><label class="form-label fw-bold">Giới tính</label><select id="sGender" class="form-select"><option ${s.gender==='Nữ'?'selected':''}>Nữ</option><option ${s.gender==='Nam'?'selected':''}>Nam</option><option ${s.gender==='Khác'?'selected':''}>Khác</option></select></div><div class="col-md-4"><label class="form-label fw-bold">Điểm hiện có (Có thể âm)</label><input id="sCoins" type="number" class="form-control" value="${s.coins||0}"></div><div class="col-md-8"><label class="form-label fw-bold">Ảnh đại diện</label><input id="sAvatar" type="file" accept="image/*" class="form-control"><input id="sAvatarOld" type="hidden" value="${esc(s.avatar||'')}"></div><div class="col-12"><label class="form-label fw-bold">Ghi chú</label><textarea id="sNote" class="form-control">${esc(s.note||'')}</textarea></div><div class="col-12 form-check ms-2"><input id="sFav" class="form-check-input" type="checkbox" ${s.favorite?'checked':''}><label class="form-check-label fw-bold">Thêm vào nhóm yêu thích</label></div></div><div class="text-end mt-4"><button class="btn btn-primary">Lưu học sinh</button></div></form>`);
@@ -1951,7 +1949,7 @@ function renderSettings(){
         <h5 class="fw-bold text-primary">✨ Cơ Chế Bảo Mật An Toàn</h5>
         <ul class="mt-3">
           <li class="mb-2"><b>Mật khẩu Lớp 1 (Cài đặt):</b> Mặc định là <code>admin8b1</code>. Chuyên khóa tab Cài đặt & Dữ liệu. Không hiển thị sẵn trong mã nguồn giao diện để bảo mật. Nhập sai quá 5 lần khóa 1 giờ. Khi quên có thể bấm nút gửi về email: <b>${RECOVERY_EMAIL}</b>.</li>
-          <li class="mb-2"><b>Mật khẩu Lớp 2 (Thao tác):</b> Mặc định là <code>123</code>. Dùng để mở quyền thao tác hàng ngày cho GVCN (Cộng/trừ điểm, sửa/xóa vi phạm).</li>
+          <li class="mb-2"><b>Mật khẩu Lớp 2 (Thao tác):</b> Mặc định là <code>123</code>. Dùng mỗi khi cộng/trừ điểm hoặc sửa/xóa các lỗi vi phạm trong tuần.</li>
           <li class="mb-2">Học sinh và phụ huynh khi mở trang web sẽ ở chế độ <b>Chỉ xem</b>, không thể mở Cài đặt và không thể xóa hay cộng trừ điểm.</li>
           <li>Xuất file JSON sao lưu định kỳ để dữ liệu của lớp luôn tuyệt đối an toàn.</li>
         </ul>
