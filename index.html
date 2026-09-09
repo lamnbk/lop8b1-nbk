@@ -175,10 +175,10 @@
     .filter-chip:hover { border-color:var(--primary-color); color:var(--primary-color); }
     .filter-chip.active { background:var(--teal-gradient); color:#fff; border-color:var(--primary-color); box-shadow:0 2px 6px rgba(13,148,136,.25); }
 
-    .timetable { overflow:auto; }
-    .timetable-grid { display:grid; grid-template-columns:105px repeat(6,minmax(150px,1fr)); gap:1px; background:#cbd5e1; border:1px solid #cbd5e1; min-width:1050px; border-radius:14px; overflow:hidden; }
+    .timetable { overflow-x: auto; overflow-y: hidden; width: 100%; padding-bottom: 6px; }
+    .timetable-grid { display:grid; grid-template-columns:95px repeat(6,minmax(145px,1fr)); gap:1px; background:#cbd5e1; border:1px solid #cbd5e1; min-width:960px; border-radius:14px; overflow:hidden; }
     .tt-cell { background:white; min-height:72px; padding:8px; }
-    .tt-head { background:var(--teal-gradient); color:white; font-weight:900; display:flex;align-items:center;justify-content:center;min-height:50px; }
+    .tt-head { background:var(--teal-gradient); color:white; font-weight:900; display:flex;align-items:center;justify-content:center;min-height:50px; text-align: center; }
     .tt-time { background:#f0fdfa; font-weight:800; color:#0f766e; display:flex;flex-direction:column;justify-content:center;text-align:center; }
     .lesson { border-radius:10px; padding:7px; background:#ecfeff; border-left:4px solid #0d9488; font-size:.82rem; cursor:pointer; }
     .reward-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(230px,1fr)); gap:14px; }
@@ -211,13 +211,6 @@
     .effect-chip.active { background:var(--teal-gradient); color:white; border-color:#0d9488; }
     .history-list { max-height:280px; overflow:auto; }
     .history-item { padding:9px; border-bottom:1px solid #e5e7eb; display:flex; justify-content:space-between; gap:8px; font-size:.82rem; }
-    .film-stage { background:#082f49; border:10px solid #0f172a; border-radius:22px; overflow:hidden; position:relative; height:210px; box-shadow:inset 0 0 40px rgba(0,0,0,.5); }
-    .film-strip { display:flex; align-items:center; height:100%; gap:16px; padding:18px; transition:transform 2.7s cubic-bezier(.1,.7,.1,1); will-change:transform; }
-    .film-person { flex:0 0 126px; height:154px; border-radius:16px; background:#123a5a; border:2px solid rgba(255,255,255,.18); color:white; display:flex; flex-direction:column;align-items:center;justify-content:center;gap:8px; text-align:center; }
-    .film-person .mini-avatar { width:72px;height:72px;border-radius:50%;background:var(--teal-gradient);display:grid;place-items:center;font-weight:900;overflow:hidden; }
-    .film-person .mini-avatar img{width:100%;height:100%;object-fit:cover}
-    .film-marker { position:absolute; left:50%; top:0; bottom:0; width:132px; transform:translateX(-50%); border:3px solid #fbbf24; border-top:none; border-bottom:none; pointer-events:none; box-shadow:0 0 25px rgba(251,191,36,.18); }
-    .winner-box { background:#fffbeb; border:2px solid #fcd34d; border-radius:18px; padding:18px; text-align:center; }
     .alert-grid { display:grid; grid-template-columns:repeat(2,1fr); gap:12px; }
     .class-alert { min-height:110px; border-radius:17px; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:6px; font-weight:900; cursor:pointer; border:2px solid transparent; transition:.2s; }
     .class-alert:hover { transform:scale(1.02); }
@@ -297,6 +290,7 @@
 <div class="modal fade" id="mainModal" tabindex="-1"><div class="modal-dialog modal-lg modal-dialog-scrollable modal-dialog-centered"><div class="modal-content"><div class="modal-header"><h5 class="modal-title" id="mainModalTitle">Cập nhật</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div><div class="modal-body" id="mainModalBody"></div></div></div></div>
 <input type="file" id="hiddenImport" accept="application/json" hidden>
 <input type="file" id="hiddenStudentExcelImport" accept=".xlsx, .xls, .csv" hidden onchange="handleStudentExcelFile(this)">
+<input type="file" id="hiddenDailyPhotoInput" accept="image/*" hidden onchange="handleDailyPhotoUpload(this)">
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
@@ -355,7 +349,7 @@ function initFirebaseSync(){
       if(!Array.isArray(remote.rewards)) remote.rewards = [];
       if(!Array.isArray(remote.redemptions)) remote.redemptions = [];
       if(!Array.isArray(remote.wheelHistory)) remote.wheelHistory = [];
-      if(!Array.isArray(remote.filmHistory)) remote.filmHistory = [];
+      if(!Array.isArray(remote.dailyPhotos)) remote.dailyPhotos = [];
       if(!Array.isArray(remote.links)) remote.links = [];
       if(!Array.isArray(remote.subjects)) remote.subjects = SUBJECTS.slice();
       if(!remote.attendance) remote.attendance = {};
@@ -380,10 +374,10 @@ function initFirebaseSync(){
 const SUBJECTS=['Ghi chung / Nề nếp','Toán','Tiếng Việt','Tiếng Anh','Tự nhiên & Xã hội','Khoa học','Lịch sử & Địa lý','Tin học','Công nghệ','Mĩ thuật','Âm nhạc','Giáo dục thể chất','Đạo đức','Hoạt động trải nghiệm','Sinh hoạt lớp','Chào cờ'];
 const DAYS=['Thứ Hai','Thứ Ba','Thứ Tư','Thứ Năm','Thứ Sáu','Thứ Bảy'];
 const NAV=[
-  ['home','fa-house','Trang chủ',''],['classes','fa-school','Lớp học',''],['students','fa-graduation-cap','Học sinh','count'],['attendance','fa-clipboard-check','Điểm danh',''],['weekly','fa-calendar-check','Nhật kí tuần','HOT'],['seating','fa-border-all','Sơ đồ lớp',''],['timetable','fa-calendar-days','Thời khóa biểu',''],['rewards','fa-gift','Đổi thưởng',''],['wheel','fa-wand-magic-sparkles','Vòng quay',''],['film','fa-film','Cuộn phim','NEW'],['noise','fa-shield-halved','Chống ồn',''],['countdown','fa-stopwatch','Đếm ngược',''],['links','fa-link','Liên kết',''],['stats','fa-chart-column','Thống kê',''],['data','fa-database','Dữ liệu',''],['settings','fa-gear','Cài đặt','']
+  ['home','fa-house','Trang chủ',''],['classes','fa-school','Lớp học',''],['students','fa-graduation-cap','Học sinh','count'],['attendance','fa-clipboard-check','Điểm danh',''],['weekly','fa-calendar-check','Nhật kí tuần','HOT'],['seating','fa-border-all','Sơ đồ lớp',''],['timetable','fa-calendar-days','Thời khóa biểu',''],['rewards','fa-gift','Đổi thưởng',''],['wheel','fa-wand-magic-sparkles','Vòng quay',''],['dailyPhotos','fa-images','Ảnh thường ngày','NEW'],['noise','fa-shield-halved','Chống ồn',''],['countdown','fa-stopwatch','Đếm ngược',''],['links','fa-link','Liên kết',''],['stats','fa-chart-column','Thống kê',''],['data','fa-database','Dữ liệu',''],['settings','fa-gear','Cài đặt','']
 ];
 const PAGE_META={
- home:['Trang chủ','Tổng quan nhanh tình hình lớp học hôm nay'],classes:['Quản lý Lớp học','Danh sách các lớp, khối lớp và thông tin chung'],students:['Danh sách học sinh','Quản lý thành viên, nề nếp và điểm thi đua'],attendance:['Điểm danh','Theo dõi sĩ số, chuyên cần và tình hình đi học hằng ngày'],weekly:['Nhật kí tuần','Tổng hợp thi đua, vi phạm và khen thưởng theo tuần & tháng'],seating:['Sơ đồ Lớp học','Bố trí vị trí chỗ ngồi trực quan và linh hoạt'],timetable:['Thời khóa biểu','Thiết lập lịch dạy Sáng/Chiều và các môn học trong tuần'],rewards:['Đổi thưởng','Tạo phần thưởng và đổi quà bằng điểm thi đua'],wheel:['Vòng quay may mắn','Quay ngẫu nhiên gọi tên học sinh hoặc nhận thưởng'],film:['Cuộn Phim May Mắn','Chọn ngẫu nhiên học sinh bằng hiệu ứng cuộn phim'],noise:['Công Cụ Chống Ồn','Cảnh báo lớp học, đếm ngược im lặng và đo microphone'],countdown:['Đồng Hồ Đếm Ngược','Thiết lập thời gian, mẫu nhanh và chuông báo'],links:['Liên kết hữu ích','Lưu học liệu, trang web và đường dẫn dùng chung'],stats:['Báo cáo & Thống kê','Biểu đồ phân tích thi đua, nề nếp và điểm rèn luyện'],data:['Quản lý dữ liệu','Sao lưu, khôi phục và làm sạch dữ liệu ứng dụng'],settings:['Cài đặt hệ thống','Thiết lập logo lớp, hồ sơ giáo viên và cấu hình']
+ home:['Trang chủ','Tổng quan nhanh tình hình lớp học hôm nay'],classes:['Quản lý Lớp học','Danh sách các lớp, khối lớp và thông tin chung'],students:['Danh sách học sinh','Quản lý thành viên, nề nếp và điểm thi đua'],attendance:['Điểm danh','Theo dõi sĩ số, chuyên cần và tình hình đi học hằng ngày'],weekly:['Nhật kí tuần','Tổng hợp thi đua, vi phạm và khen thưởng theo tuần & tháng'],seating:['Sơ đồ Lớp học','Bố trí vị trí chỗ ngồi trực quan và linh hoạt'],timetable:['Thời khóa biểu','Thiết lập lịch dạy Sáng/Chiều và các môn học trong tuần'],rewards:['Đổi thưởng','Tạo phần thưởng và đổi quà bằng điểm thi đua'],wheel:['Vòng quay may mắn','Quay ngẫu nhiên gọi tên học sinh hoặc nhận thưởng'],dailyPhotos:['Ảnh Thường Ngày','Lưu giữ khoảnh khắc và hình ảnh hoạt động của lớp học'],noise:['Công Cụ Chống Ồn','Cảnh báo lớp học, đếm ngược im lặng và đo microphone'],countdown:['Đồng Hồ Đếm Ngược','Thiết lập thời gian, mẫu nhanh và chuông báo'],links:['Liên kết hữu ích','Lưu học liệu, trang web và đường dẫn dùng chung'],stats:['Báo cáo & Thống kê','Biểu đồ phân tích thi đua, nề nếp và điểm rèn luyện'],data:['Quản lý dữ liệu','Sao lưu, khôi phục và làm sạch dữ liệu ứng dụng'],settings:['Cài đặt hệ thống','Thiết lập logo lớp, hồ sơ giáo viên và cấu hình']
 };
 
 let currentFilterMonth = 'all';
@@ -425,9 +419,9 @@ function defaultState(){
     {id:uid('tt'),classId:cls,day:4,slot:'C1',subject:'Sinh hoạt lớp',time:'13:30 - 14:05'}
   ]},
   rewards:[{id:'r1',name:'Bút',cost:10,emoji:'🖊️',stock:10},{id:'r2',name:'Thước',cost:15,emoji:'📏',stock:8},{id:'r3',name:'Sticker',cost:5,emoji:'🌟',stock:30},{id:'r4',name:'Sổ tay',cost:25,emoji:'📒',stock:5}],
-  redemptions:[],transactions:[],wheelHistory:[],filmHistory:[],links:[{id:'l1',name:'Học liệu lớp học',url:'https://',category:'Học liệu & SGK',desc:'Liên kết mẫu - hãy chỉnh sửa',pinned:true}],
-  subjects:SUBJECTS.slice(), settings:{wheelExclude:true,filmExclude:true,tickLast10:false,timerColor:'#0d9488'},
-  wheelExcluded:[],filmExcluded:[]
+  redemptions:[],transactions:[],wheelHistory:[],dailyPhotos:[],links:[{id:'l1',name:'Học liệu lớp học',url:'https://',category:'Học liệu & SGK',desc:'Liên kết mẫu - hãy chỉnh sửa',pinned:true}],
+  subjects:SUBJECTS.slice(), settings:{wheelExclude:true,tickLast10:false,timerColor:'#0d9488'},
+  wheelExcluded:[]
  }
 }
 
@@ -449,13 +443,12 @@ function loadState(){
       if(!Array.isArray(x.rewards)) x.rewards = [];
       if(!Array.isArray(x.redemptions)) x.redemptions = [];
       if(!Array.isArray(x.wheelHistory)) x.wheelHistory = [];
-      if(!Array.isArray(x.filmHistory)) x.filmHistory = [];
+      if(!Array.isArray(x.dailyPhotos)) x.dailyPhotos = [];
       if(!Array.isArray(x.links)) x.links = [];
       if(!Array.isArray(x.subjects)) x.subjects = SUBJECTS.slice();
       if(!x.attendance) x.attendance = {};
       if(!x.seating) x.seating = {};
       if(!Array.isArray(x.wheelExcluded)) x.wheelExcluded = [];
-      if(!Array.isArray(x.filmExcluded)) x.filmExcluded = [];
 
       return x;
     }
@@ -702,7 +695,7 @@ async function navigate(page){
   window.scrollTo({top:0,behavior:'smooth'});
 }
 
-function switchClass(id){state.activeClassId=id;state.wheelExcluded=[];state.filmExcluded=[];saveState();buildNav();renderHeader();renderPage()}
+function switchClass(id){state.activeClassId=id;state.wheelExcluded=[];saveState();buildNav();renderHeader();renderPage()}
 function renderPage(){
   chartRefs.forEach(c=>{try{c.destroy()}catch(e){}});
   chartRefs=[];
@@ -721,7 +714,7 @@ function renderPage(){
     timetable:renderTimetable,
     rewards:renderRewards,
     wheel:renderWheel,
-    film:renderFilm,
+    dailyPhotos:renderDailyPhotos,
     noise:renderNoise,
     countdown:renderCountdown,
     links:renderLinks,
@@ -1364,7 +1357,6 @@ async function clearAllStudents(){
     state.seating[state.activeClassId].assignments = {};
   }
   state.wheelExcluded = [];
-  state.filmExcluded = [];
   saveState();
   buildNav();
   renderHeader();
@@ -1870,11 +1862,116 @@ async function spinWheel(){const cand=wheelCandidates();if(!cand.length){state.w
 async function showWinner(s,type){const result=await Swal.fire({title:'🎉 CHÚC MỪNG HỌC SINH MAY MẮN!',html:`<div class="mx-auto student-avatar mb-2">${s.avatar?`<img src="${s.avatar}">`:esc(initials(s.name))}</div><h2 class="fw-bold">${esc(s.name)}</h2><div class="text-muted">Thưởng điểm ngay:</div><div class="d-flex justify-content-center gap-2 mt-3 flex-wrap"><button class="btn btn-primary" onclick="Swal.clickConfirm()" data-award="1">+1 điểm</button></div>`,showCancelButton:true,confirmButtonText:'Quay tiếp / Đóng',cancelButtonText:'Đóng',didOpen:()=>{const box=Swal.getHtmlContainer();box.querySelector('.d-flex').innerHTML=[1,2,5,10].map(n=>`<button class="btn btn-primary" onclick="awardWinner('${s.id}',${n})">+${n} điểm</button>`).join('')}});renderPage()}
 function awardWinner(id,n){logTransaction(id,n,'Thưởng trò chơi','Ghi chung / Nề nếp');saveState();toast('Đã thưởng +'+n+' điểm');confettiLite();Swal.close();renderPage()}
 function restoreWheel(id){state.wheelExcluded=state.wheelExcluded.filter(x=>x!==id);saveState(false);renderPage()}function restoreAllWheel(){state.wheelExcluded=[];saveState(false);renderPage()}function clearWheelHistory(){state.wheelHistory=state.wheelHistory.filter(x=>x.classId!==state.activeClassId);saveState();renderPage()}
-function renderFilm(){const cand=filmCandidates();return `<div class="grid-2"><div class="card p-3"><h5 class="fw-bold text-center mb-3">🎞️ MÁY CHIẾU PHIM MAY MẮN 🎞️</h5><div class="film-stage"><div class="film-strip" id="filmStrip">${[...cand,...cand,...cand].map(s=>filmPerson(s)).join('')}</div><div class="film-marker"></div></div><div class="winner-box mt-3" id="filmWinner"><div class="text-muted">Bấm quay để chọn học sinh ngẫu nhiên</div></div><button class="btn btn-primary w-100 mt-3 py-3 fs-5" id="filmBtn" onclick="spinFilm()"><i class="fa-solid fa-play me-2"></i>🎬 Bấm Quay Cuộn Phim!</button><div class="form-check form-switch mt-3"><input class="form-check-input" type="checkbox" ${state.settings.filmExclude?'checked':''} onchange="state.settings.filmExclude=this.checked;saveState(false);renderPage()"><label class="form-check-label fw-bold">Tự động loại học sinh sau khi chọn</label></div></div><div><div class="card p-3"><h5 class="fw-bold">Học sinh trong cuộn phim (${cand.length})</h5><div class="student-grid" style="grid-template-columns:repeat(3,1fr)">${cand.map(s=>`<div class="text-center">${renderAvatar(s,'mini-avatar')}<div class="small fw-bold mt-1">${esc(s.name.split(' ').slice(-2).join(' '))}</div></div>`).join('')}</div>${state.filmExcluded.length?`<button class="btn btn-sm btn-outline-primary mt-3" onclick="state.filmExcluded=[];saveState(false);renderPage()">Đưa tất cả vào lại</button>`:''}</div><div class="card p-3 mt-3"><h5 class="fw-bold">🏆 Lịch sử (${state.filmHistory.filter(x=>x.classId===state.activeClassId).length})</h5>${state.filmHistory.filter(x=>x.classId===state.activeClassId).slice(0,10).map(h=>`<div class="history-item"><strong>${esc(h.studentName)}</strong><span>${new Date(h.time).toLocaleTimeString('vi-VN',{hour:'2-digit',minute:'2-digit'})}</span></div>`).join('')||'<div class="empty">Chưa có lượt quay nào</div>'}</div></div></div>`}
-function filmCandidates(){return classStudents().filter(s=>!state.filmExcluded.includes(s.id))}
-function filmPerson(s){return `<div class="film-person">${renderAvatar(s,'mini-avatar')}<strong>${esc(s.name.split(' ').slice(-2).join(' '))}</strong></div>`}
-async function spinFilm(){let cand=filmCandidates();if(!cand.length){state.filmExcluded=[];saveState(false);renderPage();return}const strip=document.getElementById('filmStrip'),btn=document.getElementById('filmBtn');btn.disabled=true;const s=cand[Math.floor(Math.random()*cand.length)];const all=[...cand,...cand,...cand],idx=cand.length+all.findIndex((x,i)=>i<cand.length&&x.id===s.id);const itemW=142,stage=document.querySelector('.film-stage').clientWidth;const translate=-(idx*itemW-stage/2+itemW/2+18);strip.style.transform=`translateX(${translate}px)`;await new Promise(r=>setTimeout(r,2850));if(state.settings.filmExclude)state.filmExcluded.push(s.id);state.filmHistory.unshift({id:uid('fh'),classId:state.activeClassId,studentId:s.id,studentName:s.name,time:new Date().toISOString()});saveState(false);beep(740,.3,.14);document.getElementById('filmWinner').innerHTML=`<div class="text-warning fw-bold">🏆 PHIM DỪNG TẠI...</div><h2 class="fw-bold">${esc(s.name)}</h2><div class="d-flex justify-content-center gap-2"><select id="filmAward" class="form-select" style="width:120px">${[1,2,3,5,10,15,20].map(n=>`<option value="${n}" ${n===2?'selected':''}>+${n} điểm</option>`).join('')}</select><button class="btn btn-warning" onclick="awardFilm('${s.id}')"><i class="fa-solid fa-award me-1"></i>Thưởng điểm</button><button class="btn btn-light" onclick="renderPage()">Reset</button></div>`;confettiLite();btn.disabled=false}
-function awardFilm(id){const n=+document.getElementById('filmAward').value;logTransaction(id,n,'Thưởng cuộn phim','Ghi chung / Nề nếp');saveState();toast('Đã thưởng +'+n+' điểm')}
+
+/* ========================================================
+   TAB: ẢNH THƯỜNG NGÀY (Thay thế Cuộn phim)
+   ======================================================== */
+function renderDailyPhotos(){
+  const photos = Array.isArray(state.dailyPhotos) ? state.dailyPhotos.filter(p => p.classId === state.activeClassId) : [];
+  return `
+    <div class="section-head">
+      <div>
+        <h2><i class="fa-solid fa-images text-primary me-2"></i>Ảnh thường ngày - ${esc(activeClass().name)}</h2>
+        <p>Lưu trữ hình ảnh hoạt động, kỷ niệm của lớp. Thêm hoặc xóa ảnh yêu cầu mật khẩu GVCN.</p>
+      </div>
+      <button class="btn btn-primary" onclick="triggerAddDailyPhoto()">
+        <i class="fa-solid fa-cloud-arrow-up me-1"></i>Thêm ảnh mới
+      </button>
+    </div>
+
+    ${photos.length === 0 ? `
+      <div class="card p-5 text-center text-muted">
+        <i class="fa-solid fa-image fs-1 mb-3 text-secondary"></i>
+        <h5>Chưa có bức ảnh nào được tải lên</h5>
+        <p class="small mb-3">Bấm nút "Thêm ảnh mới" bên trên để tải hình ảnh hoạt động của lớp lên đây.</p>
+        <button class="btn btn-outline-primary" onclick="triggerAddDailyPhoto()">Tải ảnh đầu tiên</button>
+      </div>
+    ` : `
+      <div class="row g-4">
+        ${photos.map(p => `
+          <div class="col-md-4 col-sm-6">
+            <div class="card h-100 shadow-sm hover-lift">
+              <div style="height:220px; overflow:hidden; background:#000; position:relative;" class="rounded-top">
+                <img src="${p.url}" alt="Ảnh lớp" style="width:100%; height:100%; object-fit:contain;">
+              </div>
+              <div class="card-body d-flex flex-column">
+                <div class="small text-muted mb-2"><i class="fa-solid fa-calendar-days me-1"></i>${new Date(p.time).toLocaleDateString('vi-VN')}</div>
+                <div class="flex-fill mb-3">
+                  <input type="text" class="form-control form-control-sm" value="${esc(p.caption || '')}" placeholder="Ghi chú ảnh gì..." onchange="updatePhotoCaption('${p.id}', this.value)" title="Nhập ghi chú cho ảnh">
+                </div>
+                <button class="btn btn-sm btn-outline-danger w-100" onclick="deleteDailyPhoto('${p.id}')">
+                  <i class="fa-solid fa-trash-can me-1"></i>Xóa ảnh này
+                </button>
+              </div>
+            </div>
+          </div>
+        `).join('')}
+      </div>
+    `}
+  `;
+}
+
+async function triggerAddDailyPhoto(){
+  const ok = await verifyAdminAccess();
+  if(!ok) return;
+  document.getElementById('hiddenDailyPhotoInput').click();
+}
+
+async function handleDailyPhotoUpload(input){
+  const file = input.files[0];
+  if(!file) return;
+  input.value = '';
+
+  try {
+    const base64 = await readFileData(file);
+    if(!state.dailyPhotos) state.dailyPhotos = [];
+    state.dailyPhotos.unshift({
+      id: uid('photo'),
+      classId: state.activeClassId,
+      url: base64,
+      caption: file.name.substring(0, file.name.lastIndexOf('.')) || 'Ảnh hoạt động lớp',
+      time: new Date().toISOString()
+    });
+    saveState();
+    renderPage();
+    toast('Đã tải ảnh lên thành công!');
+  } catch(err){
+    Swal.fire({icon:'error', title:'Lỗi tải ảnh', text: err.message});
+  }
+}
+
+async function updatePhotoCaption(photoId, newCaption){
+  const ok = await verifyAdminAccess();
+  if(!ok) { renderPage(); return; }
+  const p = state.dailyPhotos.find(x => x.id === photoId);
+  if(p){
+    p.caption = newCaption.trim();
+    saveState(false);
+    toast('Đã cập nhật ghi chú ảnh!');
+  }
+}
+
+async function deleteDailyPhoto(photoId){
+  const ok = await verifyAdminAccess();
+  if(!ok) return;
+
+  const r = await Swal.fire({
+    icon: 'warning',
+    title: 'Xóa bức ảnh này?',
+    text: 'Ảnh sẽ bị xóa khỏi kho lưu trữ của lớp.',
+    showCancelButton: true,
+    confirmButtonText: 'Đồng ý xóa',
+    cancelButtonText: 'Hủy',
+    confirmButtonColor: '#dc2626'
+  });
+
+  if(!r.isConfirmed) return;
+  state.dailyPhotos = state.dailyPhotos.filter(x => x.id !== photoId);
+  saveState();
+  renderPage();
+  toast('Đã xóa ảnh!');
+}
+
 function renderNoise(){return `<div class="section-head"><div><h2><i class="fa-solid fa-shield-halved text-primary me-2"></i>Công cụ Chống Ồn</h2><p>Bấm cảnh báo tức thì, đếm ngược im lặng hoặc dùng microphone phát hiện tiếng ồn tự động.</p></div></div><div class="grid-equal"><div class="card p-3"><h5 class="fw-bold">🔔 Cảnh Báo Tức Thì</h5><div class="alert-grid mt-3"><div class="class-alert" style="background:#fef3c7;border-color:#f59e0b" onclick="classAlert('🤫','SHH! Im lặng nào!','#d97706')"><span class="fs-1">🤫</span>SHH! Im lặng nào!</div><div class="class-alert" style="background:#ffedd5;border-color:#fb923c" onclick="classAlert('⚠️','LỚP QUÁ ỒN!','#ea580c')"><span class="fs-1">⚠️</span>LỚP QUÁ ỒN!</div><div class="class-alert" style="background:#fee2e2;border-color:#ef4444" onclick="classAlert('🚨','DỪNG LẠI NGAY!','#dc2626')"><span class="fs-1">🚨</span>DỪNG LẠI NGAY!</div><div class="class-alert" style="background:#d1fae5;border-color:#10b981" onclick="classAlert('🌟','TUYỆT VỜI!','#059669')"><span class="fs-1">🌟</span>TUYỆT VỜI!</div></div></div><div class="card p-3"><h5 class="fw-bold">🎵 Đếm Ngược Im Lặng</h5><div class="quiet-timer" id="quietTimer">⏱️</div><div class="d-flex justify-content-center gap-2 flex-wrap mt-3">${[10,15,20,30,60].map(n=>`<button class="btn btn-outline-primary" onclick="startQuiet(${n})">${n}s</button>`).join('')}</div><div class="text-center text-muted small mt-2">Khi hết giờ sẽ tự động khen lớp “TUYỆT VỜI!”</div></div></div><div class="card p-3 mt-3"><div class="d-flex justify-content-between align-items-center flex-wrap gap-2"><h5 class="fw-bold m-0">🎙️ Phát Hiện Tiếng Ồn Tự Động (Microphone)</h5><div><label class="form-check form-switch d-inline-block me-3"><input id="autoNoise" class="form-check-input" type="checkbox"><span class="form-check-label">Cảnh báo tự động</span></label><button id="micBtn" class="btn btn-outline-primary" onclick="toggleMic()"><i class="fa-solid fa-microphone me-1"></i>Bật micro</button></div></div><div class="d-flex justify-content-between mt-3"><span>Mức độ tiếng ồn</span><strong id="noisePct">0%</strong></div><div class="noise-meter mt-2"><div class="noise-fill" id="noiseFill"></div></div><div id="noiseStatus" class="alert alert-success mt-3 mb-0">Lớp đang yên tĩnh — Tốt lắm!</div><div class="row text-center small mt-2"><div class="col bg-success-subtle p-2 rounded-start">Yên tĩnh<br>0–40%</div><div class="col bg-warning-subtle p-2">Hơi ồn<br>40–70%</div><div class="col bg-danger-subtle p-2 rounded-end">Rất ồn<br>70–100%</div></div></div>`}
 function classAlert(emoji,text,color){beep(text.includes('TUYỆT')?880:440,.3,.15);const o=document.createElement('div');o.className='full-alert-overlay';o.innerHTML=`<div class="full-alert-card" style="background:${color}"><div class="emoji">${emoji}</div><h2>${text}</h2><p>Nhấn bất kỳ đâu để đóng</p></div>`;o.onclick=()=>o.remove();document.body.appendChild(o);setTimeout(()=>o.remove(),3500)}
 function startQuiet(sec){clearInterval(quietInterval);quietLeft=sec;const el=document.getElementById('quietTimer');if(el)el.textContent=quietLeft+'s';quietInterval=setInterval(()=>{quietLeft--;const x=document.getElementById('quietTimer');if(x)x.textContent=Math.max(0,quietLeft)+'s';if(quietLeft<=0){clearInterval(quietInterval);beep(880,.35,.15);classAlert('🌟','TUYỆT VỜI!','#059669')}},1000)}
