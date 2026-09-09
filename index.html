@@ -307,11 +307,6 @@ const RECOVERY_EMAIL = 'doanvanlamvb@gmail.com';
 
 /* ========================================================
    FIREBASE REALTIME DATABASE
-   - Thay thế localStorage (chỉ lưu trên 1 máy) bằng dữ liệu
-     dùng chung trên mạng, để phụ huynh mở lên là thấy ngay
-     bản mới nhất, không cần bấm gì thêm.
-   - Bạn PHẢI thay firebaseConfig bên dưới bằng cấu hình
-     dự án Firebase của chính bạn (xem hướng dẫn đi kèm).
    ======================================================== */
 const firebaseConfig = {
   apiKey: "AIzaSyDq2DxzfurfZpDQq6d49QuQVTbJJpdJAKI",
@@ -322,12 +317,11 @@ const firebaseConfig = {
   messagingSenderId: "359527127604",
   appId: "1:359527127604:web:754b1b472ebd46ba0f8861"
 };
-const FIREBASE_DB_PATH = 'classroom_8b1_v3'; // đường dẫn lưu dữ liệu trên Firebase
+const FIREBASE_DB_PATH = 'classroom_8b1_v3';
 
 let fbApp = null, fbDbRef = null, fbReady = false, fbLastPushedJSON = '';
 
 function isFirebaseConfigured(){
-  // Phát hiện nếu bạn CHƯA thay các giá trị "DÁN_..." bằng cấu hình Firebase thật
   const vals = Object.values(firebaseConfig);
   return vals.every(v => typeof v === 'string' && v && !v.includes('DÁN_'));
 }
@@ -335,9 +329,8 @@ function isFirebaseConfigured(){
 function initFirebaseSync(){
   const pill = document.getElementById('savePill');
   if(!isFirebaseConfigured()){
-    console.warn('Chưa điền firebaseConfig thật -> đang chạy ở chế độ chỉ lưu trên máy này (localStorage).');
     if(pill) pill.innerHTML = '<i class="fa-solid fa-circle-info me-1"></i>Chưa cấu hình máy chủ - chỉ lưu trên máy này';
-    return; // KHÔNG cố kết nối Firebase, tránh chặn thao tác thêm/sửa/lưu bình thường
+    return;
   }
   try{
     fbApp = firebase.initializeApp(firebaseConfig);
@@ -348,31 +341,36 @@ function initFirebaseSync(){
     return;
   }
 
-  // Lắng nghe realtime: bất kỳ ai lưu, mọi thiết bị khác đang mở trang sẽ tự cập nhật
   fbDbRef.on('value', snap => {
     const remote = snap.val();
     if(remote && remote.version && Array.isArray(remote.classes) && remote.classes.length>0){
       const remoteJSON = JSON.stringify(remote);
       if(remoteJSON === fbLastPushedJSON){
-        // Đây chính là dữ liệu mình vừa lưu lên -> khỏi vẽ lại toàn trang
         fbReady = true;
         return;
       }
       if(!remote.classes.some(c=>c.id===remote.activeClassId)) remote.activeClassId = remote.classes[0].id;
       if(!remote.settingPassword) remote.settingPassword = 'admin8b1';
       if(!remote.adminPassword) remote.adminPassword = '123';
-      // Giữ nguyên trang đang xem trên CHÍNH thiết bị này - "đang xem tab nào" là
-      // chuyện riêng của từng thiết bị, không phải dữ liệu dùng chung, tránh bị
-      // kéo ngược về tab cũ mỗi khi có cập nhật từ nơi khác.
+      
+      // Bổ sung an toàn cho dữ liệu từ remote
+      if(!Array.isArray(remote.transactions)) remote.transactions = [];
+      if(!Array.isArray(remote.students)) remote.students = [];
+      if(!Array.isArray(remote.rewards)) remote.rewards = [];
+      if(!Array.isArray(remote.redemptions)) remote.redemptions = [];
+      if(!Array.isArray(remote.wheelHistory)) remote.wheelHistory = [];
+      if(!Array.isArray(remote.filmHistory)) remote.filmHistory = [];
+      if(!Array.isArray(remote.links)) remote.links = [];
+      if(!Array.isArray(remote.subjects)) remote.subjects = SUBJECTS.slice();
+
       const localPage = state.currentPage;
       state = remote;
       state.currentPage = localPage || 'home';
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); // giữ bản cache offline
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
       fbReady = true;
       buildNav(); renderHeader(); renderPage();
       if(pill) pill.innerHTML = '<i class="fa-solid fa-cloud-arrow-down me-1"></i>Đã đồng bộ '+nowTime();
     } else if(remote === null){
-      // Chưa có dữ liệu trên máy chủ -> đẩy dữ liệu hiện tại (mặc định) lên làm bản gốc
       fbReady = true;
       saveState(false);
     }
@@ -395,7 +393,6 @@ let weeklyMonth = '9';
 let weeklyWeek = 'all';
 let isAdminUnlocked = false;
 
-// Biến quản lý chống dò mật khẩu lớp 1 (Tối đa 5 lần sai -> Khóa 1 giờ)
 let settingFailCount = 0;
 let settingLockUntil = 0;
 
@@ -416,8 +413,8 @@ function defaultState(){
  const students=names.map((n,i)=>({id:'s'+(i+1),classId:cls,name:n[0],gender:n[1],coins:i===0?10:0,avatar:'',favorite:i<3,note:''}));
  return {
   version:8, activeClassId:cls, currentPage:'home',
-  settingPassword: 'admin8b1', // Lớp 1: Khóa Cài đặt & Dữ liệu
-  adminPassword: '123',        // Lớp 2: Thao tác GVCN (điểm, sửa/xóa)
+  settingPassword: 'admin8b1',
+  adminPassword: '123',
   teacher:{name:'Giáo viên Chủ nhiệm',role:'GVCN',subject:'Tin học',school:'Trường THCS',avatar:''},
   classes:[{id:cls,name:'LỚP 8B1',grade:'Khối 8',year:'2026 - 2027',color:'#0d9488',logoText:'8B1',logoImage:''}],students,
   attendance:{},attendanceDate:today(),
@@ -435,6 +432,7 @@ function defaultState(){
   wheelExcluded:[],filmExcluded:[]
  }
 }
+
 let state=loadState();
 let chartRefs=[]; let mainModal; let countdownInterval=null; let countdown={total:300,left:300,running:false}; let quietInterval=null; let quietLeft=0; let micCtx=null,micStream=null,micRAF=null;
 
@@ -447,6 +445,17 @@ function loadState(){
       }
       if(!x.settingPassword) x.settingPassword = 'admin8b1';
       if(!x.adminPassword) x.adminPassword = '123';
+      
+      // Đảm bảo không bị thiếu các mảng dữ liệu dẫn đến lỗi undefined
+      if(!Array.isArray(x.transactions)) x.transactions = [];
+      if(!Array.isArray(x.students)) x.students = [];
+      if(!Array.isArray(x.rewards)) x.rewards = [];
+      if(!Array.isArray(x.redemptions)) x.redemptions = [];
+      if(!Array.isArray(x.wheelHistory)) x.wheelHistory = [];
+      if(!Array.isArray(x.filmHistory)) x.filmHistory = [];
+      if(!Array.isArray(x.links)) x.links = [];
+      if(!Array.isArray(x.subjects)) x.subjects = SUBJECTS.slice();
+
       return x;
     }
     return defaultState();
@@ -459,11 +468,8 @@ function saveState(show=true){
   const p=document.getElementById('savePill');
   try{
     const json = JSON.stringify(state);
-    localStorage.setItem(STORAGE_KEY, json); // bản cache tạm trên máy, phòng khi mất mạng
+    localStorage.setItem(STORAGE_KEY, json);
 
-    // Bản đẩy lên Firebase: bỏ "currentPage" vì đó chỉ là tab đang xem trên
-    // từng thiết bị, không phải dữ liệu lớp học dùng chung - tránh việc GV
-    // chuyển tab lại vô tình kéo tab của phụ huynh nhảy theo.
     const syncState = Object.assign({}, state);
     delete syncState.currentPage;
     const syncJSON = JSON.stringify(syncState);
@@ -488,12 +494,6 @@ function saveState(show=true){
   }
 }
 
-/* ========================================================
-   BẢO MẬT LỚP 1 (Cài đặt & Dữ liệu)
-   - Không hiển thị mật khẩu gốc sẵn trong mã nguồn giao diện
-   - Chống copy / paste, tối đa 5 lần sai -> khóa 1 giờ
-   - Gửi yêu cầu quên mật khẩu về doanvanlamvb@gmail.com
-   ======================================================== */
 async function verifySettingAccess(){
   const now = Date.now();
   if(now < settingLockUntil){
@@ -540,7 +540,7 @@ async function verifySettingAccess(){
     settingFailCount++;
     const remaining = 5 - settingFailCount;
     if(settingFailCount >= 5){
-      settingLockUntil = Date.now() + 3600000; // Khóa 1 giờ
+      settingLockUntil = Date.now() + 3600000;
       Swal.fire({
         icon: 'error',
         title: 'Đã khóa trong 1 giờ!',
@@ -590,9 +590,6 @@ async function recoverSettingPassword(){
   }
 }
 
-/* ========================================================
-   BẢO MẬT LỚP 2 (Thao tác GVCN: Điểm số, Sửa/Xóa)
-   ======================================================== */
 async function verifyAdminAccess(){
   if(isAdminUnlocked) return true;
   const currentPass = state.adminPassword || '123';
@@ -1646,7 +1643,7 @@ function renderStandardBoard(cfg){
   return `<div class="seat-grid" style="grid-template-columns:repeat(${cfg.lanes},minmax(130px,1fr))">
     ${Array.from({length:cfg.lanes},(_,lane)=>`
       <div class="seat-lane">
-        <div class="lane-label">📌 DÃY ${laneIndex+1}</div>
+        <div class="lane-label">📌 DÃY ${lane+1}</div>
         ${seatIndicesForLane(cfg.seats,cfg.lanes,lane).map(idx=>seatHtml(idx,cfg)).join('')}
       </div>
     `).join('')}
@@ -1810,7 +1807,7 @@ function txRow(x){return `<tr data-subject="${esc(x.subject)}" data-search="${es
 function filterTxTable(){const sub=document.getElementById('txSubjectFilter').value,q=document.getElementById('txSearch').value.toLowerCase();document.querySelectorAll('#txTable tbody tr').forEach(r=>r.style.display=(!sub||r.dataset.subject===sub)&&r.dataset.search.includes(q)?'':'none')}
 function drawStatsCharts(){const ss=classStudents(),tx=state.transactions.filter(x=>x.classId===state.activeClassId);const m=ss.filter(s=>s.gender==='Nam').length,f=ss.filter(s=>s.gender==='Nữ').length,o=ss.length-m-f;const g=document.getElementById('genderChart');if(g)chartRefs.push(new Chart(g,{type:'doughnut',data:{labels:['Nam','Nữ','Khác'],datasets:[{data:[m,f,o],backgroundColor:['#0ea5e9','#f472b6','#94a3b8']}]},options:{maintainAspectRatio:false}}));const map={};tx.forEach(x=>map[x.subject]=(map[x.subject]||0)+x.amount);const sc=document.getElementById('subjectChart');if(sc)chartRefs.push(new Chart(sc,{type:'bar',data:{labels:Object.keys(map),datasets:[{label:'Điểm ròng',data:Object.values(map),backgroundColor:'rgba(20,184,166,.7)',borderRadius:7}]},options:{maintainAspectRatio:false,plugins:{legend:{display:false}}}}));const cc=document.getElementById('coinChart');if(cc)chartRefs.push(new Chart(cc,{type:'line',data:{labels:ss.map(s=>s.name.split(' ').slice(-2).join(' ')),datasets:[{label:'Điểm',data:ss.map(s=>s.coins),borderColor:'#0d9488',backgroundColor:'rgba(13,148,136,.12)',fill:true,tension:.3}]},options:{maintainAspectRatio:false}}))}
 function exportStatsXlsx(){const ss=classStudents().map((s,i)=>({STT:i+1,'Học sinh':s.name,'Giới tính':s.gender,'Điểm':s.coins}));const tx=state.transactions.filter(x=>x.classId===state.activeClassId).map(x=>({'Thời gian':new Date(x.time).toLocaleString('vi-VN'),'Học sinh':x.studentName,'Môn':x.subject,'Lý do':x.reason,'Điểm':x.amount}));const red=state.redemptions.filter(x=>x.classId===state.activeClassId).map(x=>({'Thời gian':new Date(x.time).toLocaleString('vi-VN'),'Học sinh':x.studentName,'Quà':x.rewardName,'Chi phí điểm':x.cost}));downloadXlsx([['Xếp hạng',ss],['Cộng trừ điểm',tx],['Đổi thưởng',red]],`bao-cao-${activeClass().name}.xlsx`)}
-async function exportStatsPDF(){const el=document.getElementById('statsReport');const canvas=await html2canvas(el,{scale:1.5,backgroundColor:'#fff'});const img=canvas.toDataURL('image/jpeg',.92);const {jsPDF}=window.jspdf;const pdf=new jsPDF('p','mm','a4');const w=190,h=canvas.height*w/canvas.width;let y=10;pdf.addImage(img,'JPEG',10,y,w,h);if(h>277){/* one long page scaled */}pdf.save(`bao-cao-${activeClass().name}.pdf`);toast('Đã tạo PDF')}
+async function exportStatsPDF(){const el=document.getElementById('statsReport');const canvas=await html2canvas(el,{scale:1.5,backgroundColor:'#fff'});const img=canvas.toDataURL('image/jpeg',.92);const {jsPDF}=window.jspdf;const pdf=new jsPDF('p','mm','a4');const w=190,h=canvas.height*w/canvas.width;let y=10;pdf.addImage(img,'JPEG',10,y,w,h);if(h>277){}pdf.save(`bao-cao-${activeClass().name}.pdf`);toast('Đã tạo PDF')}
 function downloadXlsx(sheets,filename){const wb=XLSX.utils.book_new();sheets.forEach(([name,rows])=>{const ws=XLSX.utils.json_to_sheet(rows);XLSX.utils.book_append_sheet(wb,ws,name.slice(0,31))});XLSX.writeFile(wb,filename)}
 function renderData(){const size=(new Blob([JSON.stringify(state)]).size/1024).toFixed(1);return `<div class="section-head"><div><h2><i class="fa-solid fa-database text-primary me-2"></i>Quản lý Dữ liệu</h2><p>Sao lưu dữ liệu định kỳ để chuyển máy hoặc khôi phục khi cần.</p></div></div><div class="grid-equal"><div class="card p-4"><h4 class="fw-bold">📦 Sao lưu toàn bộ</h4><p class="text-muted">Xuất mọi lớp, học sinh, điểm danh, điểm thi đua, lịch, phần thưởng và cài đặt thành một tệp JSON.</p><button class="btn btn-primary" onclick="exportJSON()"><i class="fa-solid fa-download me-1"></i>Xuất file JSON sao lưu</button><div class="mt-3 small text-muted">Kích thước dữ liệu hiện tại: ~${size} KB</div></div><div class="card p-4"><h4 class="fw-bold">♻️ Khôi phục</h4><p class="text-muted">Nhập file JSON đã sao lưu từ ứng dụng này. Dữ liệu hiện tại sẽ được thay thế sau khi xác nhận.</p><button class="btn btn-outline-primary" onclick="document.getElementById('hiddenImport').click()"><i class="fa-solid fa-upload me-1"></i>Nhập file JSON</button></div></div><div class="card p-4 mt-3 border-danger"><h4 class="fw-bold text-danger">⚠️ Vùng dữ liệu nguy hiểm</h4><p class="text-muted">Đặt lại toàn bộ ứng dụng về dữ liệu mẫu ban đầu.</p><button class="btn btn-outline-danger" onclick="resetAllData()"><i class="fa-solid fa-trash-can me-1"></i>Xóa và tạo lại dữ liệu mẫu</button></div>`}
 function exportJSON(){const blob=new Blob([JSON.stringify(state,null,2)],{type:'application/json'});downloadBlob(blob,`lop-hoc-vui-ve-backup-${today()}.json`);toast('Đã xuất bản sao lưu')}
@@ -1829,12 +1826,10 @@ function renderSettings(){
   return `<div class="section-head"><div><h2><i class="fa-solid fa-gear text-primary me-2"></i>Cài đặt Hệ Thống & Tùy Chỉnh Lớp</h2><p>Cập nhật logo lớp, bảo mật 2 lớp mật khẩu quản trị và thông tin giáo viên.</p></div></div>
   <div class="grid-2">
     <div>
-      <!-- HỘP BẢO MẬT 2 LỚP VỚI CƠ CHẾ ẨN MẬT KHẨU GỐC -->
       <div class="card setting-box mb-3 border-warning shadow-sm">
         <h5 class="fw-bold text-warning-emphasis"><i class="fa-solid fa-shield-halved text-warning me-2"></i>Bảo Mật 2 Lớp Độc Lập</h5>
         <p class="small text-muted mb-3">Mật khẩu Lớp 1 bảo vệ Cài đặt & Dữ liệu. Mật khẩu Lớp 2 bảo vệ thao tác cộng/trừ điểm và sửa/xóa.</p>
         
-        <!-- Đổi mật khẩu Lớp 1 -->
         <div class="p-3 bg-light rounded-3 mb-3 border">
           <div class="d-flex justify-content-between align-items-center mb-1">
             <span class="fw-bold text-primary">1. Đổi Mật khẩu Lớp 1 (Cài đặt)</span>
@@ -1852,7 +1847,6 @@ function renderSettings(){
           </form>
         </div>
 
-        <!-- Đổi mật khẩu Lớp 2 -->
         <div class="p-3 bg-light rounded-3 border">
           <div class="d-flex justify-content-between align-items-center mb-1">
             <span class="fw-bold text-success">2. Đổi Mật khẩu Lớp 2 (Thao tác GVCN)</span>
@@ -2007,9 +2001,9 @@ document.addEventListener('DOMContentLoaded',()=>{
   mainModal=new bootstrap.Modal(document.getElementById('mainModal'));
   buildNav();
   renderHeader();
-  renderPage(); // vẽ tạm bằng dữ liệu cache trên máy, tránh trang trắng khi chờ mạng
+  renderPage();
   document.getElementById('hiddenImport').addEventListener('change',e=>{if(e.target.files[0])importJSON(e.target.files[0]);e.target.value=''});
-  initFirebaseSync(); // sau đó đồng bộ dữ liệu thật từ máy chủ, mọi người thấy cùng 1 bản
+  initFirebaseSync();
 });
 </script>
 </body>
