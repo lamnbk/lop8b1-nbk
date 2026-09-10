@@ -2134,15 +2134,33 @@ async function setGroupLeader(teamId, studentId){
   const g = currentGroupData();
   const team = g.teams.find(t=>t.id===teamId);
   if(!team) return;
+  const s = state.students.find(x=>x.id===studentId);
+  const result = await Swal.fire({
+    icon:'question',
+    title:'Đặt mật khẩu tổ trưởng',
+    html:`<p class="mb-2">Tổ trưởng: <b>${esc(s?.name||'')}</b> — <b>${esc(team.name)}</b></p>
+          <p class="small text-muted mb-2">GVCN tự đặt mật khẩu. Mật khẩu này sẽ được dùng để tổ trưởng đăng nhập.</p>
+          <input id="swal-leader-password" class="swal2-input" type="password" autocomplete="new-password" placeholder="Nhập mật khẩu">
+          <input id="swal-leader-password-confirm" class="swal2-input" type="password" autocomplete="new-password" placeholder="Nhập lại mật khẩu">`,
+    showCancelButton:true,
+    confirmButtonText:'Lưu mật khẩu',
+    cancelButtonText:'Hủy',
+    focusConfirm:false,
+    preConfirm:()=>{
+      const password = document.getElementById('swal-leader-password')?.value || '';
+      const confirm = document.getElementById('swal-leader-password-confirm')?.value || '';
+      if(password.length < 4){ Swal.showValidationMessage('Mật khẩu phải có ít nhất 4 ký tự.'); return false; }
+      if(password !== confirm){ Swal.showValidationMessage('Hai mật khẩu không trùng nhau.'); return false; }
+      return password;
+    }
+  });
+  if(!result.isConfirmed) return;
   team.leaderId = studentId;
-  team.leaderPassword = genLeaderCode();
+  team.leaderPassword = result.value;
   saveState();
   renderPage();
-  const s = state.students.find(x=>x.id===studentId);
-  Swal.fire({icon:'success', title:'Đã chỉ định tổ trưởng', html:`<p><b>${esc(s?.name||'')}</b> là tổ trưởng của <b>${esc(team.name)}</b>.</p><p>Mã đăng nhập (Mật khẩu Lớp 3):</p><p class="fs-3 fw-bold text-primary">${esc(team.leaderPassword)}</p><p class="small text-muted mb-0">Hãy cung cấp mã này cho tổ trưởng để tự đăng nhập và nhập thi đua riêng cho tổ. Mỗi tổ trưởng có mã riêng và chỉ quản lý được học sinh trong tổ của mình.</p>`});
+  Swal.fire({icon:'success', title:'Đã lưu tổ trưởng', html:`<p><b>${esc(s?.name||'')}</b> là tổ trưởng của <b>${esc(team.name)}</b>.</p><p>Mật khẩu do GVCN đặt:</p><p class="fs-3 fw-bold text-primary">${esc(team.leaderPassword)}</p><p class="small text-muted mb-0">Hãy cung cấp mật khẩu này cho tổ trưởng. Bạn có thể chọn lại tổ trưởng để đổi mật khẩu.</p>`});
 }
-
-function genLeaderCode(){ return Math.random().toString(36).slice(2,8).toUpperCase(); }
 
 function viewLeaderCode(teamId){
   const g = currentGroupData();
