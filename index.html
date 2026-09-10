@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>LỚP 8B1 - Trường THCS Nguyễn Bỉnh Khiêm</title>
+  <title>Classroom 8B1 - Trường THCS Nguyễn Bỉnh Khiêm</title>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
   <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
   <link href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css" rel="stylesheet">
@@ -261,6 +261,7 @@
   
 .group-expand-arrow{display:inline-flex;align-items:center;justify-content:center;width:22px;height:22px;border-radius:6px;background:var(--surface-2,#f1f5f9);font-size:14px;font-weight:700;transition:transform .15s ease}
 .group-card-head:hover .group-expand-arrow{transform:scale(1.05)}
+.group-member-name-link{cursor:pointer;font-weight:600;text-decoration:underline;text-decoration-style:dotted;text-underline-offset:3px}.group-member-name-link:hover{opacity:.8}
 </style>
 </head>
 <body>
@@ -270,7 +271,7 @@
       <div class="brand-logo" id="brandLogoContainer">8B1</div>
       <div class="brand-copy">
         <div class="brand-name" id="brandName">LỚP 8B1</div>
-        <span class="brand-subtitle" id="brandSubtitle">Khối 8 · THCS NBK</span>
+        <span class="brand-subtitle" id="brandSubtitle">Khối 8 · NBK</span>
       </div>
     </div>
     <nav id="sideNav"></nav>
@@ -384,7 +385,7 @@ function initFirebaseSync(){
     if(pill) pill.innerHTML = '<i class="fa-solid fa-triangle-exclamation me-1"></i>Mất kết nối máy chủ, đang dùng bản lưu tạm trên máy';
   });
 }
-const SUBJECTS=['Ghi chung / Nề nếp','Toán','Tiếng Việt','Tiếng Anh','Tự nhiên & Xã hội','Khoa học','Lịch sử & Địa lý','Tin học','Công nghệ','Mĩ thuật','Âm nhạc','Giáo dục thể chất','Đạo đức','Hoạt động trải nghiệm','Sinh hoạt lớp','Chào cờ'];
+const SUBJECTS=['Ghi chung / Nề nếp','TOÁN','VĂN','ANH','KHOA HỌC TỰ NHIÊN','Khoa học','Lịch sử & Địa lý','Tin học','Công nghệ','Mĩ thuật','Âm nhạc','Giáo dục thể chất','Đạo đức','Hoạt động trải nghiệm','Sinh hoạt lớp','Chào cờ'];
 const DAYS=['Thứ Hai','Thứ Ba','Thứ Tư','Thứ Năm','Thứ Sáu','Thứ Bảy'];
 const NAV=[
   ['home','fa-house','Trang chủ',''],['classes','fa-school','Lớp học',''],['students','fa-graduation-cap','Học sinh','count'],['groups','fa-people-group','Chia tổ',''],['attendance','fa-clipboard-check','Điểm danh',''],['weekly','fa-calendar-check','Nhật kí tuần','HOT'],['seating','fa-border-all','Sơ đồ lớp',''],['timetable','fa-calendar-days','Thời khóa biểu',''],['rewards','fa-gift','Đổi thưởng',''],['dailyPhotos','fa-images','Ảnh thường ngày','NEW'],['noise','fa-shield-halved','Chống ồn',''],['countdown','fa-stopwatch','Đếm ngược',''],['links','fa-link','Liên kết',''],['stats','fa-chart-column','Thống kê',''],['data','fa-database','Dữ liệu',''],['settings','fa-gear','Cài đặt','']
@@ -418,17 +419,17 @@ function defaultState(){
  const students=names.map((n,i)=>({id:'s'+(i+1),classId:cls,name:n[0],gender:n[1],coins:i===0?10:0,avatar:'',favorite:i<3,note:''}));
  return {
   version:9, activeClassId:cls, currentPage:'home',
-  settingPassword: '******',
-  adminPassword: '******',
-  teacher:{name:'Giáo viên Chủ nhiệm',role:'GVCN',subject:'Tin học',school:'Trường THCS',avatar:''},
+  settingPassword: 'admin8b1',
+  adminPassword: '123',
+  teacher:{name:'Giáo viên Chủ nhiệm',role:'GVCN',subject:'TOÁN',school:'Trường THCS',avatar:''},
   classes:[{id:cls,name:'LỚP 8B1',grade:'Khối 8',year:'2026 - 2027',color:'#0d9488',logoText:'8B1',logoImage:''}],students,
   attendance:{},attendanceDate:today(),
   seating:{[cls]:{type:'2x7x4',lanes:2,seats:14,mode:'2d',assignments:{}}},
   timetable:{morning:true,afternoon:true,morningCount:5,afternoonCount:4,entries:[
     {id:uid('tt'),classId:cls,day:0,slot:'S1',subject:'Chào cờ'},
-    {id:uid('tt'),classId:cls,day:1,slot:'S1',subject:'Toán'},
-    {id:uid('tt'),classId:cls,day:2,slot:'S1',subject:'Tiếng Việt'},
-    {id:uid('tt'),classId:cls,day:3,slot:'S2',subject:'Tin học'},
+    {id:uid('tt'),classId:cls,day:1,slot:'S1',subject:'TOÁN'},
+    {id:uid('tt'),classId:cls,day:2,slot:'S1',subject:'VĂN'},
+    {id:uid('tt'),classId:cls,day:3,slot:'S2',subject:'TIN'},
     {id:uid('tt'),classId:cls,day:4,slot:'C1',subject:'Sinh hoạt lớp'}
   ]},
   slotTimes:{
@@ -614,7 +615,7 @@ async function recoverSettingPassword(){
 
 async function verifyAdminAccess(){
   if(isAdminUnlocked) return true;
-  const currentPass = state.adminPassword || '123';
+  const currentPass = state.adminPassword || '***';
   const {value: enteredPass, isDismissed} = await Swal.fire({
     title: '🔒 Mật khẩu Thao tác GVCN (Lớp 2)',
     html: `<p class="small text-muted mb-2">Thao tác cộng/trừ điểm và sửa/xóa chỉ dành riêng cho GVCN.</p>`,
@@ -723,7 +724,7 @@ function renderHeader(){
   const brandName = document.getElementById('brandName');
   if(brandName) brandName.textContent = curCls.name || 'LỚP 8B1';
   const brandSub = document.getElementById('brandSubtitle');
-  if(brandSub) brandSub.textContent = `${curCls.grade || 'Khối 8'} · THCS NBK`;
+  if(brandSub) brandSub.textContent = `${curCls.grade || 'Khối 8'} · NBK`;
 
   updateAuthBtnUI();
 }
@@ -2103,8 +2104,13 @@ const groupKey = `group_${String(team.id||team.name||'').replace(/[^a-zA-Z0-9_-]
     </div>
     <div class="mt-3" style="max-height:230px;overflow:auto">
       ${members.length ? members.map(s=>`<div class="group-member-row">
-        <span>${esc(s.name)} ${team.leaderId===s.id?'<span class="group-leader-badge">Tổ trưởng</span>':''}</span>
-        <div class="d-flex gap-1">
+        <span class="group-member-name-link" onclick="viewStudentViolations('${s.id}')" title="Xem chi tiết điểm thi đua">
+          ${esc(s.name)} ${team.leaderId===s.id?'<span class="group-leader-badge">Tổ trưởng</span>':''}
+        </span>
+        <div class="d-flex align-items-center gap-1 flex-wrap">
+          <button class="coin-pill ${((s.coins||0)<0)?'negative':''}" style="border:0;cursor:pointer;padding:4px 9px" onclick="viewStudentViolations('${s.id}')" title="Xem khen thưởng/kỷ luật">
+            <i class="fa-solid fa-award me-1"></i>${s.coins||0} điểm
+          </button>
           <button class="btn btn-sm btn-outline-primary" style="padding:2px 8px;font-size:.72rem" onclick="setGroupLeader('${team.id}','${s.id}')">${team.leaderId===s.id?'Cấp lại mã':'Chọn làm tổ trưởng'}</button>
           <button class="icon-btn" style="width:28px;height:28px" title="Bỏ khỏi tổ" onclick="removeStudentFromGroup('${team.id}','${s.id}')"><i class="fa-solid fa-xmark"></i></button>
         </div>
@@ -2115,6 +2121,8 @@ const groupKey = `group_${String(team.id||team.name||'').replace(/[^a-zA-Z0-9_-]
 }
 
 async function openGroupCountModal(){
+  const ok = await verifyAdminAccess();
+  if(!ok) return;
   const g = currentGroupData();
   const {value:n} = await Swal.fire({
     title:'Chọn số lượng tổ',
@@ -2175,7 +2183,9 @@ async function setGroupLeader(teamId, studentId){
   Swal.fire({icon:'success', title:'Đã lưu tổ trưởng', html:`<p><b>${esc(s?.name||'')}</b> là tổ trưởng của <b>${esc(team.name)}</b>.</p><p class="text-success fw-bold"><i class="fa-solid fa-lock me-1"></i>Mật khẩu đã được lưu và ẩn trên giao diện.</p><p class="small text-muted mb-0">Mật khẩu là mật khẩu GVCN vừa đặt. Hãy cung cấp cho đúng tổ trưởng. Muốn đổi mật khẩu, bấm “Đổi mật khẩu”.</p>`});
 }
 
-function removeStudentFromGroup(teamId, studentId){
+async function removeStudentFromGroup(teamId, studentId){
+  const ok = await verifyAdminAccess();
+  if(!ok) return;
   const g = currentGroupData();
   const team = g.teams.find(t=>t.id===teamId);
   if(!team) return;
@@ -2184,7 +2194,9 @@ function removeStudentFromGroup(teamId, studentId){
   saveState(); renderPage();
 }
 
-function clearGroupList(teamId){
+async function clearGroupList(teamId){
+  const ok = await verifyAdminAccess();
+  if(!ok) return;
   Swal.fire({icon:'warning', title:'Xóa danh sách của tổ này?', text:'Học sinh sẽ được bỏ khỏi tổ (không xóa khỏi lớp). Tổ trưởng và mã đăng nhập của tổ cũng sẽ bị xóa.', showCancelButton:true, confirmButtonText:'Xóa danh sách', cancelButtonText:'Hủy', confirmButtonColor:'#dc2626'}).then(r=>{
     if(!r.isConfirmed) return;
     const g = currentGroupData();
@@ -2196,7 +2208,9 @@ function clearGroupList(teamId){
   });
 }
 
-function openImportGroupModal(teamId){
+async function openImportGroupModal(teamId){
+  const ok = await verifyAdminAccess();
+  if(!ok) return;
   Swal.fire({
     title:'Nhập danh sách Tổ',
     html:`<div class="d-grid gap-2 text-start">
@@ -2295,10 +2309,12 @@ async function confirmGroupImport(teamId, rawNames){
   if(!isConfirmed && !isDenied) return;
   const ok = await verifyAdminAccess();
   if(!ok) return;
-  applyGroupImport(team, names, isDenied ? 'replace' : 'append');
+  await applyGroupImport(team, names, isDenied ? 'replace' : 'append');
 }
 
-function applyGroupImport(team, names, mode){
+async function applyGroupImport(team, names, mode){
+  const ok = await verifyAdminAccess();
+  if(!ok) return;
   if(mode==='replace') team.studentIds = [];
   names.forEach(name=>{
     let s = classStudents().find(x=>x.name.trim().toLowerCase()===name.toLowerCase());
@@ -2361,8 +2377,8 @@ async function leaderAdjustCoins(id, sign){
     html:`<div class="text-start">
       <label class="form-label fw-bold">Số lượng điểm</label>
       <select id="coinAmount" class="form-select"><option value="1">1 điểm</option><option value="2">2 điểm</option><option value="3">3 điểm</option><option value="5">5 điểm</option></select>
-      <label class="form-label fw-bold mt-3">Lý do</label>
-      <input id="coinReason" class="form-control" placeholder="${sign>0?'Tích cực xây dựng bài, giúp đỡ bạn...':'Nói chuyện riêng, quên vở, đi muộn...'}">
+      <label class="form-label fw-bold mt-3">Nội dung khen thưởng / kỷ luật</label>
+      <input id="coinReason" class="form-control" required placeholder="${sign>0?'Ví dụ: Phát biểu tốt, giúp đỡ bạn...':'Ví dụ: Nói chuyện riêng, quên vở, vi phạm nề nếp...'}">
     </div>`,
     showCancelButton:true,
     confirmButtonText: sign>0 ? 'Xác nhận thưởng' : 'Xác nhận trừ điểm',
@@ -2682,7 +2698,7 @@ async function saveSettingPassword(e){
   e.preventDefault();
   const oldPass = document.getElementById('oldSettingPass').value.trim();
   const newPass = document.getElementById('newSettingPass').value.trim();
-  const currentPass = state.settingPassword || 'admin8b1';
+  const currentPass = state.settingPassword || '******';
 
   if(oldPass !== currentPass){
     return Swal.fire({icon:'error', title:'Mật khẩu cũ không chính xác!'});
