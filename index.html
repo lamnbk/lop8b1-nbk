@@ -2095,7 +2095,7 @@ function groupCard(team){
         </div>
       </div>`).join('') : '<div class="text-muted small py-2">Chưa có học sinh trong tổ này. Bấm "Nhập danh sách" để thêm.</div>'}
     </div>
-    ${team.leaderId && team.leaderPassword ? `<div class="alert alert-success mt-3 mb-0 py-2 px-2 small d-flex justify-content-between align-items-center"><span><i class="fa-solid fa-key me-1"></i>Mã đăng nhập Tổ trưởng: <b>${esc(team.leaderPassword)}</b></span><button class="btn btn-sm btn-link p-0" onclick="viewLeaderCode('${team.id}')">Xem lại</button></div>` : ''}
+    ${team.leaderId && team.leaderPassword ? `<div class="alert alert-success mt-3 mb-0 py-2 px-2 small d-flex justify-content-between align-items-center"><span><i class="fa-solid fa-lock me-1"></i>Đã đặt mật khẩu tổ trưởng (mật khẩu được ẩn)</span><button class="btn btn-sm btn-outline-primary py-0 px-2" onclick="setGroupLeader('${team.id}','${team.leaderId}')">Đổi mật khẩu</button></div>` : ''}
   </div>`;
 }
 
@@ -2157,15 +2157,7 @@ async function setGroupLeader(teamId, studentId){
   team.leaderPassword = result.value;
   saveState();
   renderPage();
-  Swal.fire({icon:'success', title:'Đã lưu tổ trưởng', html:`<p><b>${esc(s?.name||'')}</b> là tổ trưởng của <b>${esc(team.name)}</b>.</p><p>Mật khẩu do GVCN đặt:</p><p class="fs-3 fw-bold text-primary">${esc(team.leaderPassword)}</p><p class="small text-muted mb-0">Hãy cung cấp mật khẩu này cho tổ trưởng. Bạn có thể chọn lại tổ trưởng để đổi mật khẩu.</p>`});
-}
-
-function viewLeaderCode(teamId){
-  const g = currentGroupData();
-  const team = g.teams.find(t=>t.id===teamId);
-  if(!team || !team.leaderPassword) return;
-  const s = state.students.find(x=>x.id===team.leaderId);
-  Swal.fire({icon:'info', title:'Mã đăng nhập Tổ trưởng', html:`<p><b>${esc(s?.name||'')}</b> - ${esc(team.name)}</p><p class="fs-3 fw-bold text-primary">${esc(team.leaderPassword)}</p>`});
+  Swal.fire({icon:'success', title:'Đã lưu tổ trưởng', html:`<p><b>${esc(s?.name||'')}</b> là tổ trưởng của <b>${esc(team.name)}</b>.</p><p class="text-success fw-bold"><i class="fa-solid fa-lock me-1"></i>Mật khẩu đã được lưu và ẩn trên giao diện.</p><p class="small text-muted mb-0">Mật khẩu là mật khẩu GVCN vừa đặt. Hãy cung cấp cho đúng tổ trưởng. Muốn đổi mật khẩu, bấm “Đổi mật khẩu”.</p>`});
 }
 
 function removeStudentFromGroup(teamId, studentId){
@@ -2376,8 +2368,9 @@ function openLeaderLogin(){
   Swal.fire({
     title:'🔑 Đăng nhập Tổ trưởng',
     html:`<p class="small text-muted mb-2">Nhập mã đăng nhập (Mật khẩu Lớp 3) do giáo viên cấp riêng cho tổ trưởng.</p>`,
-    input:'text',
-    inputPlaceholder:'Nhập mã đăng nhập...',
+    input:'password',
+    inputAttributes:{autocomplete:'current-password'},
+    inputPlaceholder:'Nhập mật khẩu tổ trưởng...',
     showCancelButton:true, confirmButtonText:'Đăng nhập', cancelButtonText:'Hủy'
   }).then(({value:code, isConfirmed})=>{
     if(!isConfirmed || !code) return;
