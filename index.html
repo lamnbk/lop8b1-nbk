@@ -363,8 +363,7 @@ function initFirebaseSync(){
       if(!remote.attendance) remote.attendance = {};
       if(!remote.seating) remote.seating = {};
       if(!remote.slotTimes) remote.slotTimes = {};
-      if(!remote.groups || typeof remote.groups !== 'object' || Array.isArray(remote.groups)) remote.groups = {};
-      if(!remote.groups[remote.activeClassId]) remote.groups[remote.activeClassId] = {count:0,teams:[]};
+      if(!remote.groups || typeof remote.groups !== 'object') remote.groups = {};
 
       const localPage = state.currentPage;
       state = remote;
@@ -436,7 +435,7 @@ function defaultState(){
   rewards:[{id:'r1',name:'Bút',cost:10,emoji:'🖊️',stock:10},{id:'r2',name:'Thước',cost:15,emoji:'📏',stock:8},{id:'r3',name:'Sticker',cost:5,emoji:'🌟',stock:30},{id:'r4',name:'Sổ tay',cost:25,emoji:'📒',stock:5}],
   redemptions:[],transactions:[],wheelHistory:[],dailyPhotos:[],links:[{id:'l1',name:'Học liệu lớp học',url:'https://',category:'Học liệu & SGK',desc:'Liên kết mẫu - hãy chỉnh sửa',pinned:true}],
   subjects:SUBJECTS.slice(), settings:{wheelExclude:true,tickLast10:false,timerColor:'#0d9488'},
-  wheelExcluded:[], groups:{[cls]:{count:0,teams:[]}}
+  wheelExcluded:[], groups:{}
  }
 }
 
@@ -474,8 +473,7 @@ function loadState(){
       if(!x.seating) x.seating = {};
       if(!x.slotTimes) x.slotTimes = {};
       if(!Array.isArray(x.wheelExcluded)) x.wheelExcluded = [];
-      if(!x.groups || typeof x.groups !== 'object' || Array.isArray(x.groups)) x.groups = {};
-      if(!x.groups[x.activeClassId]) x.groups[x.activeClassId] = {count:0,teams:[]};
+      if(!x.groups || typeof x.groups !== 'object') x.groups = {};
 
       return x;
     }
