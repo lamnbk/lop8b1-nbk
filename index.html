@@ -358,7 +358,7 @@ function initFirebaseSync(){
 const SUBJECTS=['Ghi chung / Nề nếp','Toán','Tiếng Việt','Tiếng Anh','Tự nhiên & Xã hội','Khoa học','Lịch sử & Địa lý','Tin học','Công nghệ','Mĩ thuật','Âm nhạc','Giáo dục thể chất','Đạo đức','Hoạt động trải nghiệm','Sinh hoạt lớp','Chào cờ'];
 const DAYS=['Thứ Hai','Thứ Ba','Thứ Tư','Thứ Năm','Thứ Sáu','Thứ Bảy'];
 
-// Xóa tab vòng quay, nhân bản và thay đúng vị trí ngay dưới tab Học sinh bằng tab Chia tổ
+// Đặt tab Chia tổ chính xác ngay phía dưới Tab Học sinh (nhân bản từ cấu trúc sạch)
 const NAV=[
   ['home','fa-house','Trang chủ',''],
   ['classes','fa-school','Lớp học',''],
@@ -382,7 +382,7 @@ const PAGE_META={
  home:['Trang chủ','Tổng quan nhanh tình hình lớp học hôm nay'],
  classes:['Quản lý Lớp học','Danh sách các lớp, khối lớp và thông tin chung'],
  students:['Danh sách học sinh','Quản lý thành viên, nề nếp và điểm thi đua'],
- groups:['Chia tổ học sinh','Chia lớp thành các tổ, chọn tổ trưởng và cấp mật khẩu riêng cho tổ trưởng'],
+ groups:['Chia tổ học sinh','Chia lớp thành các tổ, chọn tổ trưởng và cấp mã đăng nhập riêng'],
  attendance:['Điểm danh','Theo dõi sĩ số, chuyên cần và tình hình đi học hằng ngày'],
  weekly:['Nhật kí tuần','Tổng hợp thi đua, vi phạm và khen thưởng theo tuần & tháng'],
  seating:['Sơ đồ Lớp học','Bố trí vị trí chỗ ngồi trực quan và linh hoạt'],
@@ -421,7 +421,7 @@ function defaultState(){
  const names=[['Nguyễn Hải Đăng','Nam'],['Trần Quỳnh Chi','Nữ'],['Lê Đức Minh','Nam'],['Phạm Thùy Dương','Nữ'],['Vũ Anh Khoa','Nam'],['Hoàng Ngọc Hà','Nữ'],['Đặng Minh Quân','Nam'],['Bùi Khánh An','Nữ'],['Đỗ Gia Bảo','Nam'],['Ngô Phương Linh','Nữ'],['Dương Nhật Huy','Nam'],['Mai Thu Trang','Nữ'],['Phan Hoàng Long','Nam'],['Lý Bảo Châu','Nữ'],['Tạ Minh Phúc','Nam']];
  const students=names.map((n,i)=>({id:'s'+(i+1),classId:cls,name:n[0],gender:n[1],coins:i===0?10:0,avatar:'',favorite:i<3,note:''}));
  return {
-  version:9, activeClassId:cls, currentPage:'home',
+  version:10, activeClassId:cls, currentPage:'home',
   settingPassword: 'admin8b1',
   adminPassword: '123',
   teacher:{name:'Giáo viên Chủ nhiệm',role:'GVCN',subject:'Tin học',school:'Trường THCS',avatar:''},
@@ -440,8 +440,8 @@ function defaultState(){
     'C1':'13:30 - 14:05','C2':'14:15 - 14:50','C3':'15:05 - 15:40','C4':'15:50 - 16:25','C5':'16:35 - 17:10'
   },
   rewards:[{id:'r1',name:'Bút',cost:10,emoji:'🖊️',stock:10},{id:'r2',name:'Thước',cost:15,emoji:'📏',stock:8},{id:'r3',name:'Sticker',cost:5,emoji:'🌟',stock:30},{id:'r4',name:'Sổ tay',cost:25,emoji:'📒',stock:5}],
-  redemptions:[],transactions:[],wheelHistory:[],dailyPhotos:[],links:[{id:'l1',name:'Học liệu lớp học',url:'https://',category:'Học liệu & SGK',desc:'Liên kết mẫu - hãy chỉnh sửa',pinned:true}],
-  subjects:SUBJECTS.slice(), settings:{wheelExclude:true,tickLast10:false,timerColor:'#0d9488'},
+  redemptions:[],transactions:[],dailyPhotos:[],links:[{id:'l1',name:'Học liệu lớp học',url:'https://',category:'Học liệu & SGK',desc:'Liên kết mẫu - hãy chỉnh sửa',pinned:true}],
+  subjects:SUBJECTS.slice(), settings:{tickLast10:false,timerColor:'#0d9488'},
   wheelExcluded:[], groups:{}
  }
 }
@@ -751,7 +751,7 @@ async function navigate(page){
 
 function switchClass(id){if(isLeaderMode())return;state.activeClassId=id;saveState();buildNav();renderHeader();renderPage()}
 
-// Đảm bảo fnMap mapping đầy đủ và chính xác tuyệt đối, ánh xạ đúng 'groups' tới hàm renderGroups
+// Hàm renderPage được cấu hình chuẩn xác mảng fnMap ánh xạ đúng 'groups' gọi hàm renderGroups
 function renderPage(){
   chartRefs.forEach(c=>{try{c.destroy()}catch(e){}});
   chartRefs=[];
@@ -1622,7 +1622,7 @@ function setAttendance(id,status){
 function exportAttendance(){const date=document.getElementById('attDate')?.value||today(),att=state.attendance[state.activeClassId+'_'+date]||{};const rows=classStudents().map((s,i)=>({'STT':i+1,'Họ tên':s.name,'Trạng thái':({present:'Có mặt',late:'Đi muộn',excused:'Có phép',unexcused:'Không phép'})[att[s.id]||'present']}));downloadXlsx([['Điểm danh',rows]],`diem-danh-${activeClass().name}-${date}.xlsx`)}
 
 /* ========================================================
-   CHIA TỔ & TỔ TRƯỞNG (Đã sửa sạch sẽ để không bị trùng lập/trắng màn hình)
+   TAB CHIA TỔ (Nhân bản và chỉnh sửa chuẩn xác, có mật khẩu tổ trưởng)
    ======================================================== */
 function ensureGroupsForClass(){
   if(!state.groups || typeof state.groups !== 'object') state.groups = {};
