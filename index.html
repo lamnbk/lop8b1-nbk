@@ -185,32 +185,6 @@
     .reward-card { overflow:hidden; }
     .reward-visual { height:125px; display:grid; place-items:center; font-size:3.5rem; background:linear-gradient(135deg,#ecfdf5,#cffafe); }
     .reward-body { padding:14px; }
-    .wheel-layout { display:grid; grid-template-columns:minmax(0,1fr) 330px; gap:16px; }
-    .wheel-card { padding:18px; position:relative; overflow:hidden; }
-    .wheel-machine { width:min(520px,90vw); aspect-ratio:1/1; border-radius:50%; border:8px solid #14b8a6; margin:10px auto; position:relative; background:radial-gradient(circle,#f0fdfa 0,#ecfeff 55%,#ccfbf1 100%); box-shadow:inset 0 0 35px rgba(13,148,136,.15),0 20px 35px rgba(13,148,136,.2); overflow:hidden; }
-    .wheel-machine::before { content:"✦"; position:absolute; inset:0; display:grid; place-items:center; font-size:5rem; color:#0d9488; opacity:.22; }
-    .wheel-ball { position:absolute; width:58px; height:58px; border-radius:50%; border:3px solid white; box-shadow:0 4px 12px rgba(15,23,42,.25); display:grid; place-items:center; background:var(--teal-gradient); color:white; font-weight:900; overflow:hidden; transform:translate(-50%,-50%); transition:all 1.1s cubic-bezier(.2,.8,.2,1); }
-    .wheel-ball img{width:100%;height:100%;object-fit:cover}
-    .wheel-machine.spinning .wheel-ball { animation:orbit .72s linear infinite; }
-    .wheel-machine.fx1.spinning .wheel-ball { animation:bounceBall .48s ease-in-out infinite alternate; }
-    .wheel-machine.fx2.spinning .wheel-ball { animation:suckCenter .82s ease-in-out infinite; }
-    .wheel-machine.fx3.spinning .wheel-ball { animation:flyOrbit .95s ease-in-out infinite alternate; }
-    .wheel-machine.fx4.spinning .wheel-ball { animation:rainBall .85s ease-in infinite; }
-    .wheel-machine.fx5.spinning { animation:stageGlow .5s ease-in-out infinite alternate; }
-    .wheel-machine.fx5.spinning .wheel-ball { animation:spotlight .6s ease-in-out infinite alternate; }
-    .wheel-machine.fx6.spinning .wheel-ball { animation:waveBall .7s ease-in-out infinite alternate; }
-    @keyframes orbit { 0%{filter:hue-rotate(0)}50%{transform:translate(-50%,-50%) scale(1.12) rotate(180deg)}100%{filter:hue-rotate(360deg);transform:translate(-50%,-50%) rotate(360deg)} }
-    @keyframes bounceBall { from{transform:translate(-50%,-50%) scale(.82)} to{transform:translate(-50%,-68%) scale(1.18)} }
-    @keyframes suckCenter { 0%,100%{transform:translate(-50%,-50%) scale(1)} 50%{left:50%;top:50%;transform:translate(-50%,-50%) scale(.72)} }
-    @keyframes flyOrbit { from{transform:translate(-70%,-35%) rotate(-18deg)} to{transform:translate(-30%,-65%) rotate(18deg)} }
-    @keyframes rainBall { 0%{transform:translate(-50%,-160%) scale(.85)} 65%{transform:translate(-50%,10%) scale(1.08)} 100%{transform:translate(-50%,-50%) scale(1)} }
-    @keyframes stageGlow { from{box-shadow:inset 0 0 35px rgba(13,148,136,.15),0 20px 35px rgba(13,148,136,.2)} to{box-shadow:inset 0 0 70px rgba(251,191,36,.42),0 0 45px rgba(139,92,246,.4)} }
-    @keyframes spotlight { from{filter:brightness(.75);transform:translate(-50%,-50%) scale(1.15)} to{filter:brightness(1.35);transform:translate(-50%,-50%) scale(1.15)} }
-    @keyframes waveBall { from{transform:translate(-50%,-62%) rotate(-8deg)} to{transform:translate(-50%,-38%) rotate(8deg)} }
-    .effect-chip { border:1px solid #cbd5e1; border-radius:999px; padding:7px 10px; background:#fff; font-size:.8rem; font-weight:800; cursor:pointer; }
-    .effect-chip.active { background:var(--teal-gradient); color:white; border-color:#0d9488; }
-    .history-list { max-height:280px; overflow:auto; }
-    .history-item { padding:9px; border-bottom:1px solid #e5e7eb; display:flex; justify-content:space-between; gap:8px; font-size:.82rem; }
     .alert-grid { display:grid; grid-template-columns:repeat(2,1fr); gap:12px; }
     .class-alert { min-height:110px; border-radius:17px; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:6px; font-weight:900; cursor:pointer; border:2px solid transparent; transition:.2s; }
     .class-alert:hover { transform:scale(1.02); }
@@ -245,7 +219,7 @@
     .full-alert-card .emoji { font-size:5rem; }
     .full-alert-card h2 { font-weight:900;font-size:2.5rem; }
     ::-webkit-scrollbar { width:8px;height:8px } ::-webkit-scrollbar-track{background:#f0fdfa} ::-webkit-scrollbar-thumb{background:linear-gradient(#0d9488,#5eead4);border-radius:4px}
-    @media(max-width:1100px){ .stats-grid{grid-template-columns:repeat(2,1fr)} .wheel-layout,.countdown-layout,.grid-2{grid-template-columns:1fr} .teacher-mini{display:none} .class-switcher{min-width:120px} }
+    @media(max-width:1100px){ .stats-grid{grid-template-columns:repeat(2,1fr)} .countdown-layout,.grid-2{grid-template-columns:1fr} .teacher-mini{display:none} .class-switcher{min-width:120px} }
     @media(max-width:820px){
       .app-shell{padding:8px}.sidebar{position:fixed;left:8px;top:8px;bottom:8px;z-index:50;transform:translateX(-115%);transition:.25s;height:auto}.sidebar.open{transform:translateX(0)}
       .main-wrap{width:100%}.topbar{top:8px;padding:11px}.page-title p{display:none}.main-content{padding:13px}.top-actions .save-pill{display:none}.fab-mobile{display:grid;place-items:center;position:fixed;right:18px;bottom:18px;width:52px;height:52px;border-radius:50%;background:var(--teal-gradient);color:white;border:none;z-index:60;box-shadow:var(--shadow-3d)}
@@ -291,6 +265,7 @@
 <input type="file" id="hiddenImport" accept="application/json" hidden>
 <input type="file" id="hiddenStudentExcelImport" accept=".xlsx, .xls, .csv" hidden onchange="handleStudentExcelFile(this)">
 <input type="file" id="hiddenDailyPhotoInput" accept="image/*" hidden onchange="handleDailyPhotoUpload(this)">
+<input type="file" id="hiddenTeamImportInput" accept=".xlsx, .xls, .csv, .docx, .txt" hidden onchange="handleTeamImportFile(this)">
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
@@ -350,6 +325,7 @@ function initFirebaseSync(){
       if(!Array.isArray(remote.redemptions)) remote.redemptions = [];
       if(!Array.isArray(remote.wheelHistory)) remote.wheelHistory = [];
       if(!Array.isArray(remote.dailyPhotos)) remote.dailyPhotos = [];
+      if(!Array.isArray(remote.teams)) remote.teams = [];
       if(!Array.isArray(remote.links)) remote.links = [];
       if(!Array.isArray(remote.subjects)) remote.subjects = SUBJECTS.slice();
       if(!remote.attendance) remote.attendance = {};
@@ -375,16 +351,32 @@ function initFirebaseSync(){
 const SUBJECTS=['Ghi chung / Nề nếp','Toán','Tiếng Việt','Tiếng Anh','Tự nhiên & Xã hội','Khoa học','Lịch sử & Địa lý','Tin học','Công nghệ','Mĩ thuật','Âm nhạc','Giáo dục thể chất','Đạo đức','Hoạt động trải nghiệm','Sinh hoạt lớp','Chào cờ'];
 const DAYS=['Thứ Hai','Thứ Ba','Thứ Tư','Thứ Năm','Thứ Sáu','Thứ Bảy'];
 const NAV=[
-  ['home','fa-house','Trang chủ',''],['classes','fa-school','Lớp học',''],['students','fa-graduation-cap','Học sinh','count'],['attendance','fa-clipboard-check','Điểm danh',''],['weekly','fa-calendar-check','Nhật kí tuần','HOT'],['seating','fa-border-all','Sơ đồ lớp',''],['timetable','fa-calendar-days','Thời khóa biểu',''],['rewards','fa-gift','Đổi thưởng',''],['wheel','fa-wand-magic-sparkles','Vòng quay',''],['dailyPhotos','fa-images','Ảnh thường ngày','NEW'],['noise','fa-shield-halved','Chống ồn',''],['countdown','fa-stopwatch','Đếm ngược',''],['links','fa-link','Liên kết',''],['stats','fa-chart-column','Thống kê',''],['data','fa-database','Dữ liệu',''],['settings','fa-gear','Cài đặt','']
+  ['home','fa-house','Trang chủ',''],
+  ['classes','fa-school','Lớp học',''],
+  ['students','fa-graduation-cap','Học sinh','count'],
+  ['teams','fa-people-group','Chia tổ','NEW'],
+  ['attendance','fa-clipboard-check','Điểm danh',''],
+  ['weekly','fa-calendar-check','Nhật kí tuần','HOT'],
+  ['seating','fa-border-all','Sơ đồ lớp',''],
+  ['timetable','fa-calendar-days','Thời khóa biểu',''],
+  ['rewards','fa-gift','Đổi thưởng',''],
+  ['dailyPhotos','fa-images','Ảnh thường ngày',''],
+  ['noise','fa-shield-halved','Chống ồn',''],
+  ['countdown','fa-stopwatch','Đếm ngược',''],
+  ['links','fa-link','Liên kết',''],
+  ['stats','fa-chart-column','Thống kê',''],
+  ['data','fa-database','Dữ liệu',''],
+  ['settings','fa-gear','Cài đặt','']
 ];
 const PAGE_META={
- home:['Trang chủ','Tổng quan nhanh tình hình lớp học hôm nay'],classes:['Quản lý Lớp học','Danh sách các lớp, khối lớp và thông tin chung'],students:['Danh sách học sinh','Quản lý thành viên, nề nếp và điểm thi đua'],attendance:['Điểm danh','Theo dõi sĩ số, chuyên cần và tình hình đi học hằng ngày'],weekly:['Nhật kí tuần','Tổng hợp thi đua, vi phạm và khen thưởng theo tuần & tháng'],seating:['Sơ đồ Lớp học','Bố trí vị trí chỗ ngồi trực quan và linh hoạt'],timetable:['Thời khóa biểu','Thiết lập lịch dạy Sáng/Chiều và các môn học trong tuần'],rewards:['Đổi thưởng','Tạo phần thưởng và đổi quà bằng điểm thi đua'],wheel:['Vòng quay may mắn','Quay ngẫu nhiên gọi tên học sinh hoặc nhận thưởng'],dailyPhotos:['Ảnh Thường Ngày','Lưu giữ khoảnh khắc và hình ảnh hoạt động của lớp học'],noise:['Công Cụ Chống Ồn','Cảnh báo lớp học, đếm ngược im lặng và đo microphone'],countdown:['Đồng Hồ Đếm Ngược','Thiết lập thời gian, mẫu nhanh và chuông báo'],links:['Liên kết hữu ích','Lưu học liệu, trang web và đường dẫn dùng chung'],stats:['Báo cáo & Thống kê','Biểu đồ phân tích thi đua, nề nếp và điểm rèn luyện'],data:['Quản lý dữ liệu','Sao lưu, khôi phục và làm sạch dữ liệu ứng dụng'],settings:['Cài đặt hệ thống','Thiết lập logo lớp, hồ sơ giáo viên và cấu hình']
+ home:['Trang chủ','Tổng quan nhanh tình hình lớp học hôm nay'],classes:['Quản lý Lớp học','Danh sách các lớp, khối lớp và thông tin chung'],students:['Danh sách học sinh','Quản lý thành viên, nề nếp và điểm thi đua'],teams:['Chia tổ học tập','Quản lý tổ, phân công tổ trưởng và cấp mật khẩu riêng cho tổ trưởng'],attendance:['Điểm danh','Theo dõi sĩ số, chuyên cần và tình hình đi học hằng ngày'],weekly:['Nhật kí tuần','Tổng hợp thi đua, vi phạm và khen thưởng theo tuần & tháng'],seating:['Sơ đồ Lớp học','Bố trí vị trí chỗ ngồi trực quan và linh hoạt'],timetable:['Thời khóa biểu','Thiết lập lịch dạy Sáng/Chiều và các môn học trong tuần'],rewards:['Đổi thưởng','Tạo phần thưởng và đổi quà bằng điểm thi đua'],dailyPhotos:['Ảnh Thường Ngày','Lưu giữ khoảnh khắc và hình ảnh hoạt động của lớp học'],noise:['Công Cụ Chống Ồn','Cảnh báo lớp học, đếm ngược im lặng và đo microphone'],countdown:['Đồng Hồ Đếm Ngược','Thiết lập thời gian, mẫu nhanh và chuông báo'],links:['Liên kết hữu ích','Lưu học liệu, trang web và đường dẫn dùng chung'],stats:['Báo cáo & Thống kê','Biểu đồ phân tích thi đua, nề nếp và điểm rèn luyện'],data:['Quản lý dữ liệu','Sao lưu, khôi phục và làm sạch dữ liệu ứng dụng'],settings:['Cài đặt hệ thống','Thiết lập logo lớp, hồ sơ giáo viên và cấu hình']
 };
 
 let currentFilterMonth = 'all';
 let weeklyMonth = '9';
 let weeklyWeek = 'all';
 let isAdminUnlocked = false;
+let activeTeamIdForImport = null;
 
 let settingFailCount = 0;
 let settingLockUntil = 0;
@@ -405,11 +397,12 @@ function defaultState(){
  const names=[['Nguyễn Hải Đăng','Nam'],['Trần Quỳnh Chi','Nữ'],['Lê Đức Minh','Nam'],['Phạm Thùy Dương','Nữ'],['Vũ Anh Khoa','Nam'],['Hoàng Ngọc Hà','Nữ'],['Đặng Minh Quân','Nam'],['Bùi Khánh An','Nữ'],['Đỗ Gia Bảo','Nam'],['Ngô Phương Linh','Nữ'],['Dương Nhật Huy','Nam'],['Mai Thu Trang','Nữ'],['Phan Hoàng Long','Nam'],['Lý Bảo Châu','Nữ'],['Tạ Minh Phúc','Nam']];
  const students=names.map((n,i)=>({id:'s'+(i+1),classId:cls,name:n[0],gender:n[1],coins:i===0?10:0,avatar:'',favorite:i<3,note:''}));
  return {
-  version:9, activeClassId:cls, currentPage:'home',
+  version:10, activeClassId:cls, currentPage:'home',
   settingPassword: 'admin8b1',
   adminPassword: '123',
   teacher:{name:'Giáo viên Chủ nhiệm',role:'GVCN',subject:'Tin học',school:'Trường THCS',avatar:''},
   classes:[{id:cls,name:'LỚP 8B1',grade:'Khối 8',year:'2026 - 2027',color:'#0d9488',logoText:'8B1',logoImage:''}],students,
+  teams:[],
   attendance:{},attendanceDate:today(),
   seating:{[cls]:{type:'2x7x4',lanes:2,seats:14,mode:'2d',assignments:{}}},
   timetable:{morning:true,afternoon:true,morningCount:5,afternoonCount:4,entries:[
@@ -424,8 +417,8 @@ function defaultState(){
     'C1':'13:30 - 14:05','C2':'14:15 - 14:50','C3':'15:05 - 15:40','C4':'15:50 - 16:25','C5':'16:35 - 17:10'
   },
   rewards:[{id:'r1',name:'Bút',cost:10,emoji:'🖊️',stock:10},{id:'r2',name:'Thước',cost:15,emoji:'📏',stock:8},{id:'r3',name:'Sticker',cost:5,emoji:'🌟',stock:30},{id:'r4',name:'Sổ tay',cost:25,emoji:'📒',stock:5}],
-  redemptions:[],transactions:[],wheelHistory:[],dailyPhotos:[],links:[{id:'l1',name:'Học liệu lớp học',url:'https://',category:'Học liệu & SGK',desc:'Liên kết mẫu - hãy chỉnh sửa',pinned:true}],
-  subjects:SUBJECTS.slice(), settings:{wheelExclude:true,tickLast10:false,timerColor:'#0d9488'},
+  redemptions:[],transactions:[],dailyPhotos:[],links:[{id:'l1',name:'Học liệu lớp học',url:'https://',category:'Học liệu & SGK',desc:'Liên kết mẫu - hãy chỉnh sửa',pinned:true}],
+  subjects:SUBJECTS.slice(), settings:{tickLast10:false,timerColor:'#0d9488'},
   wheelExcluded:[]
  }
 }
@@ -445,6 +438,7 @@ function loadState(){
       
       if(!Array.isArray(x.transactions)) x.transactions = [];
       if(!Array.isArray(x.students)) x.students = [];
+      if(!Array.isArray(x.teams)) x.teams = [];
       if(!Array.isArray(x.rewards)) x.rewards = [];
       if(!Array.isArray(x.redemptions)) x.redemptions = [];
       if(!Array.isArray(x.wheelHistory)) x.wheelHistory = [];
@@ -454,7 +448,6 @@ function loadState(){
       if(!x.attendance) x.attendance = {};
       if(!x.seating) x.seating = {};
       if(!x.slotTimes) x.slotTimes = {};
-      if(!Array.isArray(x.wheelExcluded)) x.wheelExcluded = [];
 
       return x;
     }
@@ -701,7 +694,7 @@ async function navigate(page){
   window.scrollTo({top:0,behavior:'smooth'});
 }
 
-function switchClass(id){state.activeClassId=id;state.wheelExcluded=[];saveState();buildNav();renderHeader();renderPage()}
+function switchClass(id){state.activeClassId=id;saveState();buildNav();renderHeader();renderPage()}
 function renderPage(){
   chartRefs.forEach(c=>{try{c.destroy()}catch(e){}});
   chartRefs=[];
@@ -714,12 +707,12 @@ function renderPage(){
     home:renderHome,
     classes:renderClasses,
     students:renderStudents,
+    teams:renderTeams,
     attendance:renderAttendance,
     weekly:renderWeekly,
     seating:renderSeating,
     timetable:renderTimetable,
     rewards:renderRewards,
-    wheel:renderWheel,
     dailyPhotos:renderDailyPhotos,
     noise:renderNoise,
     countdown:renderCountdown,
@@ -737,7 +730,6 @@ function renderPage(){
 function afterRender(){
   if(state.currentPage==='home')drawHomeChart();
   if(state.currentPage==='stats')drawStatsCharts();
-  if(state.currentPage==='wheel')positionWheelBalls();
   if(state.currentPage==='countdown')updateCountdownUI();
 }
 
@@ -837,8 +829,6 @@ function renderStudents(){
       <button class="btn btn-primary" onclick="saveStudentListNow()"><i class="fa-solid fa-floppy-disk me-1"></i>Lưu danh sách</button>
       <button class="btn btn-success" onclick="document.getElementById('hiddenStudentExcelImport').click()"><i class="fa-solid fa-file-excel me-1"></i>Nhập Excel/CSV</button>
       <button class="btn btn-outline-danger" onclick="clearAllStudents()"><i class="fa-solid fa-trash-can me-1"></i>Xóa hết</button>
-      <button class="btn btn-outline-primary" onclick="navigate('wheel')"><i class="fa-solid fa-wand-magic-sparkles me-1"></i>Vòng quay</button>
-      <button class="btn btn-outline-primary" onclick="resetCoins()"><i class="fa-solid fa-rotate-left me-1"></i>Đặt điểm = 0</button>
       <button class="btn btn-primary" onclick="openStudentModal()"><i class="fa-solid fa-plus me-1"></i>Thêm học sinh</button>
     </div>
   </div>
@@ -1088,484 +1078,494 @@ async function deleteTransaction(txId, studentId){
   }
 }
 
-function renderWeekly(){
-  const schoolMonths = [
-    {val:'9', label:'Tháng 9'},
-    {val:'10', label:'Tháng 10'},
-    {val:'11', label:'Tháng 11'},
-    {val:'12', label:'Tháng 12'},
-    {val:'1', label:'Tháng 1'},
-    {val:'2', label:'Tháng 2'},
-    {val:'3', label:'Tháng 3'},
-    {val:'4', label:'Tháng 4'},
-    {val:'5', label:'Tháng 5'},
-    {val:'all', label:'Tất cả các tháng'}
-  ];
-
-  const weeks = [
-    {val:'all', label:'Tất cả các tuần'},
-    {val:'1', label:'Tuần 1'},
-    {val:'2', label:'Tuần 2'},
-    {val:'3', label:'Tuần 3'},
-    {val:'4', label:'Tuần 4'},
-    {val:'5', label:'Tuần 5'}
-  ];
-
-  let txs = state.transactions.filter(x => x.classId === state.activeClassId);
-
-  if(weeklyMonth !== 'all'){
-    const mTarget = parseInt(weeklyMonth, 10);
-    txs = txs.filter(x => (new Date(x.time).getMonth() + 1) === mTarget);
-  }
-
-  if(weeklyWeek !== 'all'){
-    const wTarget = parseInt(weeklyWeek, 10);
-    txs = txs.filter(x => getWeekOfMonth(new Date(x.time)) === wTarget);
-  }
-
-  const plusCount = txs.filter(x => x.amount > 0).length;
-  const minusCount = txs.filter(x => x.amount < 0).length;
-  const netPoints = txs.reduce((acc, cur) => acc + (cur.amount || 0), 0);
-
-  const monthLabel = weeklyMonth === 'all' ? 'Tất cả các tháng' : `Tháng ${weeklyMonth}`;
-  const weekLabel = weeklyWeek === 'all' ? 'Tất cả các tuần' : `Tuần ${weeklyWeek}`;
+/* ========================================================
+   TAB: CHIA TỔ (Quản lý tổ học tập, mật khẩu tổ trưởng)
+   ======================================================== */
+function renderTeams(){
+  const teams = Array.isArray(state.teams) ? state.teams.filter(t => t.classId === state.activeClassId) : [];
+  const ss = classStudents();
 
   return `
     <div class="section-head">
       <div>
-        <h2><i class="fa-solid fa-calendar-check text-primary me-2"></i>Nhật kí tuần & tháng lớp ${esc(activeClass().name)}</h2>
-        <p>Chọn tháng và tuần để xem danh sách tổng hợp học sinh được khen thưởng hoặc vi phạm.</p>
+        <h2><i class="fa-solid fa-people-group text-primary me-2"></i>Quản lý Chia tổ - ${esc(activeClass().name)}</h2>
+        <p>Tạo các tổ, phân công tổ trưởng và cấp mật khẩu riêng (Lớp 3) để tổ trưởng chấm thi đua tổ của mình.</p>
       </div>
       <div class="d-flex gap-2">
-        <button class="btn btn-outline-primary" onclick="exportWeeklyExcel()"><i class="fa-solid fa-file-excel me-1"></i>Xuất Excel nhật kí</button>
-        <button class="btn btn-primary" onclick="navigate('students')"><i class="fa-solid fa-graduation-cap me-1"></i>Về danh sách học sinh</button>
+        <button class="btn btn-outline-primary" onclick="promptCreateTeams()">
+          <i class="fa-solid fa-plus me-1"></i>Tạo số lượng tổ
+        </button>
+        <button class="btn btn-success" onclick="teamLeaderLoginModal()">
+          <i class="fa-solid fa-key me-1"></i>Tổ trưởng đăng nhập
+        </button>
       </div>
     </div>
 
-    <div class="card p-3 mb-3 shadow-sm">
-      <div class="row g-3 align-items-center">
-        <div class="col-12">
-          <div class="fw-bold mb-2 text-primary"><i class="fa-solid fa-calendar-days me-1"></i>1. Chọn Tháng trong năm học:</div>
-          <div class="filter-chip-group">
-            ${schoolMonths.map(m => `
-              <span class="filter-chip ${weeklyMonth===m.val?'active':''}" onclick="setWeeklyMonth('${m.val}')">
-                ${m.label}
-              </span>
-            `).join('')}
-          </div>
-        </div>
-        <div class="col-12 pt-2 border-top">
-          <div class="fw-bold mb-2 text-primary"><i class="fa-solid fa-calendar-week me-1"></i>2. Chọn Tuần của tháng:</div>
-          <div class="filter-chip-group">
-            ${weeks.map(w => `
-              <span class="filter-chip ${weeklyWeek===w.val?'active':''}" onclick="setWeeklyWeek('${w.val}')">
-                ${w.label}
-              </span>
-            `).join('')}
-          </div>
-        </div>
+    ${teams.length === 0 ? `
+      <div class="card p-5 text-center text-muted">
+        <i class="fa-solid fa-users-rectangle fs-1 mb-3 text-secondary"></i>
+        <h5>Lớp học chưa được chia tổ</h5>
+        <p class="small mb-3">Hãy bấm nút "Tạo số lượng tổ" ở góc trên bên phải để bắt đầu phân chia thành viên.</p>
+        <button class="btn btn-primary" onclick="promptCreateTeams()">Tạo tổ ngay</button>
       </div>
-    </div>
-
-    <div class="stats-grid mb-3">
-      <div class="stat-card" style="background:linear-gradient(135deg,#0d9488,#14b8a6)">
-        <div class="label">Đang xem</div>
-        <div class="value fs-4">${weekLabel}</div>
-        <small>${monthLabel} · Lớp ${esc(activeClass().name)}</small>
-        <i class="fa-solid fa-clock-rotate-left"></i>
-      </div>
-      <div class="stat-card" style="background:linear-gradient(135deg,#16a34a,#22c55e)">
-        <div class="label">Khen thưởng (+điểm)</div>
-        <div class="value">${plusCount}</div>
-        <small>Lượt phát biểu, làm bài tốt</small>
-        <i class="fa-solid fa-star"></i>
-      </div>
-      <div class="stat-card" style="background:linear-gradient(135deg,#dc2626,#ef4444)">
-        <div class="label">Vi phạm (-điểm)</div>
-        <div class="value">${minusCount}</div>
-        <small>Lượt nhắc nhở nề nếp</small>
-        <i class="fa-solid fa-triangle-exclamation"></i>
-      </div>
-      <div class="stat-card" style="background:linear-gradient(135deg,#4f46e5,#6366f1)">
-        <div class="label">Điểm thi đua ròng</div>
-        <div class="value">${netPoints > 0 ? '+'+netPoints : netPoints}</div>
-        <small>Tổng cộng/trừ trong tuần</small>
-        <i class="fa-solid fa-award"></i>
-      </div>
-    </div>
-
-    <div class="card p-3 shadow-sm">
-      <div class="d-flex justify-content-between align-items-center mb-2 flex-wrap gap-2">
-        <h5 class="fw-bold m-0 text-primary">
-          <i class="fa-solid fa-list-check me-2"></i>Danh sách chi tiết (${txs.length} lượt ghi nhận)
-        </h5>
-        <div class="text-muted small">Nút Sửa/Xóa yêu cầu mật khẩu quản trị GVCN để bảo mật.</div>
-      </div>
-
-      ${txs.length === 0 ? `
-        <div class="p-5 text-center text-muted">
-          <i class="fa-solid fa-calendar-xmark fs-1 mb-3 text-secondary"></i>
-          <h5>Không có ghi nhận nào trong ${weekLabel.toLowerCase()} - ${monthLabel.toLowerCase()}</h5>
-          <p class="small mb-0">Khi bạn cộng hoặc trừ điểm học sinh trong tuần này, hệ thống sẽ tự động tổng hợp vào đây.</p>
-        </div>
-      ` : `
-        <div class="table-responsive mt-2">
-          <table class="table table-bordered table-hover align-middle mb-0 text-start" id="weeklyReportTable">
-            <thead class="table-light">
-              <tr>
-                <th style="width:50px" class="text-center">STT</th>
-                <th>Thời gian & Tuần</th>
-                <th>Học sinh</th>
-                <th>Môn / Nhóm</th>
-                <th>Nội dung (Lý do / Vi phạm / Thành tích)</th>
-                <th class="text-center" style="width:110px">Điểm số</th>
-                <th class="text-center" style="width:90px">Thao tác</th>
-              </tr>
-            </thead>
-            <tbody>
-              ${txs.map((tx, idx) => {
-                const d = new Date(tx.time);
-                const m = d.getMonth() + 1;
-                const w = getWeekOfMonth(d);
-                const isMinus = tx.amount < 0;
-                const dateStr = d.toLocaleDateString('vi-VN') + ' ' + d.toLocaleTimeString('vi-VN', {hour:'2-digit', minute:'2-digit'});
-                return `
-                  <tr class="${isMinus?'table-danger-subtle':''}">
-                    <td class="text-center fw-bold text-muted">${idx+1}</td>
-                    <td>
-                      <span class="badge ${isMinus?'bg-danger':'bg-success'} mb-1">Tuần ${w} · Tháng ${m}</span>
-                      <div class="text-muted small">${dateStr}</div>
-                    </td>
-                    <td>
-                      <strong class="text-dark">${esc(tx.studentName)}</strong>
-                    </td>
-                    <td><b>${esc(tx.subject || 'Ghi chung')}</b></td>
-                    <td>${esc(tx.reason || 'Điều chỉnh')}</td>
-                    <td class="text-center fw-bold fs-6 ${isMinus?'text-danger':'text-success'}">
-                      ${isMinus ? tx.amount : '+'+tx.amount}
-                    </td>
-                    <td class="text-center">
-                      <button class="btn btn-sm btn-outline-primary p-1 px-2 me-1" title="Sửa (Cần mật khẩu GVCN)" onclick="editTransaction('${tx.id}', '${tx.studentId}')">
+    ` : `
+      <div class="row g-4">
+        ${teams.map((team, idx) => {
+          const members = ss.filter(s => team.memberIds && team.memberIds.includes(s.id));
+          const leader = ss.find(s => s.id === team.leaderId);
+          return `
+            <div class="col-md-6">
+              <div class="card h-100 shadow-sm">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                  <span class="fs-5 fw-bold"><i class="fa-solid fa-users me-2"></i>${esc(team.name)}</span>
+                  <div>
+                    <button class="btn btn-sm btn-light text-primary fw-bold me-1" onclick="assignLeader('${team.id}')" title="Chọn tổ trưởng">
+                      <i class="fa-solid fa-crown text-warning me-1"></i>${leader ? esc(leader.name) : 'Chọn tổ trưởng'}
+                    </button>
+                    <button class="btn btn-sm btn-light text-danger fw-bold" onclick="deleteTeam('${team.id}')" title="Xóa tổ">
+                      <i class="fa-solid fa-trash-can"></i>
+                    </button>
+                  </div>
+                </div>
+                <div class="card-body">
+                  <div class="d-flex justify-content-between align-items-center mb-3 pb-2 border-bottom">
+                    <span class="small text-muted">Mật khẩu tổ trưởng (Lớp 3):</span>
+                    <div class="input-group input-group-sm" style="width: 150px;">
+                      <input type="text" class="form-control text-center fw-bold text-success" value="${esc(team.password || '123')}" readonly id="teamPass_${team.id}">
+                      <button class="btn btn-outline-secondary" type="button" onclick="changeTeamPassword('${team.id}')" title="Đổi mật khẩu tổ">
                         <i class="fa-solid fa-pen"></i>
                       </button>
-                      <button class="btn btn-sm btn-outline-danger p-1 px-2" title="Xóa (Cần mật khẩu GVCN)" onclick="deleteTransaction('${tx.id}', '${tx.studentId}')">
-                        <i class="fa-solid fa-trash"></i>
-                      </button>
-                    </td>
-                  </tr>
-                `;
-              }).join('')}
-            </tbody>
-          </table>
-        </div>
-      `}
-    </div>
+                    </div>
+                  </div>
+
+                  <div class="d-flex gap-2 mb-3">
+                    <button class="btn btn-sm btn-outline-primary flex-fill" onclick="openTeamImportModal('${team.id}')">
+                      <i class="fa-solid fa-file-arrow-down me-1"></i>Nhập danh sách tổ
+                    </button>
+                    <button class="btn btn-sm btn-outline-danger" onclick="clearTeamMembers('${team.id}')">
+                      <i class="fa-solid fa-eraser me-1"></i>Xóa danh sách
+                    </button>
+                  </div>
+
+                  <div class="fw-bold small mb-2 text-dark">Thành viên trong tổ (${members.length}):</div>
+                  ${members.length === 0 ? `
+                    <div class="text-muted small italic p-3 text-center bg-light rounded">Chưa có học sinh nào trong tổ này. Bấm "Nhập danh sách tổ" để thêm.</div>
+                  ` : `
+                    <div class="list-group list-group-flush" style="max-height: 200px; overflow-y: auto;">
+                      ${members.map(m => `
+                        <div class="list-group-item d-flex justify-content-between align-items-center px-2 py-1">
+                          <div class="d-flex align-items-center gap-2">
+                            ${renderAvatar(m, 'mini-avatar')}
+                            <span class="fw-bold">${esc(m.name)}</span>
+                            ${m.id === team.leaderId ? '<span class="badge bg-warning text-dark" style="font-size:0.65rem">Tổ trưởng</span>' : ''}
+                          </div>
+                          <button class="btn btn-sm text-danger p-0" onclick="removeStudentFromTeam('${team.id}', '${m.id}')" title="Đưa ra khỏi tổ">
+                            <i class="fa-solid fa-xmark"></i>
+                          </button>
+                        </div>
+                      `).join('')}
+                    </div>
+                  `}
+                </div>
+              </div>
+            </div>
+          `;
+        }).join('')}
+      </div>
+    `}
   `;
 }
 
-function setWeeklyMonth(m){
-  weeklyMonth = m;
-  renderPage();
-}
+async function promptCreateTeams(){
+  const ok = await verifyAdminAccess();
+  if(!ok) return;
 
-function setWeeklyWeek(w){
-  weeklyWeek = w;
-  renderPage();
-}
-
-function exportWeeklyExcel(){
-  let txs = state.transactions.filter(x => x.classId === state.activeClassId);
-  if(weeklyMonth !== 'all'){
-    txs = txs.filter(x => (new Date(x.time).getMonth() + 1) === parseInt(weeklyMonth, 10));
-  }
-  if(weeklyWeek !== 'all'){
-    txs = txs.filter(x => getWeekOfMonth(new Date(x.time)) === parseInt(weeklyWeek, 10));
-  }
-
-  const rows = txs.map((tx, i) => {
-    const d = new Date(tx.time);
-    return {
-      'STT': i + 1,
-      'Tuần': 'Tuần ' + getWeekOfMonth(d),
-      'Tháng': 'Tháng ' + (d.getMonth() + 1),
-      'Thời gian': d.toLocaleDateString('vi-VN') + ' ' + d.toLocaleTimeString('vi-VN'),
-      'Học sinh': tx.studentName,
-      'Môn/Nhóm': tx.subject,
-      'Nội dung ghi nhận': tx.reason,
-      'Điểm': tx.amount
-    };
+  const {value: count} = await Swal.fire({
+    title: 'Tạo số lượng tổ học tập',
+    input: 'number',
+    inputAttributes: { min: 1, max: 10, step: 1 },
+    inputValue: 4,
+    showCancelButton: true,
+    confirmButtonText: 'Tạo các tổ',
+    cancelButtonText: 'Hủy'
   });
 
-  downloadXlsx([['Nhat_ki_tuan', rows]], `nhat-ki-tuan-${activeClass().name}-T${weeklyMonth}-W${weeklyWeek}.xlsx`);
-  toast('Đã xuất Excel nhật kí tuần thành công!');
-}
+  if(!count) return;
+  const num = parseInt(count, 10);
+  if(num <= 0) return;
 
-function filterStudents(q){q=q.toLowerCase();document.querySelectorAll('#studentGrid .student-card').forEach(x=>x.style.display=x.dataset.name.includes(q)?'':'none')}
+  if(!state.teams) state.teams = [];
+  state.teams = state.teams.filter(t => t.classId !== state.activeClassId);
 
-async function openStudentModal(id=''){
-  const ok = await verifyAdminAccess();
-  if(!ok) return;
+  for(let i=1; i<=num; i++){
+    state.teams.push({
+      id: uid('team'),
+      classId: state.activeClassId,
+      name: `Tổ ${i}`,
+      password: String(Math.floor(100 + Math.random() * 900)), // Mật khẩu 3 chữ số mặc định
+      leaderId: '',
+      memberIds: []
+    });
+  }
 
-  const s=state.students.find(x=>x.id===id)||{name:'',gender:'Nữ',coins:0,avatar:'',note:'',favorite:false};
-  showModal(id?'Sửa học sinh':'Thêm học sinh',`<form onsubmit="saveStudent(event,'${id}')"><div class="row g-3"><div class="col-md-8"><label class="form-label fw-bold">Họ và tên *</label><input id="sName" class="form-control" required value="${esc(s.name)}"></div><div class="col-md-4"><label class="form-label fw-bold">Giới tính</label><select id="sGender" class="form-select"><option ${s.gender==='Nữ'?'selected':''}>Nữ</option><option ${s.gender==='Nam'?'selected':''}>Nam</option><option ${s.gender==='Khác'?'selected':''}>Khác</option></select></div><div class="col-md-4"><label class="form-label fw-bold">Điểm hiện có (Có thể âm)</label><input id="sCoins" type="number" class="form-control" value="${s.coins||0}"></div><div class="col-md-8"><label class="form-label fw-bold">Ảnh đại diện</label><input id="sAvatar" type="file" accept="image/*" class="form-control"><input id="sAvatarOld" type="hidden" value="${esc(s.avatar||'')}"></div><div class="col-12"><label class="form-label fw-bold">Ghi chú</label><textarea id="sNote" class="form-control">${esc(s.note||'')}</textarea></div><div class="col-12 form-check ms-2"><input id="sFav" class="form-check-input" type="checkbox" ${s.favorite?'checked':''}><label class="form-check-label fw-bold">Thêm vào nhóm yêu thích</label></div></div><div class="text-end mt-4"><button class="btn btn-primary">Lưu học sinh</button></div></form>`);
-}
-
-async function saveStudent(e,id){
-  e.preventDefault();
-  let avatar=document.getElementById('sAvatarOld').value;
-  const f=document.getElementById('sAvatar').files[0];
-  if(f)avatar=await readFileData(f);
-  const d={name:document.getElementById('sName').value.trim(),gender:document.getElementById('sGender').value,coins:+document.getElementById('sCoins').value||0,avatar,note:document.getElementById('sNote').value.trim(),favorite:document.getElementById('sFav').checked};
-  if(id)Object.assign(state.students.find(x=>x.id===id),d);
-  else state.students.push({id:uid('s'),classId:state.activeClassId,...d});
   saveState();
-  mainModal.hide();
-  buildNav();
-  renderHeader();
   renderPage();
-  toast('Đã lưu học sinh');
+  toast(`Đã tạo thành công ${num} tổ học tập!`);
 }
 
-function readFileData(file){return new Promise((res,rej)=>{const r=new FileReader();r.onload=()=>res(r.result);r.onerror=rej;r.readAsDataURL(file)})}
-
-async function deleteStudent(id){
+async function changeTeamPassword(teamId){
   const ok = await verifyAdminAccess();
   if(!ok) return;
 
-  const s=state.students.find(x=>x.id===id);
-  const r=await Swal.fire({icon:'warning',title:'Xóa học sinh?',text:s?.name||'',showCancelButton:true,confirmButtonText:'Xóa',confirmButtonColor:'#dc2626'});
-  if(!r.isConfirmed)return;
-  state.students=state.students.filter(x=>x.id!==id);
-  Object.values(state.seating).forEach(cfg=>Object.keys(cfg.assignments||{}).forEach(k=>{if(cfg.assignments[k]===id)delete cfg.assignments[k]}));
-  saveState();buildNav();renderHeader();renderPage();
+  const team = state.teams.find(t => t.id === teamId);
+  if(!team) return;
+
+  const {value: newPass} = await Swal.fire({
+    title: `Đổi mật khẩu cho ${team.name}`,
+    input: 'text',
+    inputValue: team.password || '123',
+    showCancelButton: true,
+    confirmButtonText: 'Lưu mật khẩu mới'
+  });
+
+  if(!newPass) return;
+  team.password = newPass.trim();
+  saveState();
+  renderPage();
+  toast('Đã cập nhật mật khẩu tổ trưởng thành công!');
 }
 
-async function clearAllStudents(){
-  const count = classStudents().length;
-  if(count === 0) return toast('Lớp hiện chưa có học sinh nào!','info');
-
+async function assignLeader(teamId){
   const ok = await verifyAdminAccess();
   if(!ok) return;
 
-  const curName = activeClass().name;
+  const team = state.teams.find(t => t.id === teamId);
+  if(!team) return;
+
+  const members = classStudents().filter(s => team.memberIds && team.memberIds.includes(s.id));
+  if(members.length === 0){
+    return Swal.fire({icon:'warning', title:'Tổ chưa có thành viên', text:'Vui lòng thêm học sinh vào tổ trước khi chọn tổ trưởng.'});
+  }
+
+  const {value: leaderId} = await Swal.fire({
+    title: `Chọn tổ trưởng cho ${team.name}`,
+    input: 'select',
+    inputOptions: Object.fromEntries(members.map(m => [m.id, m.name])),
+    inputValue: team.leaderId || '',
+    showCancelButton: true,
+    confirmButtonText: 'Xác nhận tổ trưởng'
+  });
+
+  if(!leaderId) return;
+  team.leaderId = leaderId;
+  saveState();
+  renderPage();
+  toast('Đã phân công tổ trưởng thành công!');
+}
+
+async function deleteTeam(teamId){
+  const ok = await verifyAdminAccess();
+  if(!ok) return;
+
   const r = await Swal.fire({
     icon: 'warning',
-    title: `Xóa hết ${count} học sinh của ${curName}?`,
-    text: 'Thao tác này sẽ xóa toàn bộ học sinh và làm trống sơ đồ lớp đang chọn. Bạn có chắc chắn không?',
+    title: 'Xóa tổ này?',
     showCancelButton: true,
-    confirmButtonText: 'Đồng ý xóa hết',
-    cancelButtonText: 'Hủy',
+    confirmButtonText: 'Xóa',
     confirmButtonColor: '#dc2626'
   });
   if(!r.isConfirmed) return;
-  state.students = state.students.filter(s => s.classId !== state.activeClassId);
-  if(state.seating[state.activeClassId]) {
-    state.seating[state.activeClassId].assignments = {};
-  }
-  state.wheelExcluded = [];
+
+  state.teams = state.teams.filter(t => t.id !== teamId);
   saveState();
-  buildNav();
-  renderHeader();
   renderPage();
-  toast('Đã xóa hết danh sách học sinh!');
+  toast('Đã xóa tổ!');
 }
 
-function toggleFavorite(id){const s=state.students.find(x=>x.id===id);s.favorite=!s.favorite;saveState(false);renderPage()}
+function openTeamImportModal(teamId){
+  activeTeamIdForImport = teamId;
+  const team = state.teams.find(t => t.id === teamId);
 
-async function adjustCoins(id,sign){
-  const ok = await verifyAdminAccess();
-  if(!ok) return;
-
-  const s=state.students.find(x=>x.id===id);
-  const now = new Date();
-  const m = now.getMonth() + 1;
-  const w = getWeekOfMonth(now);
-  const titleText = sign > 0 ? `🌟 Thưởng điểm cho ${s.name}` : `🚨 Trừ điểm (Vi phạm) của ${s.name}`;
-
-  const {value:v}=await Swal.fire({
-    title: titleText,
-    html:`<div class="text-start">
-      <div class="alert ${sign>0?'alert-success':'alert-danger'} py-2 small mb-3">
-        Ghi nhận vào: <b>Tuần ${w} - Tháng ${m}</b>
+  Swal.fire({
+    title: `Nhập danh sách học sinh cho ${team ? team.name : 'Tổ'}`,
+    html: `
+      <div class="text-start">
+        <p class="small text-muted mb-3">Chọn phương thức nhập danh sách học sinh vào tổ:</p>
+        <div class="d-grid gap-2">
+          <button type="button" class="btn btn-outline-primary text-start" onclick="Swal.close(); promptTeamManualInput('${teamId}')">
+            <i class="fa-solid fa-keyboard me-2"></i>Nhập tay / Dán danh sách nhiều dòng
+          </button>
+          <button type="button" class="btn btn-outline-success text-start" onclick="Swal.close(); document.getElementById('hiddenTeamImportInput').click()">
+            <i class="fa-solid fa-file-excel me-2"></i>Nhập từ file Excel, Word (.docx), TXT
+          </button>
+        </div>
       </div>
-      <label class="form-label fw-bold">Số lượng điểm</label>
-      <select id="coinAmount" class="form-select">
-        <option value="1">1 điểm</option>
-        <option value="2">2 điểm</option>
-        <option value="3">3 điểm</option>
-        <option value="5">5 điểm</option>
-        <option value="10">10 điểm</option>
-        <option value="15">15 điểm</option>
-        <option value="20">20 điểm</option>
-      </select>
-      <label class="form-label fw-bold mt-3">Môn / Nhóm nội dung</label>
-      <select id="coinSubject" class="form-select">${state.subjects.map(x=>`<option>${esc(x)}</option>`).join('')}</select>
-      <label class="form-label fw-bold mt-3">Lý do / Nội dung vi phạm</label>
-      <input id="coinReason" class="form-control" placeholder="${sign>0?'Phát biểu tốt, hoàn thành bài tập...':'Nói chuyện riêng, quên vở, đi muộn...'}">
-    </div>`,
-    showCancelButton:true,
-    confirmButtonText: sign > 0 ? 'Xác nhận thưởng' : 'Xác nhận trừ điểm',
-    confirmButtonColor: sign > 0 ? '#0d9488' : '#dc2626',
-    preConfirm:()=>({
-      amount:+document.getElementById('coinAmount').value,
-      subject:document.getElementById('coinSubject').value,
-      reason:document.getElementById('coinReason').value || (sign > 0 ? 'Khen thưởng thi đua' : 'Vi phạm nề nếp')
-    })
+    `,
+    showConfirmButton: false,
+    showCancelButton: true,
+    cancelButtonText: 'Đóng'
   });
-  if(!v) return;
-  logTransaction(id, sign * v.amount, v.reason, v.subject);
-  renderPage();
-  toast(sign > 0 ? `Đã cộng +${v.amount} điểm` : `Đã trừ -${v.amount} điểm`);
 }
 
-async function resetCoins(){
-  const ok = await verifyAdminAccess();
-  if(!ok) return;
-  const r=await Swal.fire({icon:'warning',title:'Đặt điểm thi đua cả lớp về 0?',showCancelButton:true,confirmButtonText:'Đặt về 0'});
-  if(!r.isConfirmed)return;
-  classStudents().forEach(s=>s.coins=0);
-  saveState();renderPage();
+async function promptTeamManualInput(teamId){
+  const team = state.teams.find(t => t.id === teamId);
+  const {value: text} = await Swal.fire({
+    title: `Dán danh sách học sinh vào ${team?.name}`,
+    input: 'textarea',
+    inputPlaceholder: 'Mỗi dòng một tên học sinh\nNguyễn Văn A\nTrần Thị B',
+    showCancelButton: true,
+    confirmButtonText: 'Thêm vào tổ'
+  });
+
+  if(!text) return;
+  const names = text.split(/\r?\n/).map(n => n.trim()).filter(Boolean);
+  addNamesToTeam(teamId, names);
 }
 
-async function handleStudentExcelFile(input){
+async function handleTeamImportFile(input){
   const file = input.files[0];
-  if(!file) return;
+  if(!file || !activeTeamIdForImport) return;
+  const teamId = activeTeamIdForImport;
   input.value = '';
 
-  const ok = await verifyAdminAccess();
-  if(!ok) return;
+  const ext = file.name.split('.').pop().toLowerCase();
 
   try {
-    const data = await file.arrayBuffer();
-    const workbook = XLSX.read(data, {type:'array'});
-    const firstSheetName = workbook.SheetNames[0];
-    const worksheet = workbook.Sheets[firstSheetName];
-    const rows = XLSX.utils.sheet_to_json(worksheet, {header:1, defval:''});
-
-    if(!rows || rows.length < 2){
-      return Swal.fire({icon:'error', title:'Tệp trống hoặc sai định dạng', text:'File cần có dòng tiêu đề và ít nhất 1 học sinh.'});
+    if(ext === 'xlsx' || ext === 'xls' || ext === 'csv'){
+      const data = await file.arrayBuffer();
+      const workbook = XLSX.read(data, {type:'array'});
+      const firstSheetName = workbook.SheetNames[0];
+      const worksheet = workbook.Sheets[firstSheetName];
+      const rows = XLSX.utils.sheet_to_json(worksheet, {header:1, defval:''});
+      
+      const names = [];
+      rows.forEach(r => {
+        r.forEach(cell => {
+          const val = String(cell).trim();
+          if(val && val.toLowerCase() !== 'họ và tên' && val.toLowerCase() !== 'tên' && val.toLowerCase() !== 'stt'){
+            names.push(val);
+          }
+        });
+      });
+      addNamesToTeam(teamId, names);
+    } else {
+      // Đối với docx hoặc txt
+      const text = await file.text();
+      const names = text.split(/\r?\n/).map(n => n.trim()).filter(Boolean);
+      addNamesToTeam(teamId, names);
     }
+  } catch(err){
+    Swal.fire({icon:'error', title:'Lỗi đọc file', text: err.message});
+  }
+}
 
-    let headerRowIdx = -1;
-    let colName = -1, colGender = -1, colStt = -1;
+function addNamesToTeam(teamId, names){
+  const team = state.teams.find(t => t.id === teamId);
+  if(!team) return;
 
-    for(let r=0; r<Math.min(rows.length, 10); r++){
-      const row = rows[r].map(c=>String(c).trim().toLowerCase());
-      for(let c=0; c<row.length; c++){
-        const text = row[c];
-        if(colName === -1 && (text.includes('họ và tên') || text.includes('họ tên') || text.includes('họ và tên học sinh') || text === 'tên' || text.includes('học sinh'))){
-          colName = c;
-        }
-        if(colGender === -1 && (text.includes('giới tính') || text.includes('phái') || text === 'nam/nữ' || text === 'gt')){
-          colGender = c;
-        }
-        if(colStt === -1 && (text === 'stt' || text.includes('thứ tự') || text.includes('số tt'))){
-          colStt = c;
-        }
-      }
-      if(colName !== -1){
-        headerRowIdx = r;
-        break;
-      }
-    }
+  if(!team.memberIds) team.memberIds = [];
 
-    if(headerRowIdx === -1){
-      headerRowIdx = 0;
-      colStt = 0;
-      colName = 1;
-      colGender = 2;
-    }
-
-    const newStudents = [];
-    for(let r = headerRowIdx + 1; r < rows.length; r++){
-      const row = rows[r];
-      const rawName = String(row[colName] || '').trim();
-      if(!rawName || rawName.toLowerCase() === 'họ và tên') continue;
-
-      let gender = colGender !== -1 ? String(row[colGender] || '').trim() : '';
-      if(gender){
-        const gLow = gender.toLowerCase();
-        if(gLow === 'x' || gLow === 'nữ' || gLow === 'nu' || gLow === 'female' || gLow === 'f') gender = 'Nữ';
-        else if(gLow === 'nam' || gLow === 'male' || gLow === 'm') gender = 'Nam';
-        else gender = gender.charAt(0).toUpperCase() + gender.slice(1);
-      }
-
-      newStudents.push({
+  let addedCount = 0;
+  names.forEach(name => {
+    // Tìm xem học sinh đã có trong lớp chưa
+    let student = state.students.find(s => s.classId === state.activeClassId && s.name.toLowerCase() === name.toLowerCase());
+    if(!student){
+      // Nếu chưa có trong danh sách lớp, tự động tạo mới học sinh vào lớp và đưa vào tổ
+      student = {
         id: uid('s'),
         classId: state.activeClassId,
-        name: rawName,
-        gender: gender || 'Nữ',
+        name: name,
+        gender: 'Nữ',
         coins: 0,
         avatar: '',
         favorite: false,
         note: ''
-      });
+      };
+      state.students.push(student);
     }
-
-    if(!newStudents.length){
-      return Swal.fire({icon:'warning', title:'Không tìm thấy dữ liệu', text:'Không quét được danh sách học sinh từ file. Hãy kiểm tra lại các cột.'});
+    if(!team.memberIds.includes(student.id)){
+      team.memberIds.push(student.id);
+      addedCount++;
     }
+  });
 
-    const {isConfirmed} = await Swal.fire({
-      title: `Nhập ${newStudents.length} học sinh?`,
-      html: `<div class="text-start small">
-        <p>Đã tìm thấy <b>${newStudents.length}</b> học sinh từ tệp <b>${esc(file.name)}</b>.</p>
-        <div class="border rounded p-2 bg-light mb-3" style="max-height:160px;overflow-y:auto">
-          ${newStudents.slice(0, 8).map((s, idx)=>`<div>${idx+1}. ${esc(s.name)} - <i>${esc(s.gender)}</i></div>`).join('')}
-          ${newStudents.length > 8 ? `<div class="text-muted">... và ${newStudents.length - 8} học sinh khác</div>`:''}
-        </div>
-        <p class="mb-0">Bạn muốn <b>thêm nối tiếp</b> vào danh sách hiện tại hay <b>thay thế toàn bộ</b> danh sách của lớp?</p>
-      </div>`,
-      showCancelButton: true,
-      showDenyButton: true,
-      confirmButtonText: '<i class="fa-solid fa-plus me-1"></i>Thêm nối tiếp',
-      denyButtonText: '<i class="fa-solid fa-rotate me-1"></i>Thay thế danh sách cũ',
-      cancelButtonText: 'Hủy'
-    });
-
-    if(isConfirmed){
-      state.students.push(...newStudents);
-    } else if(Swal.getDenyButton() && Swal.isVisible() && !isConfirmed) {
-      const ok = await verifyAdminAccess();
-      if(!ok) return;
-      state.students = state.students.filter(s=>s.classId !== state.activeClassId).concat(newStudents);
-      if(state.seating[state.activeClassId]) state.seating[state.activeClassId].assignments = {};
-    } else {
-      return;
-    }
-
-    saveState();
-    buildNav();
-    renderHeader();
-    renderPage();
-    toast(`Đã nhận ${newStudents.length} học sinh thành công!`);
-  } catch(err){
-    Swal.fire({icon:'error', title:'Lỗi đọc tệp', text: err.message});
-  }
+  saveState();
+  renderPage();
+  toast(`Đã thêm ${addedCount} học sinh vào ${team.name}!`);
 }
 
-function attKey(){return state.activeClassId+'_'+(document.getElementById('attDate')?.value||state.attendanceDate||today())}
-function changeAttendanceDate(v){state.attendanceDate=v;saveState(false);renderPage()}
-function attendanceStatusInfo(status){return ({present:{label:'Có mặt',icon:'fa-circle-check'},late:{label:'Đi muộn',icon:'fa-clock'},excused:{label:'Có phép',icon:'fa-envelope-open-text'},unexcused:{label:'Không phép',icon:'fa-circle-xmark'}})[status]||{label:'Có mặt',icon:'fa-circle-check'}}
-function renderAttendance(){const ss=classStudents(),date=document.getElementById('attDate')?.value||state.attendanceDate||today(),att=state.attendance[state.activeClassId+'_'+date]||{};return `<div class="section-head"><div><h2><i class="fa-solid fa-clipboard-check text-primary me-2"></i>Điểm danh lớp ${esc(activeClass().name)}</h2><p>Ảnh học sinh cạnh tên đã được thu nhỏ lại để không che bố cục. Bấm nhanh vào 1 trong 4 trạng thái cho từng em.</p></div><div class="d-flex gap-2 flex-wrap"><input id="attDate" type="date" class="form-control" style="width:160px" value="${date}" onchange="changeAttendanceDate(this.value)"><button class="btn btn-outline-primary" onclick="exportAttendance()"><i class="fa-solid fa-file-excel me-1"></i>Xuất Excel</button><button class="btn btn-primary" onclick="saveAttendanceSec()"><i class="fa-solid fa-floppy-disk me-1"></i>Lưu điểm danh</button></div></div>${attendanceSummary(att,ss)}<div class="card p-3 mt-3"><div class="d-flex justify-content-between align-items-center flex-wrap gap-2"><div><div class="fw-bold text-primary">Danh sách điểm danh</div><div class="small text-muted">Ảnh cạnh tên là avatar nhỏ, không còn bị phóng lớn như trước.</div></div><div class="small text-muted">Sĩ số: <strong>${ss.length}</strong> học sinh</div></div><div class="attendance-grid">${ss.map((s,i)=>{const st=att[s.id]||'present';const info=attendanceStatusInfo(st);return `<div class="attendance-card"><div class="attendance-card-head"><div class="attendance-stt">${i+1}</div>${renderAvatar(s,'mini-avatar')}<div class="attendance-info"><div class="attendance-name">${esc(s.name)}</div><div class="attendance-meta">${esc(activeClass().name)}${s.gender?` · ${esc(s.gender)}`:''}</div><div class="status-pill ${st}"><i class="fa-solid ${info.icon}"></i>${info.label}</div></div></div><div class="attendance-actions">${[['present','Có mặt','fa-circle-check'],['late','Đi muộn','fa-clock'],['excused','Có phép','fa-envelope-open-text'],['unexcused','Không phép','fa-circle-xmark']].map(([k,l,icon])=>`<button class="attendance-btn ${k} ${st===k?'active':''}" onclick="setAttendance('${s.id}','${k}')"><i class="fa-solid ${icon}"></i>${l}</button>`).join('')}</div><div class="attendance-note">${s.note?esc(s.note):'Có thể thêm hoặc đổi ảnh học sinh ở mục Học sinh.'}</div></div>`}).join('')}</div></div>`}
-async function saveAttendanceSec(){
+async function clearTeamMembers(teamId){
   const ok = await verifyAdminAccess();
   if(!ok) return;
-  saveState(true);
-  toast('Đã lưu điểm danh thành công!');
+
+  const team = state.teams.find(t => t.id === teamId);
+  if(!team) return;
+
+  const r = await Swal.fire({
+    icon: 'warning',
+    title: `Xóa toàn bộ danh sách thành viên của ${team.name}?`,
+    showCancelButton: true,
+    confirmButtonText: 'Đồng ý xóa',
+    confirmButtonColor: '#dc2626'
+  });
+
+  if(!r.isConfirmed) return;
+  team.memberIds = [];
+  if(team.leaderId) team.leaderId = '';
+  saveState();
+  renderPage();
+  toast('Đã làm trống danh sách tổ!');
 }
-function attendanceSummary(att,ss){const counts={present:0,late:0,excused:0,unexcused:0};ss.forEach(s=>counts[att[s.id]||'present']++);return `<div class="attendance-summary"><div class="att-box present"><strong>${counts.present}</strong>Có mặt</div><div class="att-box late"><strong>${counts.late}</strong>Đi muộn</div><div class="att-box excused"><strong>${counts.excused}</strong>Có phép</div><div class="att-box unexcused"><strong>${counts.unexcused}</strong>Không phép</div></div>`}
-function setAttendance(id,status){
-  verifyAdminAccess().then(ok=>{
-    if(!ok) return;
-    const k=attKey();
-    if(!state.attendance[k])state.attendance[k]={};
-    state.attendance[k][id]=status;
-    saveState(false);
-    renderPage();
+
+function removeStudentFromTeam(teamId, studentId){
+  const team = state.teams.find(t => t.id === teamId);
+  if(!team) return;
+
+  team.memberIds = team.memberIds.filter(id => id !== studentId);
+  if(team.leaderId === studentId) team.leaderId = '';
+  saveState();
+  renderPage();
+  toast('Đã đưa học sinh ra khỏi tổ');
+}
+
+/* ========================================================
+   TỔ TRƯỞNG ĐĂNG NHẬP (Chỉ quản lý điểm thành viên trong tổ)
+   ======================================================== */
+async function teamLeaderLoginModal(){
+  const teams = Array.isArray(state.teams) ? state.teams.filter(t => t.classId === state.activeClassId && t.leaderId) : [];
+  if(teams.length === 0){
+    return Swal.fire({icon:'info', title:'Chưa có tổ nào phân công tổ trưởng', text:'Giáo viên cần chọn tổ trưởng và thiết lập mật khẩu tổ trước.'});
+  }
+
+  const {value: formValues} = await Swal.fire({
+    title: '🔑 Tổ trưởng Đăng nhập',
+    html: `
+      <div class="text-start">
+        <label class="form-label fw-bold">Chọn Tổ của bạn</label>
+        <select id="loginTeamId" class="form-select mb-3">
+          ${teams.map(t => `<option value="${t.id}">${esc(t.name)} (Tổ trưởng: ${esc(state.students.find(s=>s.id===t.leaderId)?.name || 'Chưa có')})</option>`).join('')}
+        </select>
+        <label class="form-label fw-bold">Mật khẩu tổ trưởng (Mật khẩu Lớp 3)</label>
+        <input id="loginTeamPass" type="password" class="form-control" placeholder="Nhập mật khẩu tổ..." autocomplete="off">
+      </div>
+    `,
+    showCancelButton: true,
+    confirmButtonText: 'Đăng nhập',
+    cancelButtonText: 'Hủy',
+    confirmButtonColor: '#0d9488',
+    preConfirm: () => {
+      return {
+        teamId: document.getElementById('loginTeamId').value,
+        pass: document.getElementById('loginTeamPass').value.trim()
+      }
+    }
+  });
+
+  if(!formValues) return;
+  const team = state.teams.find(t => t.id === formValues.teamId);
+  if(!team || team.password !== formValues.pass){
+    return Swal.fire({icon:'error', title:'Mật khẩu không chính xác!'});
+  }
+
+  // Đăng nhập thành công -> Mở bảng quản lý thi đua dành riêng cho tổ trưởng này
+  openTeamLeaderDashboard(team);
+}
+
+function openTeamLeaderDashboard(team){
+  const ss = classStudents();
+  const members = ss.filter(s => team.memberIds && team.memberIds.includes(s.id));
+  const leader = ss.find(s => s.id === team.leaderId);
+
+  if(members.length === 0){
+    return Swal.fire({icon:'info', title:team.name, text:'Tổ của bạn hiện chưa có thành viên nào.'});
+  }
+
+  Swal.fire({
+    title: `🌟 Quản lý Thi đua - ${team.name}`,
+    html: `
+      <div class="text-start mb-3">
+        <p class="small text-muted mb-1">Tổ trưởng: <b>${esc(leader?.name || 'Không rõ')}</b></p>
+        <p class="small text-muted mb-0">Bạn có quyền chấm điểm thi đua (cộng/trừ điểm) cho các thành viên trong tổ.</p>
+      </div>
+      <div class="table-responsive" style="max-height: 350px; overflow-y: auto;">
+        <table class="table table-bordered align-middle text-start mb-0" style="font-size: 0.9rem;">
+          <thead class="table-light sticky-top">
+            <tr>
+              <th>Học sinh</th>
+              <th class="text-center">Điểm hiện tại</th>
+              <th class="text-center" style="width: 140px;">Thao tác điểm</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${members.map(m => `
+              <tr>
+                <td>
+                  <div class="d-flex align-items-center gap-2">
+                    ${renderAvatar(m, 'mini-avatar')}
+                    <div>
+                      <div class="fw-bold">${esc(m.name)}</div>
+                      ${m.id === team.leaderId ? '<span class="badge bg-warning text-dark" style="font-size:0.6rem">Tổ trưởng</span>' : ''}
+                    </div>
+                  </div>
+                </td>
+                <td class="text-center fw-bold ${m.coins < 0 ? 'text-danger' : 'text-success'} fs-6">${m.coins || 0}</td>
+                <td class="text-center">
+                  <button class="btn btn-sm btn-success p-1 px-2 me-1" onclick="teamLeaderAdjustCoin('${m.id}', 1, '${team.id}')" title="Cộng điểm">
+                    <i class="fa-solid fa-plus"></i>
+                  </button>
+                  <button class="btn btn-sm btn-danger p-1 px-2" onclick="teamLeaderAdjustCoin('${m.id}', -1, '${team.id}')" title="Trừ điểm">
+                    <i class="fa-solid fa-minus"></i>
+                  </button>
+                </td>
+              </tr>
+            `).join('')}
+          </tbody>
+        </table>
+      </div>
+    `,
+    width: 650,
+    confirmButtonText: 'Đóng'
   });
 }
-function exportAttendance(){const date=document.getElementById('attDate')?.value||today(),att=state.attendance[state.activeClassId+'_'+date]||{};const rows=classStudents().map((s,i)=>({'STT':i+1,'Họ tên':s.name,'Trạng thái':({present:'Có mặt',late:'Đi muộn',excused:'Có phép',unexcused:'Không phép'})[att[s.id]||'present']}));downloadXlsx([['Điểm danh',rows]],`diem-danh-${activeClass().name}-${date}.xlsx`)}
+
+async function teamLeaderAdjustCoin(studentId, sign, teamId){
+  const student = state.students.find(s => s.id === studentId);
+  if(!student) return;
+
+  const {value: formVal} = await Swal.fire({
+    title: sign > 0 ? `Thưởng điểm cho ${student.name}` : `Trừ điểm (Vi phạm) của ${student.name}`,
+    html: `
+      <div class="text-start">
+        <label class="form-label fw-bold">Số điểm</label>
+        <select id="tlAmount" class="form-select mb-3">
+          <option value="1">1 điểm</option>
+          <option value="2">2 điểm</option>
+          <option value="3">3 điểm</option>
+          <option value="5">5 điểm</option>
+        </select>
+        <label class="form-label fw-bold">Lý do / Nội dung</label>
+        <input id="tlReason" class="form-control" placeholder="${sign > 0 ? 'Phát biểu tốt, làm bài đúng...' : 'Nói chuyện, quên vở...'}">
+      </div>
+    `,
+    showCancelButton: true,
+    confirmButtonText: 'Xác nhận',
+    confirmButtonColor: sign > 0 ? '#0d9488' : '#dc2626',
+    preConfirm: () => {
+      return {
+        amount: parseInt(document.getElementById('tlAmount').value, 10),
+        reason: document.getElementById('tlReason').value.trim() || (sign > 0 ? 'Tổ trưởng thưởng điểm' : 'Tổ trưởng ghi nhận vi phạm')
+      }
+    }
+  });
+
+  if(!formVal) return;
+  logTransaction(studentId, sign * formVal.amount, formVal.reason, 'Ghi chung / Nề nếp');
+  toast(sign > 0 ? `Đã cộng +${formVal.amount} điểm cho ${student.name}` : `Đã trừ -${formVal.amount} điểm của ${student.name}`);
+  
+  // Mở lại bảng quản lý của tổ trưởng để cập nhật số điểm mới
+  const team = state.teams.find(t => t.id === teamId);
+  if(team) openTeamLeaderDashboard(team);
+}
 
 function seatingCfg(){
   if(!state.seating[state.activeClassId]){
@@ -1855,11 +1855,12 @@ function renderTimetable(){
         ${slots.map(slot=>`
           <div class="tt-cell tt-time">
             <strong>${slot.label}</strong>
-            <small class="text-muted" style="font-size:0.72rem">${esc(slot.time || '')}</small>
+            ${slot.time ? `<small class="text-muted" style="font-size:0.72rem">${esc(slot.time)}</small>` : ''}
           </div>
           ${DAYS.map((d,di)=>{
             const e=state.timetable.entries.find(x=>x.classId===state.activeClassId&&x.day===di&&x.slot===slot.id);
-            return `<div class="tt-cell" onclick="openLessonModalSecure(${di},'${slot.id}','${e?.id||''}')">${e?`<div class="lesson"><strong>${esc(e.subject)}</strong>${e.teacher?`<div class="text-primary fw-bold" style="font-size:0.75rem">${esc(e.teacher)}</div>`:''}</div>`:'<div class="text-muted text-center mt-3"><i class="fa-solid fa-plus"></i> Thêm tiết</div>'}</div>`;
+            const slotTime = slot.time || '';
+            return `<div class="tt-cell" onclick="openLessonModalSecure(${di},'${slot.id}','${e?.id||''}')">${e?`<div class="lesson"><strong>${esc(e.subject)}</strong>${e.teacher?`<div class="text-primary fw-bold" style="font-size:0.75rem">${esc(e.teacher)}</div>`:''}${slotTime?`<div class="text-muted" style="font-size:0.75rem">${esc(slotTime)}</div>`:''}</div>`:'<div class="text-muted text-center mt-3"><i class="fa-solid fa-plus"></i> Thêm tiết</div>'}</div>`;
           }).join('')}
         `).join('')}
       </div>
@@ -1897,7 +1898,7 @@ function openTimetableConfig(){
       </div>
 
       <div class="card p-3 mb-3">
-        <h6 class="fw-bold mb-2 text-primary"><i class="fa-solid fa-clock me-1"></i>Nhập khung thời gian cho các tiết (Nếu để trống, các thứ sẽ không hiển thị giờ)</h6>
+        <h6 class="fw-bold mb-2 text-primary"><i class="fa-solid fa-clock me-1"></i>Nhập khung thời gian cho cột Tiết (Để trống nếu không muốn hiện giờ)</h6>
         <div class="row g-2" style="max-height:220px; overflow-y:auto">
           ${currentSlots.map(s => `
             <div class="col-md-6">
@@ -1997,15 +1998,6 @@ async function deleteReward(id){
 }
 
 async function redeemReward(rid){const r=state.rewards.find(x=>x.id===rid);const eligible=classStudents().filter(s=>s.coins>=r.cost);if(!eligible.length)return Swal.fire({icon:'info',title:'Chưa có học sinh đủ điểm',text:`Cần ít nhất ${r.cost} điểm để đổi ${r.name}.`});const {value:sid}=await Swal.fire({title:'Đổi quà cho học sinh',html:`<div class="fs-1 mb-2">${r.emoji}</div><strong>${esc(r.name)} (${r.cost} điểm)</strong>`,input:'select',inputOptions:Object.fromEntries(eligible.map(s=>[s.id,`${s.name} (${s.coins} điểm)`])),showCancelButton:true,confirmButtonText:'Xác nhận đổi quà'});if(!sid)return;const s=state.students.find(x=>x.id===sid);logTransaction(sid,-r.cost,'Đổi quà: '+r.name,'Ghi chung / Nề nếp');r.stock=Math.max(0,r.stock-1);state.redemptions.unshift({id:uid('rd'),classId:state.activeClassId,studentId:sid,studentName:s.name,rewardName:r.name,cost:r.cost,time:new Date().toISOString()});saveState();renderPage();confettiLite();toast('Đổi quà thành công')}
-const WHEEL_EFFECTS=['Xoáy tròn','Tung nảy','Hút vào tâm','Bay theo quỹ đạo','Mưa bóng','Sân khấu ánh sáng','Sóng bồng bềnh'];
-function renderWheel(){const candidates=wheelCandidates();return `<div class="wheel-layout"><div class="card wheel-card"><div class="d-flex justify-content-between"><span class="badge text-bg-light">Hiệu ứng: <b id="effectLabel">${esc(state.wheelEffect||'Xoáy tròn')}</b></span><button class="icon-btn" onclick="beep()"><i class="fa-solid fa-volume-high"></i></button></div><div class="wheel-machine" id="wheelMachine">${candidates.map((s,i)=>`<div class="wheel-ball" data-index="${i}" title="${esc(s.name)}">${s.avatar?`<img src="${s.avatar}">`:esc(initials(s.name))}</div>`).join('')}</div><button id="spinBtn" class="btn btn-primary w-100 py-3 fs-5" onclick="spinWheel()"><i class="fa-solid fa-wand-magic-sparkles me-2"></i>QUAY NGAY</button><div class="d-flex justify-content-between mt-2 text-muted small"><span>🌐 Trong lồng: ${candidates.length} học sinh</span><span>${state.settings.wheelExclude?'🛡️ Loại trừ sau khi trúng':'↻ Có thể trúng lại'}</span></div><div class="card p-3 mt-3"><div class="form-check form-switch"><input class="form-check-input" type="checkbox" ${state.settings.wheelExclude?'checked':''} onchange="state.settings.wheelExclude=this.checked;saveState(false);renderPage()"><label class="form-check-label fw-bold">Loại trừ sau khi trúng</label></div>${state.wheelExcluded.length?`<div class="mt-2"><small>Đã loại khỏi lồng (${state.wheelExcluded.length}):</small><div>${state.wheelExcluded.map(id=>{const s=state.students.find(x=>x.id===id);return s?`<span class="subject-chip">${esc(s.name)} <i class="fa-solid fa-rotate-left" onclick="restoreWheel('${id}')" style="cursor:pointer"></i></span>`:''}).join('')} <button class="btn btn-sm btn-link" onclick="restoreAllWheel()">Cho tất cả vào lại</button></div></div>`:''}</div></div><div><div class="card p-3"><h5 class="fw-bold">Thiết lập hiệu ứng Lồng Cầu</h5><div class="btn-group w-100 mb-3"><button class="btn btn-outline-primary active">Tự động đổi</button><button class="btn btn-outline-primary" onclick="setWheelGroup('all')">Chọn thủ công</button><button class="btn btn-outline-primary" onclick="setWheelGroup('favorite')">Nhóm yêu thích</button></div><div class="d-flex gap-2 flex-wrap">${WHEEL_EFFECTS.map(e=>`<span class="effect-chip ${state.wheelEffect===e?'active':''}" onclick="selectWheelEffect('${e}')">${e}</span>`).join('')}</div></div><div class="card p-3 mt-3"><div class="d-flex justify-content-between"><h5 class="fw-bold">🏆 Lịch sử Quay (${state.wheelHistory.filter(x=>x.classId===state.activeClassId).length})</h5><button class="btn btn-sm btn-link" onclick="clearWheelHistory()">Xóa lịch sử</button></div><div class="history-list">${state.wheelHistory.filter(x=>x.classId===state.activeClassId).slice(0,15).map(h=>`<div class="history-item"><strong>${esc(h.studentName)}</strong><span class="text-muted">${esc(h.effect)} · ${new Date(h.time).toLocaleTimeString('vi-VN',{hour:'2-digit',minute:'2-digit'})}</span></div>`).join('')||'<div class="empty">Chưa có lượt quay nào</div>'}</div></div></div></div>`}
-function wheelCandidates(){let ss=classStudents().filter(s=>!state.wheelExcluded.includes(s.id));if(state.wheelGroup==='favorite')ss=ss.filter(s=>s.favorite);return ss}
-function positionWheelBalls(){const balls=[...document.querySelectorAll('.wheel-ball')],n=balls.length;balls.forEach((b,i)=>{const a=(i/n)*Math.PI*2-Math.PI/2;const r=n>10?39:35;b.style.left=(50+Math.cos(a)*r)+'%';b.style.top=(50+Math.sin(a)*r)+'%'})}
-function selectWheelEffect(e){state.wheelEffect=e;saveState(false);renderPage()}function setWheelGroup(g){state.wheelGroup=g;saveState(false);renderPage()}
-async function spinWheel(){const cand=wheelCandidates();if(!cand.length){state.wheelExcluded=[];saveState(false);renderPage();return toast('Đã đưa tất cả học sinh vào lại','info')}const machine=document.getElementById('wheelMachine'),btn=document.getElementById('spinBtn');machine.classList.add('spinning');btn.disabled=true;const effect=WHEEL_EFFECTS[Math.floor(Math.random()*WHEEL_EFFECTS.length)];state.wheelEffect=effect;machine.classList.add('fx'+WHEEL_EFFECTS.indexOf(effect));const lab=document.getElementById('effectLabel');if(lab)lab.textContent=effect;await new Promise(r=>setTimeout(r,1900));const s=cand[Math.floor(Math.random()*cand.length)];if(state.settings.wheelExclude&&!state.wheelExcluded.includes(s.id))state.wheelExcluded.push(s.id);state.wheelHistory.unshift({id:uid('wh'),classId:state.activeClassId,studentId:s.id,studentName:s.name,effect,time:new Date().toISOString()});saveState(false);machine.classList.remove('spinning');beep(880,.25,.15);showWinner(s,'wheel');}
-async function showWinner(s,type){const result=await Swal.fire({title:'🎉 CHÚC MỪNG HỌC SINH MAY MẮN!',html:`<div class="mx-auto student-avatar mb-2">${s.avatar?`<img src="${s.avatar}">`:esc(initials(s.name))}</div><h2 class="fw-bold">${esc(s.name)}</h2><div class="text-muted">Thưởng điểm ngay:</div><div class="d-flex justify-content-center gap-2 mt-3 flex-wrap"><button class="btn btn-primary" onclick="Swal.clickConfirm()" data-award="1">+1 điểm</button></div>`,showCancelButton:true,confirmButtonText:'Quay tiếp / Đóng',cancelButtonText:'Đóng',didOpen:()=>{const box=Swal.getHtmlContainer();box.querySelector('.d-flex').innerHTML=[1,2,5,10].map(n=>`<button class="btn btn-primary" onclick="awardWinner('${s.id}',${n})">+${n} điểm</button>`).join('')}});renderPage()}
-function awardWinner(id,n){logTransaction(id,n,'Thưởng trò chơi','Ghi chung / Nề nếp');saveState();toast('Đã thưởng +'+n+' điểm');confettiLite();Swal.close();renderPage()}
-function restoreWheel(id){state.wheelExcluded=state.wheelExcluded.filter(x=>x!==id);saveState(false);renderPage()}function restoreAllWheel(){state.wheelExcluded=[];saveState(false);renderPage()}function clearWheelHistory(){state.wheelHistory=state.wheelHistory.filter(x=>x.classId!==state.activeClassId);saveState();renderPage()}
 
 /* ========================================================
    TAB: ẢNH THƯỜNG NGÀY (Có bảo mật GVCN)
@@ -2338,6 +2330,9 @@ document.addEventListener('DOMContentLoaded',()=>{
   renderHeader();
   renderPage();
   document.getElementById('hiddenImport').addEventListener('change',e=>{if(e.target.files[0])importJSON(e.target.files[0]);e.target.value=''});
+  document.getElementById('hiddenTeamImportInput').addEventListener('change', e => {
+    if(e.target.files[0]) handleTeamImportFile(e.target);
+  });
   initFirebaseSync();
 });
 </script>
