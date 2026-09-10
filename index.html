@@ -171,6 +171,71 @@
     .bench-slot .slot-title { font-size:.78rem; font-weight:800; line-height:1.2; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
     .bench-slot .slot-empty { font-size:.74rem; color:#94a3b8; font-weight:700; }
 
+    /* ===== SƠ ĐỒ LỚP: HIỂN THỊ TOÀN BỘ CHIỀU RỘNG ===== */
+    .seating-full-width {
+      display:block !important;
+      width:100%;
+      min-width:0;
+    }
+    .seating-full-width .board-wrap {
+      width:100%;
+      min-width:0;
+      overflow:visible;
+      box-sizing:border-box;
+      padding:12px;
+    }
+    .seating-full-width .class-board {
+      width:100%;
+      min-width:0;
+      box-sizing:border-box;
+    }
+    .seating-full-width .seat-grid {
+      width:100%;
+      min-width:0;
+    }
+    .seating-full-width .seat-lane {
+      min-width:0;
+      width:100%;
+      box-sizing:border-box;
+    }
+    .seating-full-width .bench-card {
+      min-width:0;
+      width:100%;
+      box-sizing:border-box;
+    }
+    .seating-full-width .bench-slots {
+      grid-template-columns:repeat(2,minmax(0,1fr));
+    }
+    .seating-full-width .bench-slot {
+      min-width:0;
+      min-height:60px;
+      overflow:hidden;
+    }
+    .seating-full-width .bench-slot .slot-title {
+      min-width:0;
+      flex:1 1 auto;
+      white-space:normal;
+      overflow:visible;
+      text-overflow:clip;
+      overflow-wrap:anywhere;
+      word-break:normal;
+      line-height:1.22;
+    }
+    .seating-full-width .mini-avatar {
+      flex:0 0 32px;
+    }
+    @media(max-width:900px){
+      .seating-full-width .seat-grid {
+        grid-template-columns:1fr !important;
+      }
+    }
+    @media(max-width:600px){
+      .seating-full-width .board-wrap{padding:6px}
+      .seating-full-width .bench-slots{gap:6px}
+      .seating-full-width .bench-slot{padding:5px 6px;min-height:58px}
+      .seating-full-width .bench-slot .slot-title{font-size:.74rem}
+    }
+
     .filter-chip-group { display:flex; flex-wrap:wrap; gap:6px; }
     .filter-chip { border:1px solid #cbd5e1; background:#fff; color:#475569; padding:5px 12px; border-radius:999px; font-size:.82rem; font-weight:700; cursor:pointer; transition:.2s; }
     .filter-chip:hover { border-color:var(--primary-color); color:var(--primary-color); }
@@ -262,6 +327,11 @@
 .group-expand-arrow{display:inline-flex;align-items:center;justify-content:center;width:22px;height:22px;border-radius:6px;background:var(--surface-2,#f1f5f9);font-size:14px;font-weight:700;transition:transform .15s ease}
 .group-card-head:hover .group-expand-arrow{transform:scale(1.05)}
 .group-member-name-link{cursor:pointer;font-weight:600;text-decoration:underline;text-decoration-style:dotted;text-underline-offset:3px}.group-member-name-link:hover{opacity:.8}
+
+    /* ===== NHẬP EXCEL: TÊN HS KHÔNG BỊ CẮT ===== */
+    .seating-full-width .bench-slot .slot-title{white-space:normal!important;overflow:visible!important;text-overflow:clip!important;overflow-wrap:anywhere;word-break:normal;min-width:0;line-height:1.2;}
+    .seating-full-width .bench-slot{align-items:center;min-width:0;}
+    .seating-full-width .bench-slot .mini-avatar{flex:0 0 32px;}
 </style>
 </head>
 <body>
@@ -300,6 +370,8 @@
 <div class="modal fade" id="mainModal" tabindex="-1"><div class="modal-dialog modal-lg modal-dialog-scrollable modal-dialog-centered"><div class="modal-content"><div class="modal-header"><h5 class="modal-title" id="mainModalTitle">Cập nhật</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div><div class="modal-body" id="mainModalBody"></div></div></div></div>
 <input type="file" id="hiddenImport" accept="application/json" hidden>
 <input type="file" id="hiddenStudentExcelImport" accept=".xlsx, .xls, .csv" hidden onchange="handleStudentExcelFile(this)">
+<input type="file" id="hiddenSeatingExcelImport" accept=".xlsx, .xls, .csv" hidden onchange="handleSeatingExcelFile(this)">
+<input type="file" id="hiddenTimetableExcelImport" accept=".xlsx, .xls, .csv" hidden onchange="handleTimetableExcelFile(this)">
 <input type="file" id="hiddenDailyPhotoInput" accept="image/*" hidden onchange="handleDailyPhotoUpload(this)">
 <input type="file" id="hiddenGroupExcelImport" accept=".xlsx, .xls, .csv" hidden onchange="handleGroupExcelFile(this)">
 <input type="file" id="hiddenGroupDocxImport" accept=".docx" hidden onchange="handleGroupDocxFile(this)">
@@ -419,8 +491,8 @@ function defaultState(){
  const students=names.map((n,i)=>({id:'s'+(i+1),classId:cls,name:n[0],gender:n[1],coins:i===0?10:0,avatar:'',favorite:i<3,note:''}));
  return {
   version:9, activeClassId:cls, currentPage:'home',
-  settingPassword: 'admin8b1',
-  adminPassword: '123',
+  settingPassword: '*******',
+  adminPassword: '***',
   teacher:{name:'Giáo viên Chủ nhiệm',role:'GVCN',subject:'TOÁN',school:'Trường THCS',avatar:''},
   classes:[{id:cls,name:'LỚP 8B1',grade:'Khối 8',year:'2026 - 2027',color:'#0d9488',logoText:'8B1',logoImage:''}],students,
   attendance:{},attendanceDate:today(),
@@ -433,7 +505,7 @@ function defaultState(){
     {id:uid('tt'),classId:cls,day:4,slot:'C1',subject:'Sinh hoạt lớp'}
   ]},
   slotTimes:{
-    'S1':'07:30 - 08:05','S2':'08:15 - 08:50','S3':'09:05 - 09:40','S4':'09:50 - 10:25','S5':'10:35 - 11:10','S6':'11:15 - 11:50',
+    'S1':'07:05 - 07:50','S2':'07:55 - 08:40','S3':'08:50 - 09:35','S4':'09:40 - 10:25','S5':'10:30 - 11:15','S6':'11:15 - 11:50',
     'C1':'13:30 - 14:05','C2':'14:15 - 14:50','C3':'15:05 - 15:40','C4':'15:50 - 16:25','C5':'16:35 - 17:10'
   },
   rewards:[{id:'r1',name:'Bút',cost:10,emoji:'🖊️',stock:10},{id:'r2',name:'Thước',cost:15,emoji:'📏',stock:8},{id:'r3',name:'Sticker',cost:5,emoji:'🌟',stock:30},{id:'r4',name:'Sổ tay',cost:25,emoji:'📒',stock:5}],
@@ -1630,63 +1702,134 @@ function seatingCfg(){
   return cfg;
 }
 
-function renderSeating(){
-  const cfg=seatingCfg(), ss=classStudents();
-  if(!cfg.assignments) cfg.assignments = {};
-  const assigned=new Set(Object.values(cfg.assignments));
-  const unassigned=ss.filter(s=>!assigned.has(s.id));
-  const isBenchLayout = cfg.type === '2x6x4' || cfg.type === '2x7x4';
-  const rowsPerLane = cfg.type === '2x7x4' ? 7 : 6;
-  const maxCapacity = isBenchLayout ? rowsPerLane * 2 * 4 : cfg.seats;
+/*
+ * NHẬP SƠ ĐỒ CHỖ NGỒI TỪ EXCEL
+ * Hỗ trợ bố cục giống file:
+ * - Dãy 1 ở A:D, Dãy 2 ở G:J
+ * - Mỗi "Bàn n" có 4 tên ở hàng ngay trên hoặc ngay dưới
+ * - Hỗ trợ cả thứ tự Bàn 1 -> Bàn 6/7 và Bàn 6 -> Bàn 1
+ * - Ô "Để trống"/"Trống" được bỏ qua
+ */
+async function handleSeatingExcelFile(input){
+  const file=input.files[0]; input.value=''; if(!file) return;
+  const ok=await verifyAdminAccess(); if(!ok) return;
+  try{
+    const data=await file.arrayBuffer();
+    const workbook=XLSX.read(data,{type:'array'});
+    if(!workbook.SheetNames.length) throw new Error('Không có trang tính trong file Excel.');
+    const norm=v=>String(v??'').replace(/\u00a0/g,' ').replace(/\s+/g,' ').trim().toLowerCase();
+    const empty=v=>{const x=norm(v);return !x||['-','—','trống','để trống','de trong','empty','blank'].includes(x)};
+    const benchRe=/^bàn\s*(\d+)$/i;
+    let structured=null, visual=null;
 
-  return `
-  <div class="section-head">
-    <div>
-      <h2><i class="fa-solid fa-border-all text-primary me-2"></i>Sơ đồ chỗ ngồi ${esc(activeClass().name)}</h2>
-      <p>Chọn dạng sơ đồ lớp, xếp ngẫu nhiên hoặc bấm từng chỗ để chọn học sinh (yêu cầu mật khẩu GVCN để thay đổi).</p>
-    </div>
-    <div class="d-flex gap-2 flex-wrap align-items-center">
-      <div class="btn-group">
-        <button class="btn ${cfg.mode==='3d'?'btn-primary':'btn-outline-primary'}" onclick="setSeatMode('3d')"><i class="fa-solid fa-cube"></i> 3D</button>
-        <button class="btn ${cfg.mode!=='3d'?'btn-primary':'btn-outline-primary'}" onclick="setSeatMode('2d')"><i class="fa-solid fa-layer-group"></i> 2D</button>
-      </div>
-      <select class="form-select" style="width:275px" onchange="checkAndSetSeatingType(this.value)">
-        <option value="2x7x4" ${cfg.type==='2x7x4'?'selected':''}>2 Dãy (mỗi dãy 7 bàn, 4 chỗ/bàn - 56 chỗ)</option>
-        <option value="2x6x4" ${cfg.type==='2x6x4'?'selected':''}>2 Dãy (mỗi dãy 6 bàn, 4 chỗ/bàn - 48 chỗ)</option>
-        <option value="standard" ${cfg.type==='standard'?'selected':''}>Bố cục tự do (Bàn đơn/đôi)</option>
-      </select>
-      ${!isBenchLayout?`
-        <select class="form-select" style="width:110px" onchange="checkAndSetLanes(+this.value)">
-          ${[2,3,4,6].map(x=>`<option ${cfg.lanes===x?'selected':''} value="${x}">${x} Dãy</option>`).join('')}
-        </select>
-        <select class="form-select" style="width:125px" onchange="checkAndSetSeatCount(+this.value)">
-          ${[ss.length,16,20,24,30,36,48,56].filter((x,i,a)=>x>0&&a.indexOf(x)===i).sort((a,b)=>a-b).map(x=>`<option ${cfg.seats===x?'selected':''} value="${x}">${x} bàn</option>`).join('')}
-        </select>
-      `:''}
-      <button class="btn btn-outline-primary" onclick="randomSeat()"><i class="fa-solid fa-shuffle me-1"></i>Xếp tất cả</button>
-      <button class="btn btn-outline-primary" onclick="clearSeats()"><i class="fa-solid fa-rotate-left me-1"></i>Xóa xếp chỗ</button>
-      <button class="btn btn-primary" onclick="exportSeatingPNG()"><i class="fa-solid fa-image me-1"></i>Xuất PNG</button>
-    </div>
-  </div>
-  <div class="grid-2">
-    <div class="board-wrap" id="seatingExport">
-      <div class="class-board ${cfg.mode==='3d'?'mode-3d':''}">
-        <div class="chalkboard">✦ KỶ LUẬT · TRI THỨC · SÁNG TẠO ✦<br><span style="font-size:1.3rem">★ BẢNG ${esc(activeClass().name)} ★</span><br><small>Niên khóa: ${esc(activeClass().year)} · GVCN: ${esc(state.teacher.name)} · Sĩ số: ${ss.length} HS</small></div>
-        <div class="teacher-desk"><i class="fa-solid fa-desktop me-1"></i>BÀN GIÁO VIÊN<br><small>${esc(state.teacher.name)}</small></div>
-        ${isBenchLayout ? renderBenchBoard(cfg, rowsPerLane) : renderStandardBoard(cfg)}
-      </div>
-    </div>
-    <div class="card p-3">
-      <div class="d-flex justify-content-between align-items-center mb-2">
-        <h5 class="fw-bold m-0">Học sinh chưa xếp (${unassigned.length})</h5>
-        <span class="badge bg-secondary">${assigned.size}/${maxCapacity} chỗ</span>
-      </div>
-      <p class="small text-muted mb-2">${isBenchLayout ? `Sơ đồ gồm 2 dãy, mỗi dãy ${rowsPerLane} bàn (4 em/bàn). Bàn có 3 em có thể bấm vị trí thứ 4 và chọn "Để trống".` : 'Bấm vào từng bàn để xếp học sinh.'}</p>
-      ${unassigned.length ? unassigned.map(s=>`<div class="d-flex align-items-center gap-2 border-bottom py-2">${renderAvatar(s,'mini-avatar')}<strong>${esc(s.name)}</strong></div>`).join('') : '<div class="alert alert-success mt-2">✓ Tất cả học sinh đã được bố trí chỗ ngồi!</div>'}
-    </div>
-  </div>`;
+    // Ưu tiên mẫu chuẩn: Dãy | Bàn | Ghế 1 | Ghế 2 | Ghế 3 | Ghế 4
+    for(const sheetName of workbook.SheetNames){
+      const rows=XLSX.utils.sheet_to_json(workbook.Sheets[sheetName],{header:1,defval:''});
+      for(let r=0;r<Math.min(rows.length,12);r++){
+        const h=(rows[r]||[]).map(norm);
+        const hasLane=h.some(x=>x==='dãy'||x.includes('dãy'));
+        const hasBench=h.some(x=>x==='bàn'||x.includes('bàn'));
+        const seatCount=h.filter(x=>/^ghế\s*[1-4]$/.test(x)||/^cho\s*[1-4]$/.test(x)).length;
+        if(hasLane&&hasBench&&seatCount>=2){structured={sheetName,rows,header:r};break;}
+      }
+      if(structured) break;
+    }
+
+    if(structured){
+      const h=structured.rows[structured.header].map(norm);
+      const findCol=(tests)=>{for(let i=0;i<h.length;i++) if(tests.some(t=>t(h[i]))) return i; return -1;};
+      const cLane=findCol([x=>x==='dãy',x=>x.includes('dãy')]);
+      const cBench=findCol([x=>x==='bàn',x=>x.includes('bàn')]);
+      const cSeats=[1,2,3,4].map(n=>findCol([x=>x===`ghế ${n}`,x=>x===`cho ${n}`,x=>x===`chỗ ${n}`]));
+      const extracted=[];
+      for(let r=structured.header+1;r<structured.rows.length;r++){
+        const row=structured.rows[r]||[]; const laneRaw=String(row[cLane]??'').trim(); const benchRaw=String(row[cBench]??'').trim();
+        const lm=laneRaw.match(/(\d+)/); const bm=benchRaw.match(/(\d+)/);
+        if(!lm||!bm) continue;
+        const lane=parseInt(lm[1],10), bench=parseInt(bm[1],10);
+        if(![1,2].includes(lane)||bench<1||bench>7) continue;
+        extracted.push({lane,bench,names:cSeats.map(c=>c<0?'':(empty(row[c])?'':String(row[c]).trim()))});
+      }
+      if(extracted.length) visual={sheetName:structured.sheetName,extracted,format:'structured'};
+    }
+
+    // Hỗ trợ luôn file sơ đồ trực quan hiện tại của thầy: hai cụm A:D và G:J,
+    // nhãn Bàn n có 4 tên ở hàng ngay trên hoặc ngay dưới.
+    if(!visual){
+      for(const sheetName of workbook.SheetNames){
+        const rows=XLSX.utils.sheet_to_json(workbook.Sheets[sheetName],{header:1,defval:''});
+        const maxCols=Math.max(...rows.map(r=>r.length),0);
+        const benchCols=[];
+        for(let c=0;c<maxCols;c++){
+          let count=0; for(const row of rows) if(benchRe.test(String(row?.[c]??'').trim())) count++;
+          if(count) benchCols.push({c,count});
+        }
+        if(benchCols.length<2) continue;
+        const starts=benchCols.sort((a,b)=>a.c-b.c).slice(0,2).map(x=>x.c);
+        const groups=starts.map(c=>({start:c,end:c+3}));
+        const extracted=[];
+        groups.forEach((g,gi)=>{
+          for(let r=0;r<rows.length;r++){
+            const m=String(rows[r]?.[g.start]??'').trim().match(benchRe); if(!m) continue;
+            const bench=parseInt(m[1],10); if(bench<1||bench>7) continue;
+            let bestRow=-1,bestCount=-1;
+            for(const rr of [r-1,r+1]){
+              if(rr<0||rr>=rows.length) continue;
+              let count=0; for(let c=g.start;c<=g.end;c++){const v=rows[rr]?.[c]; if(!empty(v)&&!benchRe.test(String(v??'').trim())) count++;}
+              if(count>bestCount){bestCount=count;bestRow=rr;}
+            }
+            const names=[0,1,2,3].map(k=>bestRow>=0&&!empty(rows[bestRow]?.[g.start+k])?String(rows[bestRow][g.start+k]).trim():'');
+            extracted.push({lane:gi+1,bench,names});
+          }
+        });
+        const valid=extracted.filter(x=>x.names.some(Boolean));
+        if(valid.length>=2){visual={sheetName,extracted:valid,format:'visual'};break;}
+      }
+    }
+    if(!visual) throw new Error('Không tìm thấy mẫu sơ đồ. Hãy dùng file mẫu "Mau_Nhap_So_Do_Lop.xlsx".');
+
+    const cfg=seatingCfg();
+    const rowsPerLane=cfg.type==='2x7x4'?7:6;
+    const students=classStudents();
+    const byName=new Map();
+    students.forEach(s=>{const k=norm(s.name);if(!byName.has(k))byName.set(k,[]);byName.get(k).push(s)});
+    const used=new Set(), assignments={}, missing=[], imported=[];
+    const findStudent=name=>(byName.get(norm(name))||[]).find(x=>!used.has(x.id));
+    visual.extracted.forEach(item=>item.names.forEach((name,slot)=>{
+      if(!name||item.lane>2||item.bench>rowsPerLane)return;
+      const st=findStudent(name);
+      if(!st){missing.push({name,lane:item.lane,bench:item.bench,slot:slot+1});return;}
+      used.add(st.id); assignments[`${(item.lane-1)*rowsPerLane+(item.bench-1)}_${slot}`]=st.id; imported.push(st.name);
+    }));
+    const named=visual.extracted.flatMap(x=>x.names.filter(Boolean));
+    const duplicates={}; named.forEach(n=>duplicates[norm(n)]=(duplicates[norm(n)]||0)+1);
+    const dupList=Object.entries(duplicates).filter(([,n])=>n>1);
+    const confirm=await Swal.fire({
+      icon:missing.length?'warning':'question',title:'Nhập sơ đồ từ Excel?',
+      html:`<div class="text-start small">
+        <p><b>Trang:</b> ${esc(visual.sheetName)} · <b>Định dạng:</b> ${visual.format==='structured'?'Mẫu chuẩn':'Sơ đồ trực quan'}</p>
+        <p><b>Loại sơ đồ đang chọn:</b> 2 dãy × ${rowsPerLane} bàn × 4 chỗ = <b>${rowsPerLane*2*4} chỗ</b></p>
+        <p><b>Số tên trong Excel:</b> ${named.length} · <b>Khớp danh sách lớp:</b> ${imported.length}</p>
+        ${missing.length?`<div class="alert alert-warning py-2"><b>${missing.length}</b> tên chưa có trong danh sách lớp:<br>${missing.slice(0,8).map(x=>`• ${esc(x.name)}`).join('<br>')}${missing.length>8?`<br>... và ${missing.length-8} tên khác`:''}</div>`:''}
+        ${dupList.length?`<div class="alert alert-info py-2">Có ${dupList.length} tên xuất hiện nhiều lần. Chương trình chỉ gán mỗi học sinh một lần; lần trùng tiếp theo sẽ được bỏ qua nếu danh sách lớp không có học sinh trùng tên.</div>`:''}
+        <p class="mb-0 text-danger"><b>Lưu ý:</b> Bàn 7 vẫn giữ nguyên vì thầy đang chọn 2×7×4. Nếu Excel chỉ có 6 bàn/dãy, Bàn 7 sẽ để trống.</p>
+      </div>`,
+      showCancelButton:true,confirmButtonText:'<i class="fa-solid fa-file-import me-1"></i>Nhập sơ đồ',cancelButtonText:'Hủy'
+    });
+    if(!confirm.isConfirmed)return;
+    cfg.type=cfg.type==='2x7x4'?'2x7x4':'2x6x4'; cfg.lanes=2; cfg.seats=rowsPerLane*2; cfg.assignments=assignments;
+    saveState();renderPage();
+    Swal.fire({icon:missing.length?'warning':'success',title:missing.length?'Đã nhập sơ đồ':'Nhập sơ đồ thành công!',html:`Đã xếp <b>${imported.length}</b> học sinh. ${missing.length?`Còn <b>${missing.length}</b> tên chưa khớp.`:''}`,confirmButtonText:'Đóng'});
+  }catch(err){console.error(err);Swal.fire({icon:'error',title:'Không thể nhập sơ đồ',text:err.message||String(err)});}
 }
 
+function renderSeating(){
+  const cfg=seatingCfg(), ss=classStudents();
+  if(!cfg.assignments) cfg.assignments={};
+  const isBenchLayout=cfg.type==='2x6x4'||cfg.type==='2x7x4';
+  const rowsPerLane=cfg.type==='2x7x4'?7:6;
+  return `<div class="section-head"><div><h2><i class="fa-solid fa-border-all text-primary me-2"></i>Sơ đồ chỗ ngồi ${esc(activeClass().name)}</h2><p>Chọn dạng sơ đồ lớp, nhập từ Excel hoặc bấm từng chỗ để chọn học sinh (yêu cầu mật khẩu GVCN để thay đổi).</p></div><div class="d-flex gap-2 flex-wrap align-items-center"><div class="btn-group"><button class="btn ${cfg.mode==='3d'?'btn-primary':'btn-outline-primary'}" onclick="setSeatMode('3d')"><i class="fa-solid fa-cube"></i> 3D</button><button class="btn ${cfg.mode!=='3d'?'btn-primary':'btn-outline-primary'}" onclick="setSeatMode('2d')"><i class="fa-solid fa-layer-group"></i> 2D</button></div><select class="form-select" style="width:275px" onchange="checkAndSetSeatingType(this.value)"><option value="2x7x4" ${cfg.type==='2x7x4'?'selected':''}>2 Dãy (mỗi dãy 7 bàn, 4 chỗ/bàn - 56 chỗ)</option><option value="2x6x4" ${cfg.type==='2x6x4'?'selected':''}>2 Dãy (mỗi dãy 6 bàn, 4 chỗ/bàn - 48 chỗ)</option><option value="standard" ${cfg.type==='standard'?'selected':''}>Bố cục tự do (Bàn đơn/đôi)</option></select><button class="btn btn-outline-success" onclick="document.getElementById('hiddenSeatingExcelImport').click()"><i class="fa-solid fa-file-excel me-1"></i>Nhập sơ đồ Excel</button><button class="btn btn-outline-success" onclick="downloadSeatingTemplate()"><i class="fa-solid fa-download me-1"></i>Tải file mẫu</button><button class="btn btn-outline-primary" onclick="randomSeat()"><i class="fa-solid fa-shuffle me-1"></i>Xếp tất cả</button><button class="btn btn-outline-primary" onclick="clearSeats()"><i class="fa-solid fa-rotate-left me-1"></i>Xóa xếp chỗ</button><button class="btn btn-primary" onclick="exportSeatingPNG()"><i class="fa-solid fa-image me-1"></i>Xuất PNG</button></div></div><div class="seating-full-width"><div class="board-wrap" id="seatingExport"><div class="class-board ${cfg.mode==='3d'?'mode-3d':''}"><div class="chalkboard">✦ KỶ LUẬT · TRI THỨC · SÁNG TẠO ✦<br><span style="font-size:1.3rem">★ BẢNG ${esc(activeClass().name)} ★</span><br><small>Niên khóa: ${esc(activeClass().year)} · GVCN: ${esc(state.teacher.name)} · Sĩ số: ${ss.length} HS</small></div><div class="teacher-desk"><i class="fa-solid fa-desktop me-1"></i>BÀN GIÁO VIÊN<br><small>${esc(state.teacher.name)}</small></div>${isBenchLayout?renderBenchBoard(cfg,rowsPerLane):renderStandardBoard(cfg)}</div></div></div>`;
+}
 function renderBenchBoard(cfg, rowsPerLane){
   return `<div class="seat-grid" style="grid-template-columns:repeat(2,minmax(280px,1fr));gap:20px;">
     ${[0,1].map(laneIndex => `
@@ -1888,6 +2031,79 @@ function timeSlots(){
   return t;
 }
 
+async function handleTimetableExcelFile(input){
+  const file=input.files[0]; input.value=''; if(!file)return;
+  const ok=await verifyAdminAccess(); if(!ok)return;
+  try{
+    const data=await file.arrayBuffer(), wb=XLSX.read(data,{type:'array'});
+    const norm=v=>String(v??'').replace(/\u00a0/g,' ').replace(/\s+/g,' ').trim().toLowerCase();
+    const dayMap={'thứ hai':0,'thu hai':0,'thứ 2':0,'thu 2':0,'2':0,'thứ ba':1,'thu ba':1,'thứ 3':1,'thu 3':1,'3':1,'thứ tư':2,'thu tu':2,'thứ 4':2,'thu 4':2,'4':2,'thứ năm':3,'thu nam':3,'thứ 5':3,'thu 5':3,'5':3,'thứ sáu':4,'thu sau':4,'thứ 6':4,'thu 6':4,'6':4,'thứ bảy':5,'thu bay':5,'thứ 7':5,'thu 7':5,'7':5};
+    let best=null;
+    for(const sheetName of wb.SheetNames){
+      const rows=XLSX.utils.sheet_to_json(wb.Sheets[sheetName],{header:1,defval:''});
+      for(let r=0;r<Math.min(rows.length,15);r++){
+        const h=(rows[r]||[]).map(norm);
+        const hasDay=h.some(x=>x==='ngày'||x==='thứ'||x.includes('ngày')||x.includes('thứ'));
+        const hasSlot=h.some(x=>x==='tiết'||x.includes('tiết'));
+        const hasSubject=h.some(x=>x.includes('môn')||x.includes('học')||x==='subject');
+        if(hasDay&&hasSlot&&hasSubject){best={sheetName,rows,header:r};break;}
+      }
+      if(best)break;
+    }
+    if(!best)throw new Error('Không tìm thấy bảng TKB. Hãy dùng file mẫu "Mau_Nhap_TKB.xlsx".');
+    const h=best.rows[best.header].map(norm);
+    const col=tests=>{for(let i=0;i<h.length;i++)if(tests.some(t=>t(h[i])))return i;return -1};
+    const cDay=col([x=>x==='thứ',x=>x==='ngày',x=>x.includes('thứ'),x=>x.includes('ngày')]);
+    const cSlot=col([x=>x==='tiết',x=>x.includes('tiết')]);
+    const cSession=col([x=>x==='buổi',x=>x.includes('buổi')]);
+    const cSub=col([x=>x.includes('môn'),x=>x.includes('nội dung'),x==='subject']);
+    const cTeacher=col([x=>x.includes('giáo viên'),x==='gv',x.includes('teacher')]);
+    const cTime=col([x=>x.includes('thời gian'),x==='giờ',x==='giờ học',x==='time']);
+    const cClass=col([x=>x==='lớp',x.includes('lớp')]);
+    const rows=[];
+    for(let r=best.header+1;r<best.rows.length;r++){
+      const row=best.rows[r]||[]; const sub=String(row[cSub]??'').trim(); if(!sub)continue;
+      const classVal=cClass>=0?String(row[cClass]??'').trim():''; if(classVal && norm(classVal)!==norm(activeClass().name))continue;
+      const dRaw=norm(row[cDay]); const day=dayMap[dRaw]!==undefined?dayMap[dRaw]:dayMap[(dRaw.match(/\d+/)||[])[0]]; if(day===undefined)continue;
+      const slotRaw=String(row[cSlot]??'').trim(); const sn=(slotRaw.match(/\d+/)||[])[0]; if(!sn)continue;
+      let session=cSession>=0?norm(row[cSession]):''; let prefix=session.includes('chiều')||session.includes('chieu')||session==='c'?'C':'S';
+      const slotId=prefix+parseInt(sn,10); const teacher=cTeacher>=0?String(row[cTeacher]??'').trim():''; const time=cTime>=0?String(row[cTime]??'').trim():'';
+      rows.push({day,slot:slotId,subject:sub,teacher,time});
+    }
+    if(!rows.length)throw new Error('Không đọc được dòng TKB hợp lệ. Kiểm tra cột Ngày/Thứ, Buổi, Tiết, Môn học.');
+    const seen=new Set(), clean=[]; rows.forEach(x=>{const k=x.day+'|'+x.slot;if(!seen.has(k)){seen.add(k);clean.push(x)}else{const i=clean.findIndex(y=>y.day===x.day&&y.slot===x.slot);clean[i]=x;}});
+    const preview=clean.slice(0,10).map((x,i)=>`${i+1}. ${DAYS[x.day]} · ${x.slot}: <b>${esc(x.subject)}</b>${x.teacher?' · '+esc(x.teacher):''}`).join('<br>');
+    const result=await Swal.fire({title:'Nhập thời khóa biểu từ Excel?',html:`<div class="text-start small"><p><b>Trang:</b> ${esc(best.sheetName)} · <b>Số tiết:</b> ${clean.length}</p><div class="border rounded p-2 bg-light" style="max-height:180px;overflow:auto">${preview}${clean.length>10?`<br>... và ${clean.length-10} tiết khác`:''}</div><p class="mt-2 mb-0 text-danger"><b>Lưu ý:</b> Các tiết TKB của lớp hiện tại sẽ được thay bằng dữ liệu trong Excel. Giờ học trong cột Thời gian (nếu có) cũng được cập nhật.</p></div>`,showCancelButton:true,confirmButtonText:'<i class="fa-solid fa-file-import me-1"></i>Nhập TKB',cancelButtonText:'Hủy'});
+    if(!result.isConfirmed)return;
+    state.timetable.entries=state.timetable.entries.filter(x=>x.classId!==state.activeClassId);
+    clean.forEach(x=>state.timetable.entries.push({id:uid('tt'),classId:state.activeClassId,day:x.day,slot:x.slot,subject:x.subject,teacher:x.teacher}));
+    if(!state.slotTimes)state.slotTimes={}; clean.forEach(x=>{if(x.time)state.slotTimes[x.slot]=x.time});
+    const maxS=Math.max(0,...clean.filter(x=>x.slot[0]==='S').map(x=>parseInt(x.slot.slice(1),10))); const maxC=Math.max(0,...clean.filter(x=>x.slot[0]==='C').map(x=>parseInt(x.slot.slice(1),10)));
+    if(maxS)state.timetable.morning=true,state.timetable.morningCount=Math.min(6,Math.max(state.timetable.morningCount||5,maxS));
+    if(maxC)state.timetable.afternoon=true,state.timetable.afternoonCount=Math.min(5,Math.max(state.timetable.afternoonCount||4,maxC));
+    saveState();renderPage();toast(`Đã nhập ${clean.length} tiết TKB thành công!`);
+  }catch(err){console.error(err);Swal.fire({icon:'error',title:'Không thể nhập TKB',text:err.message||String(err)});}
+}
+
+function downloadSeatingTemplate(){
+  const rows=[]; for(let lane=1;lane<=2;lane++)for(let bench=1;bench<=7;bench++)rows.push({'Dãy':lane,'Bàn':bench,'Ghế 1':'','Ghế 2':'','Ghế 3':'','Ghế 4':''});
+  const guide=[
+    {'Nội dung':'Mẫu nhập sơ đồ chỗ ngồi'},
+    {'Nội dung':'Mỗi dòng là 1 bàn; nhập tên học sinh vào Ghế 1..4.'},
+    {'Nội dung':'Dãy chỉ nhập 1 hoặc 2; Bàn nhập 1 đến 7.'},
+    {'Nội dung':'Nếu không có học sinh, để trống ô ghế.'},
+    {'Nội dung':'Không đổi tên các cột Dãy, Bàn, Ghế 1, Ghế 2, Ghế 3, Ghế 4.'}
+  ];
+  downloadXlsx([['NhapLieu',rows],['HuongDan',guide]],'Mau_Nhap_So_Do_Lop.xlsx');
+}
+
+function downloadTimetableTemplate(){
+  const rows=[]; const times={S1:'07:30 - 08:05',S2:'08:15 - 08:50',S3:'09:05 - 09:40',S4:'09:50 - 10:25',S5:'10:35 - 11:10',C1:'13:30 - 14:05',C2:'14:15 - 14:50',C3:'15:05 - 15:40',C4:'15:50 - 16:25'};
+  for(let d=0;d<6;d++)for(let n=1;n<=9;n++){const session=n<=5?'S':'C';const no=session==='S'?n:n-5;rows.push({'Lớp':activeClass().name,'Thứ':DAYS[d],'Buổi':session==='S'?'Sáng':'Chiều','Tiết':no,'Môn học':'','Giáo viên':'','Thời gian':times[session+no]||''});}
+  const guide=[{'Nội dung':'Mẫu nhập Thời khóa biểu'},{'Nội dung':'Mỗi dòng là 1 tiết. Nhập Thứ, Buổi, Tiết, Môn học; Giáo viên và Thời gian có thể bỏ trống.'},{'Nội dung':'Thứ dùng Thứ Hai đến Thứ Bảy. Buổi dùng Sáng hoặc Chiều.'},{'Nội dung':'Không đổi tên các cột: Lớp, Thứ, Buổi, Tiết, Môn học, Giáo viên, Thời gian.'},{'Nội dung':'Có thể xóa các dòng không dùng. Khi nhập, TKB của lớp hiện tại sẽ được thay bằng dữ liệu hợp lệ trong file.'}];
+  downloadXlsx([['TKB',rows],['HuongDan',guide]],'Mau_Nhap_TKB.xlsx');
+}
+
 function renderTimetable(){
   const slots=timeSlots();
   return `
@@ -1896,7 +2112,7 @@ function renderTimetable(){
         <h2><i class="fa-solid fa-calendar-days text-primary me-2"></i>Thời Khóa Biểu ${esc(activeClass().name)}</h2>
         <p>Bấm ô trống để thêm tiết; bấm tiết đã có để chỉnh sửa (yêu cầu mật khẩu GVCN).</p>
       </div>
-      <button class="btn btn-outline-primary" onclick="openTimetableConfigSecure()"><i class="fa-solid fa-sliders me-1"></i>Cấu hình thời khóa biểu</button>
+      <div class="d-flex gap-2 flex-wrap justify-content-end"><button class="btn btn-outline-success" onclick="document.getElementById('hiddenTimetableExcelImport').click()"><i class="fa-solid fa-file-excel me-1"></i>Nhập TKB từ Excel</button><button class="btn btn-outline-success" onclick="downloadTimetableTemplate()"><i class="fa-solid fa-download me-1"></i>Tải file mẫu</button><button class="btn btn-outline-primary" onclick="openTimetableConfigSecure()"><i class="fa-solid fa-sliders me-1"></i>Cấu hình</button></div>
     </div>
     <div class="timetable">
       <div class="timetable-grid">
