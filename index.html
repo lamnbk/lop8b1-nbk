@@ -357,8 +357,6 @@ function initFirebaseSync(){
 }
 const SUBJECTS=['Ghi chung / Nề nếp','Toán','Tiếng Việt','Tiếng Anh','Tự nhiên & Xã hội','Khoa học','Lịch sử & Địa lý','Tin học','Công nghệ','Mĩ thuật','Âm nhạc','Giáo dục thể chất','Đạo đức','Hoạt động trải nghiệm','Sinh hoạt lớp','Chào cờ'];
 const DAYS=['Thứ Hai','Thứ Ba','Thứ Tư','Thứ Năm','Thứ Sáu','Thứ Bảy'];
-
-// Đặt tab Chia tổ chính xác ngay phía dưới Tab Học sinh (nhân bản từ cấu trúc sạch)
 const NAV=[
   ['home','fa-house','Trang chủ',''],
   ['classes','fa-school','Lớp học',''],
@@ -377,7 +375,6 @@ const NAV=[
   ['data','fa-database','Dữ liệu',''],
   ['settings','fa-gear','Cài đặt','']
 ];
-
 const PAGE_META={
  home:['Trang chủ','Tổng quan nhanh tình hình lớp học hôm nay'],
  classes:['Quản lý Lớp học','Danh sách các lớp, khối lớp và thông tin chung'],
@@ -751,7 +748,7 @@ async function navigate(page){
 
 function switchClass(id){if(isLeaderMode())return;state.activeClassId=id;saveState();buildNav();renderHeader();renderPage()}
 
-// Hàm renderPage được cấu hình chuẩn xác mảng fnMap ánh xạ đúng 'groups' gọi hàm renderGroups
+// Đảm bảo fnMap khớp chính xác 100% tên id 'groups' với hàm renderGroups
 function renderPage(){
   chartRefs.forEach(c=>{try{c.destroy()}catch(e){}});
   chartRefs=[];
@@ -1622,7 +1619,7 @@ function setAttendance(id,status){
 function exportAttendance(){const date=document.getElementById('attDate')?.value||today(),att=state.attendance[state.activeClassId+'_'+date]||{};const rows=classStudents().map((s,i)=>({'STT':i+1,'Họ tên':s.name,'Trạng thái':({present:'Có mặt',late:'Đi muộn',excused:'Có phép',unexcused:'Không phép'})[att[s.id]||'present']}));downloadXlsx([['Điểm danh',rows]],`diem-danh-${activeClass().name}-${date}.xlsx`)}
 
 /* ========================================================
-   TAB CHIA TỔ (Nhân bản và chỉnh sửa chuẩn xác, có mật khẩu tổ trưởng)
+   TAB CHIA TỔ (Nhân bản sạch sẽ từ cấu trúc chuẩn, độc lập hoàn toàn)
    ======================================================== */
 function ensureGroupsForClass(){
   if(!state.groups || typeof state.groups !== 'object') state.groups = {};
@@ -2093,7 +2090,7 @@ function txRow(x){return `<tr data-subject="${esc(x.subject)}" data-search="${es
 function filterTxTable(){const sub=document.getElementById('txSubjectFilter').value,q=document.getElementById('txSearch').value.toLowerCase();document.querySelectorAll('#txTable tbody tr').forEach(r=>r.style.display=(!sub||r.dataset.subject===sub)&&r.dataset.search.includes(q)?'':'none')}
 function drawStatsCharts(){const ss=classStudents(),tx=state.transactions.filter(x=>x.classId===state.activeClassId);const m=ss.filter(s=>s.gender==='Nam').length,f=ss.filter(s=>s.gender==='Nữ').length,o=ss.length-m-f;const g=document.getElementById('genderChart');if(g)chartRefs.push(new Chart(g,{type:'doughnut',data:{labels:['Nam','Nữ','Khác'],datasets:[{data:[m,f,o],backgroundColor:['#0ea5e9','#f472b6','#94a3b8']}]},options:{maintainAspectRatio:false}}));const map={};tx.forEach(x=>map[x.subject]=(map[x.subject]||0)+x.amount);const sc=document.getElementById('subjectChart');if(sc)chartRefs.push(new Chart(sc,{type:'bar',data:{labels:Object.keys(map),datasets:[{label:'Điểm ròng',data:Object.values(map),backgroundColor:'rgba(20,184,166,.7)',borderRadius:7}]},options:{maintainAspectRatio:false,plugins:{legend:{display:false}}}}));const cc=document.getElementById('coinChart');if(cc)chartRefs.push(new Chart(cc,{type:'line',data:{labels:ss.map(s=>s.name.split(' ').slice(-2).join(' ')),datasets:[{label:'Điểm',data:ss.map(s=>s.coins),borderColor:'#0d9488',backgroundColor:'rgba(13,148,136,.12)',fill:true,tension:.3}]},options:{maintainAspectRatio:false}}))}
 function exportStatsXlsx(){const ss=classStudents().map((s,i)=>({STT:i+1,'Học sinh':s.name,'Giới tính':s.gender,'Điểm':s.coins}));const tx=state.transactions.filter(x=>x.classId===state.activeClassId).map(x=>({'Thời gian':new Date(x.time).toLocaleString('vi-VN'),'Học sinh':x.studentName,'Môn':x.subject,'Lý do':x.reason,'Điểm':x.amount}));const red=state.redemptions.filter(x=>x.classId===state.activeClassId).map(x=>({'Thời gian':new Date(x.time).toLocaleString('vi-VN'),'Học sinh':x.studentName,'Quà':x.rewardName,'Chi phí điểm':x.cost}));downloadXlsx([['Xếp hạng',ss],['Cộng trừ điểm',tx],['Đổi thưởng',red]],`bao-cao-${activeClass().name}.xlsx`)}
-async function exportStatsPDF(){const el=document.getElementById('statsReport');const canvas=await html2canvas(el,{scale:1.5,backgroundColor:'#fff'});const img=canvas.toDataURL('image/jpeg',.92);const {jsPDF}=window.jspdf;const pdf=new jsPDF('p','mm','a4');const w=190,h=canvas.height*w/canvas.width;let y=10;pdf.addImage(img,'JPEG',10,y,w,h);if(h>277){}pdf.save(`bao-cao-${activeClass().name}.pdf`);toast('Đã tạo PDF')}
+async function exportStatsPDF(){const el=document.getElementById('statsReport');const canvas=await html2canvas(el,{scale:1.5,backgroundColor:'#fff'});const img=canvas.toDataURL('image/jpeg',.92);const {jsPDF}=window.jspdf;const pdf=new jsPDF('p','mm','a4');const w=190,h=canvas.height*w/canvas.width;let y=10;pdf.addImage(img,'JPEG',10,y,w,h);if(h>277){}pdf.save(`bao-cao-${activeClass().name}.pdf`);toast('Deã tạo PDF')}
 function downloadXlsx(sheets,filename){const wb=XLSX.utils.book_new();sheets.forEach(([name,rows])=>{const ws=XLSX.utils.json_to_sheet(rows);XLSX.utils.book_append_sheet(wb,ws,name.slice(0,31))});XLSX.writeFile(wb,filename)}
 function renderData(){const size=(new Blob([JSON.stringify(state)]).size/1024).toFixed(1);return `<div class="section-head"><div><h2><i class="fa-solid fa-database text-primary me-2"></i>Quản lý Dữ liệu</h2><p>Sao lưu dữ liệu định kỳ để chuyển máy hoặc khôi phục khi cần.</p></div></div><div class="grid-equal"><div class="card p-4"><h4 class="fw-bold">📦 Sao lưu toàn bộ</h4><p class="text-muted">Xuất mọi lớp, học sinh, điểm danh, điểm thi đua, lịch, phần thưởng và cài đặt thành một tệp JSON.</p><button class="btn btn-primary" onclick="exportJSON()"><i class="fa-solid fa-download me-1"></i>Xuất file JSON sao lưu</button><div class="mt-3 small text-muted">Kích thước dữ liệu hiện tại: ~${size} KB</div></div><div class="card p-4"><h4 class="fw-bold">♻️ Khôi phục</h4><p class="text-muted">Nhập file JSON đã sao lưu từ ứng dụng này. Dữ liệu hiện tại sẽ được thay thế sau khi xác nhận.</p><button class="btn btn-outline-primary" onclick="document.getElementById('hiddenImport').click()"><i class="fa-solid fa-upload me-1"></i>Nhập file JSON</button></div></div><div class="card p-4 mt-3 border-danger"><h4 class="fw-bold text-danger">⚠️ Vùng dữ liệu nguy hiểm</h4><p class="text-muted">Đặt lại toàn bộ ứng dụng về dữ liệu mẫu ban đầu.</p><button class="btn btn-outline-danger" onclick="resetAllData()"><i class="fa-solid fa-trash-can me-1"></i>Xóa và tạo lại dữ liệu mẫu</button></div>`}
 function exportJSON(){const blob=new Blob([JSON.stringify(state,null,2)],{type:'application/json'});downloadBlob(blob,`lop-hoc-vui-ve-backup-${today()}.json`);toast('Đã xuất bản sao lưu')}
