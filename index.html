@@ -323,9 +323,8 @@ function initFirebaseSync(){
       if(!Array.isArray(remote.students)) remote.students = [];
       if(!Array.isArray(remote.rewards)) remote.rewards = [];
       if(!Array.isArray(remote.redemptions)) remote.redemptions = [];
-      if(!Array.isArray(remote.wheelHistory)) remote.wheelHistory = [];
-      if(!Array.isArray(remote.dailyPhotos)) remote.dailyPhotos = [];
       if(!Array.isArray(remote.teams)) remote.teams = [];
+      if(!Array.isArray(remote.dailyPhotos)) remote.dailyPhotos = [];
       if(!Array.isArray(remote.links)) remote.links = [];
       if(!Array.isArray(remote.subjects)) remote.subjects = SUBJECTS.slice();
       if(!remote.attendance) remote.attendance = {};
@@ -1078,6 +1077,461 @@ async function deleteTransaction(txId, studentId){
   }
 }
 
+function renderWeekly(){
+  const schoolMonths = [
+    {val:'9', label:'Tháng 9'},
+    {val:'10', label:'Tháng 10'},
+    {val:'11', label:'Tháng 11'},
+    {val:'12', label:'Tháng 12'},
+    {val:'1', label:'Tháng 1'},
+    {val:'2', label:'Tháng 2'},
+    {val:'3', label:'Tháng 3'},
+    {val:'4', label:'Tháng 4'},
+    {val:'5', label:'Tháng 5'},
+    {val:'all', label:'Tất cả các tháng'}
+  ];
+
+  const weeks = [
+    {val:'all', label:'Tất cả các tuần'},
+    {val:'1', label:'Tuần 1'},
+    {val:'2', label:'Tuần 2'},
+    {val:'3', label:'Tuần 3'},
+    {val:'4', label:'Tuần 4'},
+    {val:'5', label:'Tuần 5'}
+  ];
+
+  let txs = state.transactions.filter(x => x.classId === state.activeClassId);
+
+  if(weeklyMonth !== 'all'){
+    const mTarget = parseInt(weeklyMonth, 10);
+    txs = txs.filter(x => (new Date(x.time).getMonth() + 1) === mTarget);
+  }
+
+  if(weeklyWeek !== 'all'){
+    const wTarget = parseInt(weeklyWeek, 10);
+    txs = txs.filter(x => getWeekOfMonth(new Date(x.time)) === wTarget);
+  }
+
+  const plusCount = txs.filter(x => x.amount > 0).length;
+  const minusCount = txs.filter(x => x.amount < 0).length;
+  const netPoints = txs.reduce((acc, cur) => acc + (cur.amount || 0), 0);
+
+  const monthLabel = weeklyMonth === 'all' ? 'Tất cả các tháng' : `Tháng ${weeklyMonth}`;
+  const weekLabel = weeklyWeek === 'all' ? 'Tất cả các tuần' : `Tuần ${weeklyWeek}`;
+
+  return `
+    <div class="section-head">
+      <div>
+        <h2><i class="fa-solid fa-calendar-check text-primary me-2"></i>Nhật kí tuần & tháng lớp ${esc(activeClass().name)}</h2>
+        <p>Chọn tháng và tuần để xem danh sách tổng hợp học sinh được khen thưởng hoặc vi phạm.</p>
+      </div>
+      <div class="d-flex gap-2">
+        <button class="btn btn-outline-primary" onclick="exportWeeklyExcel()"><i class="fa-solid fa-file-excel me-1"></i>Xuất Excel nhật kí</button>
+        <button class="btn btn-primary" onclick="navigate('students')"><i class="fa-solid fa-graduation-cap me-1"></i>Về danh sách học sinh</button>
+      </div>
+    </div>
+
+    <div class="card p-3 mb-3 shadow-sm">
+      <div class="row g-3 align-items-center">
+        <div class="col-12">
+          <div class="fw-bold mb-2 text-primary"><i class="fa-solid fa-calendar-days me-1"></i>1. Chọn Tháng trong năm học:</div>
+          <div class="filter-chip-group">
+            ${schoolMonths.map(m => `
+              <span class="filter-chip ${weeklyMonth===m.val?'active':''}" onclick="setWeeklyMonth('${m.val}')">
+                ${m.label}
+              </span>
+            `).join('')}
+          </div>
+        </div>
+        <div class="col-12 pt-2 border-top">
+          <div class="fw-bold mb-2 text-primary"><i class="fa-solid fa-calendar-week me-1"></i>2. Chọn Tuần của tháng:</div>
+          <div class="filter-chip-group">
+            ${weeks.map(w => `
+              <span class="filter-chip ${weeklyWeek===w.val?'active':''}" onclick="setWeeklyWeek('${w.val}')">
+                ${w.label}
+              </span>
+            `).join('')}
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="stats-grid mb-3">
+      <div class="stat-card" style="background:linear-gradient(135deg,#0d9488,#14b8a6)">
+        <div class="label">Đang xem</div>
+        <div class="value fs-4">${weekLabel}</div>
+        <small>${monthLabel} · Lớp ${esc(activeClass().name)}</small>
+        <i class="fa-solid fa-clock-rotate-left"></i>
+      </div>
+      <div class="stat-card" style="background:linear-gradient(135deg,#16a34a,#22c55e)">
+        <div class="label">Khen thưởng (+điểm)</div>
+        <div class="value">${plusCount}</div>
+        <small>Lượt phát biểu, làm bài tốt</small>
+        <i class="fa-solid fa-star"></i>
+      </div>
+      <div class="stat-card" style="background:linear-gradient(135deg,#dc2626,#ef4444)">
+        <div class="label">Vi phạm (-điểm)</div>
+        <div class="value">${minusCount}</div>
+        <small>Lượt nhắc nhở nề nếp</small>
+        <i class="fa-solid fa-triangle-exclamation"></i>
+      </div>
+      <div class="stat-card" style="background:linear-gradient(135deg,#4f46e5,#6366f1)">
+        <div class="label">Điểm thi đua ròng</div>
+        <div class="value">${netPoints > 0 ? '+'+netPoints : netPoints}</div>
+        <small>Tổng cộng/trừ trong tuần</small>
+        <i class="fa-solid fa-award"></i>
+      </div>
+    </div>
+
+    <div class="card p-3 shadow-sm">
+      <div class="d-flex justify-content-between align-items-center mb-2 flex-wrap gap-2">
+        <h5 class="fw-bold m-0 text-primary">
+          <i class="fa-solid fa-list-check me-2"></i>Danh sách chi tiết (${txs.length} lượt ghi nhận)
+        </h5>
+        <div class="text-muted small">Nút Sửa/Xóa yêu cầu mật khẩu quản trị GVCN để bảo mật.</div>
+      </div>
+
+      ${txs.length === 0 ? `
+        <div class="p-5 text-center text-muted">
+          <i class="fa-solid fa-calendar-xmark fs-1 mb-3 text-secondary"></i>
+          <h5>Không có ghi nhận nào trong ${weekLabel.toLowerCase()} - ${monthLabel.toLowerCase()}</h5>
+          <p class="small mb-0">Khi bạn cộng hoặc trừ điểm học sinh trong tuần này, hệ thống sẽ tự động tổng hợp vào đây.</p>
+        </div>
+      ` : `
+        <div class="table-responsive mt-2">
+          <table class="table table-bordered table-hover align-middle mb-0 text-start" id="weeklyReportTable">
+            <thead class="table-light">
+              <tr>
+                <th style="width:50px" class="text-center">STT</th>
+                <th>Thời gian & Tuần</th>
+                <th>Học sinh</th>
+                <th>Môn / Nhóm</th>
+                <th>Nội dung (Lý do / Vi phạm / Thành tích)</th>
+                <th class="text-center" style="width:110px">Điểm số</th>
+                <th class="text-center" style="width:90px">Thao tác</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${txs.map((tx, idx) => {
+                const d = new Date(tx.time);
+                const m = d.getMonth() + 1;
+                const w = getWeekOfMonth(d);
+                const isMinus = tx.amount < 0;
+                const dateStr = d.toLocaleDateString('vi-VN') + ' ' + d.toLocaleTimeString('vi-VN', {hour:'2-digit', minute:'2-digit'});
+                return `
+                  <tr class="${isMinus?'table-danger-subtle':''}">
+                    <td class="text-center fw-bold text-muted">${idx+1}</td>
+                    <td>
+                      <span class="badge ${isMinus?'bg-danger':'bg-success'} mb-1">Tuần ${w} · Tháng ${m}</span>
+                      <div class="text-muted small">${dateStr}</div>
+                    </td>
+                    <td>
+                      <strong class="text-dark">${esc(tx.studentName)}</strong>
+                    </td>
+                    <td><b>${esc(tx.subject || 'Ghi chung')}</b></td>
+                    <td>${esc(tx.reason || 'Điều chỉnh')}</td>
+                    <td class="text-center fw-bold fs-6 ${isMinus?'text-danger':'text-success'}">
+                      ${isMinus ? tx.amount : '+'+tx.amount}
+                    </td>
+                    <td class="text-center">
+                      <button class="btn btn-sm btn-outline-primary p-1 px-2 me-1" title="Sửa (Cần mật khẩu GVCN)" onclick="editTransaction('${tx.id}', '${tx.studentId}')">
+                        <i class="fa-solid fa-pen"></i>
+                      </button>
+                      <button class="btn btn-sm btn-outline-danger p-1 px-2" title="Xóa (Cần mật khẩu GVCN)" onclick="deleteTransaction('${tx.id}', '${tx.studentId}')">
+                        <i class="fa-solid fa-trash"></i>
+                      </button>
+                    </td>
+                  </tr>
+                `;
+              }).join('')}
+            </tbody>
+          </table>
+        </div>
+      `}
+    </div>
+  `;
+}
+
+function setWeeklyMonth(m){
+  weeklyMonth = m;
+  renderPage();
+}
+
+function setWeeklyWeek(w){
+  weeklyWeek = w;
+  renderPage();
+}
+
+function exportWeeklyExcel(){
+  let txs = state.transactions.filter(x => x.classId === state.activeClassId);
+  if(weeklyMonth !== 'all'){
+    txs = txs.filter(x => (new Date(x.time).getMonth() + 1) === parseInt(weeklyMonth, 10));
+  }
+  if(weeklyWeek !== 'all'){
+    txs = txs.filter(x => getWeekOfMonth(new Date(x.time)) === parseInt(weeklyWeek, 10));
+  }
+
+  const rows = txs.map((tx, i) => {
+    const d = new Date(tx.time);
+    return {
+      'STT': i + 1,
+      'Tuần': 'Tuần ' + getWeekOfMonth(d),
+      'Tháng': 'Tháng ' + (d.getMonth() + 1),
+      'Thời gian': d.toLocaleDateString('vi-VN') + ' ' + d.toLocaleTimeString('vi-VN'),
+      'Học sinh': tx.studentName,
+      'Môn/Nhóm': tx.subject,
+      'Nội dung ghi nhận': tx.reason,
+      'Điểm': tx.amount
+    };
+  });
+
+  downloadXlsx([['Nhat_ki_tuan', rows]], `nhat-ki-tuan-${activeClass().name}-T${weeklyMonth}-W${weeklyWeek}.xlsx`);
+  toast('Đã xuất Excel nhật kí tuần thành công!');
+}
+
+function filterStudents(q){q=q.toLowerCase();document.querySelectorAll('#studentGrid .student-card').forEach(x=>x.style.display=x.dataset.name.includes(q)?'':'none')}
+
+async function openStudentModal(id=''){
+  const ok = await verifyAdminAccess();
+  if(!ok) return;
+
+  const s=state.students.find(x=>x.id===id)||{name:'',gender:'Nữ',coins:0,avatar:'',note:'',favorite:false};
+  showModal(id?'Sửa học sinh':'Thêm học sinh',`<form onsubmit="saveStudent(event,'${id}')"><div class="row g-3"><div class="col-md-8"><label class="form-label fw-bold">Họ và tên *</label><input id="sName" class="form-control" required value="${esc(s.name)}"></div><div class="col-md-4"><label class="form-label fw-bold">Giới tính</label><select id="sGender" class="form-select"><option ${s.gender==='Nữ'?'selected':''}>Nữ</option><option ${s.gender==='Nam'?'selected':''}>Nam</option><option ${s.gender==='Khác'?'selected':''}>Khác</option></select></div><div class="col-md-4"><label class="form-label fw-bold">Điểm hiện có (Có thể âm)</label><input id="sCoins" type="number" class="form-control" value="${s.coins||0}"></div><div class="col-md-8"><label class="form-label fw-bold">Ảnh đại diện</label><input id="sAvatar" type="file" accept="image/*" class="form-control"><input id="sAvatarOld" type="hidden" value="${esc(s.avatar||'')}"></div><div class="col-12"><label class="form-label fw-bold">Ghi chú</label><textarea id="sNote" class="form-control">${esc(s.note||'')}</textarea></div><div class="col-12 form-check ms-2"><input id="sFav" class="form-check-input" type="checkbox" ${s.favorite?'checked':''}><label class="form-check-label fw-bold">Thêm vào nhóm yêu thích</label></div></div><div class="text-end mt-4"><button class="btn btn-primary">Lưu học sinh</button></div></form>`);
+}
+
+async function saveStudent(e,id){
+  e.preventDefault();
+  let avatar=document.getElementById('sAvatarOld').value;
+  const f=document.getElementById('sAvatar').files[0];
+  if(f)avatar=await readFileData(f);
+  const d={name:document.getElementById('sName').value.trim(),gender:document.getElementById('sGender').value,coins:+document.getElementById('sCoins').value||0,avatar,note:document.getElementById('sNote').value.trim(),favorite:document.getElementById('sFav').checked};
+  if(id)Object.assign(state.students.find(x=>x.id===id),d);
+  else state.students.push({id:uid('s'),classId:state.activeClassId,...d});
+  saveState();
+  mainModal.hide();
+  buildNav();
+  renderHeader();
+  renderPage();
+  toast('Đã lưu học sinh');
+}
+
+function readFileData(file){return new Promise((res,rej)=>{const r=new FileReader();r.onload=()=>res(r.result);r.onerror=rej;r.readAsDataURL(file)})}
+
+async function deleteStudent(id){
+  const ok = await verifyAdminAccess();
+  if(!ok) return;
+
+  const s=state.students.find(x=>x.id===id);
+  const r=await Swal.fire({icon:'warning',title:'Xóa học sinh?',text:s?.name||'',showCancelButton:true,confirmButtonText:'Xóa',confirmButtonColor:'#dc2626'});
+  if(!r.isConfirmed)return;
+  state.students=state.students.filter(x=>x.id!==id);
+  Object.values(state.seating).forEach(cfg=>Object.keys(cfg.assignments||{}).forEach(k=>{if(cfg.assignments[k]===id)delete cfg.assignments[k]}));
+  saveState();buildNav();renderHeader();renderPage();
+}
+
+async function clearAllStudents(){
+  const count = classStudents().length;
+  if(count === 0) return toast('Lớp hiện chưa có học sinh nào!','info');
+
+  const ok = await verifyAdminAccess();
+  if(!ok) return;
+
+  const curName = activeClass().name;
+  const r = await Swal.fire({
+    icon: 'warning',
+    title: `Xóa hết ${count} học sinh của ${curName}?`,
+    text: 'Thao tác này sẽ xóa toàn bộ học sinh và làm trống sơ đồ lớp đang chọn. Bạn có chắc chắn không?',
+    showCancelButton: true,
+    confirmButtonText: 'Đồng ý xóa hết',
+    cancelButtonText: 'Hủy',
+    confirmButtonColor: '#dc2626'
+  });
+  if(!r.isConfirmed) return;
+  state.students = state.students.filter(s => s.classId !== state.activeClassId);
+  if(state.seating[state.activeClassId]) {
+    state.seating[state.activeClassId].assignments = {};
+  }
+  saveState();
+  buildNav();
+  renderHeader();
+  renderPage();
+  toast('Đã xóa hết danh sách học sinh!');
+}
+
+function toggleFavorite(id){const s=state.students.find(x=>x.id===id);s.favorite=!s.favorite;saveState(false);renderPage()}
+
+async function adjustCoins(id,sign){
+  const ok = await verifyAdminAccess();
+  if(!ok) return;
+
+  const s=state.students.find(x=>x.id===id);
+  const now = new Date();
+  const m = now.getMonth() + 1;
+  const w = getWeekOfMonth(now);
+  const titleText = sign > 0 ? `🌟 Thưởng điểm cho ${s.name}` : `🚨 Trừ điểm (Vi phạm) của ${s.name}`;
+
+  const {value:v}=await Swal.fire({
+    title: titleText,
+    html:`<div class="text-start">
+      <div class="alert ${sign>0?'alert-success':'alert-danger'} py-2 small mb-3">
+        Ghi nhận vào: <b>Tuần ${w} - Tháng ${m}</b>
+      </div>
+      <label class="form-label fw-bold">Số lượng điểm</label>
+      <select id="coinAmount" class="form-select">
+        <option value="1">1 điểm</option>
+        <option value="2">2 điểm</option>
+        <option value="3">3 điểm</option>
+        <option value="5">5 điểm</option>
+        <option value="10">10 điểm</option>
+        <option value="15">15 điểm</option>
+        <option value="20">20 điểm</option>
+      </select>
+      <label class="form-label fw-bold mt-3">Môn / Nhóm nội dung</label>
+      <select id="coinSubject" class="form-select">${state.subjects.map(x=>`<option>${esc(x)}</option>`).join('')}</select>
+      <label class="form-label fw-bold mt-3">Lý do / Nội dung vi phạm</label>
+      <input id="coinReason" class="form-control" placeholder="${sign>0?'Phát biểu tốt, hoàn thành bài tập...':'Nói chuyện riêng, quên vở, đi muộn...'}">
+    </div>`,
+    showCancelButton:true,
+    confirmButtonText: sign > 0 ? 'Xác nhận thưởng' : 'Xác nhận trừ điểm',
+    confirmButtonColor: sign > 0 ? '#0d9488' : '#dc2626',
+    preConfirm:()=>({
+      amount:+document.getElementById('coinAmount').value,
+      subject:document.getElementById('coinSubject').value,
+      reason:document.getElementById('coinReason').value || (sign > 0 ? 'Khen thưởng thi đua' : 'Vi phạm nề nếp')
+    })
+  });
+  if(!v) return;
+  logTransaction(id, sign * v.amount, v.reason, v.subject);
+  renderPage();
+  toast(sign > 0 ? `Đã cộng +${v.amount} điểm` : `Đã trừ -${v.amount} điểm`);
+}
+
+async function resetCoins(){
+  const ok = await verifyAdminAccess();
+  if(!ok) return;
+  const r=await Swal.fire({icon:'warning',title:'Đặt điểm thi đua cả lớp về 0?',showCancelButton:true,confirmButtonText:'Đặt về 0'});
+  if(!r.isConfirmed)return;
+  classStudents().forEach(s=>s.coins=0);
+  saveState();renderPage();
+}
+
+async function handleStudentExcelFile(input){
+  const file = input.files[0];
+  if(!file) return;
+  input.value = '';
+
+  const ok = await verifyAdminAccess();
+  if(!ok) return;
+
+  try {
+    const data = await file.arrayBuffer();
+    const workbook = XLSX.read(data, {type:'array'});
+    const firstSheetName = workbook.SheetNames[0];
+    const worksheet = workbook.Sheets[firstSheetName];
+    const rows = XLSX.utils.sheet_to_json(worksheet, {header:1, defval:''});
+
+    if(!rows || rows.length < 2){
+      return Swal.fire({icon:'error', title:'Tệp trống hoặc sai định dạng', text:'File cần có dòng tiêu đề và ít nhất 1 học sinh.'});
+    }
+
+    let headerRowIdx = -1;
+    let colName = -1, colGender = -1, colStt = -1;
+
+    for(let r=0; r<Math.min(rows.length, 10); r++){
+      const row = rows[r].map(c=>String(c).trim().toLowerCase());
+      for(let c=0; c<row.length; c++){
+        const text = row[c];
+        if(colName === -1 && (text.includes('họ và tên') || text.includes('họ tên') || text.includes('họ và tên học sinh') || text === 'tên' || text.includes('học sinh'))){
+          colName = c;
+        }
+        if(colGender === -1 && (text.includes('giới tính') || text.includes('phái') || text === 'nam/nữ' || text === 'gt')){
+          colGender = c;
+        }
+        if(colStt === -1 && (text === 'stt' || text.includes('thứ tự') || text.includes('số tt'))){
+          colStt = c;
+        }
+      }
+      if(colName !== -1){
+        headerRowIdx = r;
+        break;
+      }
+    }
+
+    if(headerRowIdx === -1){
+      headerRowIdx = 0;
+      colStt = 0;
+      colName = 1;
+      colGender = 2;
+    }
+
+    const newStudents = [];
+    for(let r = headerRowIdx + 1; r < rows.length; r++){
+      const row = rows[r];
+      const rawName = String(row[colName] || '').trim();
+      if(!rawName || rawName.toLowerCase() === 'họ và tên') continue;
+
+      let gender = colGender !== -1 ? String(row[colGender] || '').trim() : '';
+      if(gender){
+        const gLow = gender.toLowerCase();
+        if(gLow === 'x' || gLow === 'nữ' || gLow === 'nu' || gLow === 'female' || gLow === 'f') gender = 'Nữ';
+        else if(gLow === 'nam' || gLow === 'male' || gLow === 'm') gender = 'Nam';
+        else gender = gender.charAt(0).toUpperCase() + gender.slice(1);
+      }
+
+      newStudents.push({
+        id: uid('s'),
+        classId: state.activeClassId,
+        name: rawName,
+        gender: gender || 'Nữ',
+        coins: 0,
+        avatar: '',
+        favorite: false,
+        note: ''
+      });
+    }
+
+    if(!newStudents.length){
+      return Swal.fire({icon:'warning', title:'Không tìm thấy dữ liệu', text:'Không quét được danh sách học sinh từ file. Hãy kiểm tra lại các cột.'});
+    }
+
+    const {isConfirmed} = await Swal.fire({
+      title: `Nhập ${newStudents.length} học sinh?`,
+      html: `<div class="text-start small">
+        <p>Đã tìm thấy <b>${newStudents.length}</b> học sinh từ tệp <b>${esc(file.name)}</b>.</p>
+        <div class="border rounded p-2 bg-light mb-3" style="max-height:160px;overflow-y:auto">
+          ${newStudents.slice(0, 8).map((s, idx)=>`<div>${idx+1}. ${esc(s.name)} - <i>${esc(s.gender)}</i></div>`).join('')}
+          ${newStudents.length > 8 ? `<div class="text-muted">... và ${newStudents.length - 8} học sinh khác</div>`:''}
+        </div>
+        <p class="mb-0">Bạn muốn <b>thêm nối tiếp</b> vào danh sách hiện tại hay <b>thay thế toàn bộ</b> danh sách của lớp?</p>
+      </div>`,
+      showCancelButton: true,
+      showDenyButton: true,
+      confirmButtonText: '<i class="fa-solid fa-plus me-1"></i>Thêm nối tiếp',
+      denyButtonText: '<i class="fa-solid fa-rotate me-1"></i>Thay thế danh sách cũ',
+      cancelButtonText: 'Hủy'
+    });
+
+    if(isConfirmed){
+      state.students.push(...newStudents);
+    } else if(Swal.getDenyButton() && Swal.isVisible() && !isConfirmed) {
+      const ok = await verifyAdminAccess();
+      if(!ok) return;
+      state.students = state.students.filter(s=>s.classId !== state.activeClassId).concat(newStudents);
+      if(state.seating[state.activeClassId]) state.seating[state.activeClassId].assignments = {};
+    } else {
+      return;
+    }
+
+    saveState();
+    buildNav();
+    renderHeader();
+    renderPage();
+    toast(`Đã nhận ${newStudents.length} học sinh thành công!`);
+  } catch(err){
+    Swal.fire({icon:'error', title:'Lỗi đọc tệp', text: err.message});
+  }
+}
+
 /* ========================================================
    TAB: CHIA TỔ (Quản lý tổ học tập, mật khẩu tổ trưởng)
    ======================================================== */
@@ -1202,7 +1656,7 @@ async function promptCreateTeams(){
       id: uid('team'),
       classId: state.activeClassId,
       name: `Tổ ${i}`,
-      password: String(Math.floor(100 + Math.random() * 900)), // Mật khẩu 3 chữ số mặc định
+      password: String(Math.floor(100 + Math.random() * 900)),
       leaderId: '',
       memberIds: []
     });
@@ -1349,7 +1803,6 @@ async function handleTeamImportFile(input){
       });
       addNamesToTeam(teamId, names);
     } else {
-      // Đối với docx hoặc txt
       const text = await file.text();
       const names = text.split(/\r?\n/).map(n => n.trim()).filter(Boolean);
       addNamesToTeam(teamId, names);
@@ -1367,10 +1820,8 @@ function addNamesToTeam(teamId, names){
 
   let addedCount = 0;
   names.forEach(name => {
-    // Tìm xem học sinh đã có trong lớp chưa
     let student = state.students.find(s => s.classId === state.activeClassId && s.name.toLowerCase() === name.toLowerCase());
     if(!student){
-      // Nếu chưa có trong danh sách lớp, tự động tạo mới học sinh vào lớp và đưa vào tổ
       student = {
         id: uid('s'),
         classId: state.activeClassId,
@@ -1428,9 +1879,6 @@ function removeStudentFromTeam(teamId, studentId){
   toast('Đã đưa học sinh ra khỏi tổ');
 }
 
-/* ========================================================
-   TỔ TRƯỞNG ĐĂNG NHẬP (Chỉ quản lý điểm thành viên trong tổ)
-   ======================================================== */
 async function teamLeaderLoginModal(){
   const teams = Array.isArray(state.teams) ? state.teams.filter(t => t.classId === state.activeClassId && t.leaderId) : [];
   if(teams.length === 0){
@@ -1467,7 +1915,6 @@ async function teamLeaderLoginModal(){
     return Swal.fire({icon:'error', title:'Mật khẩu không chính xác!'});
   }
 
-  // Đăng nhập thành công -> Mở bảng quản lý thi đua dành riêng cho tổ trưởng này
   openTeamLeaderDashboard(team);
 }
 
@@ -1562,7 +2009,6 @@ async function teamLeaderAdjustCoin(studentId, sign, teamId){
   logTransaction(studentId, sign * formVal.amount, formVal.reason, 'Ghi chung / Nề nếp');
   toast(sign > 0 ? `Đã cộng +${formVal.amount} điểm cho ${student.name}` : `Đã trừ -${formVal.amount} điểm của ${student.name}`);
   
-  // Mở lại bảng quản lý của tổ trưởng để cập nhật số điểm mới
   const team = state.teams.find(t => t.id === teamId);
   if(team) openTeamLeaderDashboard(team);
 }
