@@ -71,6 +71,11 @@
     .page-title h1 { margin:0; font-size:clamp(1.35rem,2.5vw,2rem); font-weight:900; letter-spacing:-.03em; }
     .page-title p { margin:2px 0 0; color:var(--light-text); font-size:.9rem; }
     .top-actions { display:flex; align-items:center; gap:10px; }
+    .teacher-auth-wrap { display:flex; flex-direction:column; align-items:flex-start; gap:4px; }
+    .teacher-auth-actions { display:flex; align-items:center; gap:5px; }
+    .teacher-auth-actions .btn { padding:3px 8px !important; font-size:.70rem !important; line-height:1.2; border-radius:999px !important; box-shadow:none; }
+    .teacher-auth-actions .btn i { font-size:.68rem; }
+    @media(max-width:900px){ .teacher-auth-wrap{align-items:flex-end}.teacher-auth-actions{justify-content:flex-end}.class-mini-logo{order:-1} }
     .save-pill { padding:8px 12px; border:1px solid #99f6e4; background:#ecfdf5; color:#047857; border-radius:999px; font-weight:800; font-size:.82rem; white-space:nowrap; }
     .class-switcher { min-width:160px; background:#f5f3ff; border:1px solid #ddd6fe; border-radius:15px; padding:7px 10px; font-weight:800; color:#5b21b6; }
     .teacher-mini { display:flex; align-items:center; gap:9px; min-width:170px; }
@@ -359,13 +364,17 @@
     <header class="topbar">
       <div class="page-title"><h1 id="pageTitle">Trang chủ</h1><p id="pageSubtitle">Tổng quan lớp học và hoạt động hôm nay</p></div>
       <div class="top-actions">
-        <button class="btn btn-sm btn-outline-primary" id="searchBtn" onclick="openStudentSearch()" style="border-radius:999px;font-weight:800;white-space:nowrap;"><i class="fa-solid fa-magnifying-glass me-1"></i>Tìm kiếm</button>
-        <button class="btn btn-sm btn-primary" id="loginBtn" onclick="openLoginMenu()" style="border-radius:999px;font-weight:800;white-space:nowrap;"><i class="fa-solid fa-right-to-bracket me-1"></i>Đăng nhập</button>
         <button class="class-mini-logo" id="classMiniLogo" type="button" onclick="handleClassLogoClick()" title="Ảnh đại diện lớp"></button>
         <input type="file" id="topClassLogoInput" accept="image/*" hidden onchange="handleTopClassLogoUpload(this)">
         <div class="save-pill" id="savePill"><i class="fa-solid fa-circle-check me-1"></i>Đã lưu</div>
         <select class="class-switcher" id="classSwitcher" onchange="switchClass(this.value)"></select>
-        <div class="teacher-mini"><div class="avatar" id="teacherAvatarMini"></div><div><strong id="teacherNameMini">Giáo viên</strong><small id="teacherRoleMini">Giáo viên</small></div></div>
+        <div class="teacher-auth-wrap">
+          <div class="teacher-auth-actions">
+            <button class="btn btn-sm btn-outline-primary" id="searchBtn" onclick="openStudentSearch()" title="Tìm kiếm thông tin học sinh"><i class="fa-solid fa-magnifying-glass me-1"></i>Tìm kiếm</button>
+            <button class="btn btn-sm btn-primary" id="loginBtn" onclick="openLoginMenu()" title="Đăng nhập và mở khóa chức năng"><i class="fa-solid fa-right-to-bracket me-1"></i>Đăng nhập</button>
+          </div>
+          <div class="teacher-mini"><div class="avatar" id="teacherAvatarMini"></div><div><strong id="teacherNameMini">Giáo viên</strong><small id="teacherRoleMini">Giáo viên</small></div></div>
+        </div>
       </div>
     </header>
     <section class="main-content fade-in" id="appContent"></section>
@@ -503,6 +512,7 @@ function uid(p='id'){return p+'_'+Date.now().toString(36)+'_'+Math.random().toSt
 function today(){const d=new Date(),z=n=>String(n).padStart(2,'0');return d.getFullYear()+'-'+z(d.getMonth()+1)+'-'+z(d.getDate())}
 function nowTime(){return new Date().toLocaleTimeString('vi-VN',{hour:'2-digit',minute:'2-digit'})}
 function initials(name){return (name||'?').split(/\s+/).filter(Boolean).slice(-2).map(x=>x[0]).join('').toUpperCase()}
+function norm(v){return String(v??'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/đ/g,'d').replace(/Đ/g,'D').replace(/\u00a0/g,' ').replace(/\s+/g,' ').trim().toLowerCase()}
 function esc(v=''){return String(v).replace(/[&<>'"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[c]))}
 
 function getWeekOfMonth(dateObj){
@@ -519,7 +529,7 @@ function defaultState(){
   settingPassword: '*******',
   adminPassword: '***',
   teacher:{name:'Giáo viên Chủ nhiệm',role:'GVCN',subject:'TOÁN',school:'Trường THCS',avatar:''},
-  classes:[{id:cls,name:'LỚP 8B1',grade:'Khối 8',year:'2026 - 2027',color:'#0d9488',logoText:'8B1',logoImage:''}],students,
+  classes:[{id:cls,name:'LỚP 8B1',grade:'Khối 8',year:'2026 - 2027',color:'#0d9488',logoText:'8B1',logoImage:'',teacherPassword:'123'}],students,
   attendance:{},attendanceDate:today(),
   seating:{[cls]:{type:'2x7x4',lanes:2,seats:14,mode:'2d',assignments:{}}},
   timetable:{morning:true,afternoon:true,morningCount:5,afternoonCount:4,entries:[
@@ -562,6 +572,7 @@ function loadState(){
       }
       if(!x.settingPassword) x.settingPassword = 'admin8b1';
       if(!x.adminPassword) x.adminPassword = '123';
+      if(Array.isArray(x.classes)){ x.classes.forEach((c,i)=>{ if(c.teacherPassword===undefined) c.teacherPassword = i===0 ? x.adminPassword : ''; }); }
       
       if(!Array.isArray(x.transactions)) x.transactions = [];
       if(!Array.isArray(x.students)) x.students = [];
@@ -759,11 +770,9 @@ function renderHeader(){
 function classStudentsFor(id){return Array.isArray(state.students) ? state.students.filter(s=>s.classId===id) : []}
 
 async function navigate(page){
+  /* Khi chưa đăng nhập vẫn được XEM toàn bộ các tab.
+     Chỉ các thao tác sửa/xóa mới gọi verifyAdminAccess/verifySettingAccess. */
   if(isLeaderMode()) return;
-  if(page === 'settings' || page === 'data'){
-    const ok = await verifySettingAccess();
-    if(!ok) return;
-  }
   if(state.currentPage==='noise'&&page!=='noise') stopMic();
   state.currentPage=page;
   saveState(false);
@@ -859,7 +868,7 @@ function rankRow(s,i){const max=Math.max(1,...classStudents().map(x=>Math.max(0,
 function drawHomeChart(){const ctx=document.getElementById('homeChart');if(!ctx)return;const ss=[...classStudents()].sort((a,b)=>b.coins-a.coins).slice(0,8);chartRefs.push(new Chart(ctx,{type:'bar',data:{labels:ss.map(s=>s.name.split(' ').slice(-2).join(' ')),datasets:[{label:'Điểm',data:ss.map(s=>s.coins||0),backgroundColor:ss.map(s=>(s.coins||0)<0?'rgba(239, 68, 68, 0.75)':'rgba(13,148,136,.65)'),borderColor:ss.map(s=>(s.coins||0)<0?'#ef4444':'#0d9488'),borderWidth:1,borderRadius:8}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{y:{ticks:{precision:0}}}}}))}
 function renderClasses(){return `<div class="section-head"><div><h2><i class="fa-solid fa-school text-primary me-2"></i>Quản lý Danh sách Lớp học</h2><p>Tạo thêm lớp mới hoặc chuyển nhanh không gian quản lý giữa các lớp học.</p></div><button class="btn btn-primary" onclick="openClassModal()"><i class="fa-solid fa-plus me-1"></i>Tạo lớp học mới</button></div><div class="student-grid">${state.classes.map(c=>`<div class="card hover-lift p-3"><div class="d-flex justify-content-between"><div class="avatar">${esc(c.logoText||c.name)}</div>${c.id===state.activeClassId?'<span class="badge bg-success align-self-start">Lớp đang chọn</span>':''}</div><h4 class="fw-bold mt-3 mb-1">${esc(c.name)}</h4><div class="text-muted">${esc(c.grade)} · Năm học ${esc(c.year)}</div><div class="coin-pill mt-2"><i class="fa-solid fa-users"></i>${classStudentsFor(c.id).length} học sinh</div><div class="d-flex justify-content-between align-items-center mt-3 pt-3 border-top"><button class="btn btn-sm btn-outline-primary" onclick="switchClass('${c.id}')">Vào không gian lớp</button><div><button class="icon-btn d-inline-grid" onclick="openClassModal('${c.id}')"><i class="fa-solid fa-pen"></i></button> <button class="icon-btn d-inline-grid text-danger" onclick="deleteClass('${c.id}')"><i class="fa-solid fa-trash"></i></button></div></div></div>`).join('')}</div>`}
 async function openClassModal(id=''){if(!isAdminRole()){const ok=await verifySettingAccess();if(!ok)return;}const c=state.classes.find(x=>x.id===id)||{name:'',grade:'Khối 8',year:'2026 - 2027',logoText:''};showModal(id?'Sửa lớp học':'Tạo lớp học mới',`<form onsubmit="saveClass(event,'${id}')"><div class="mb-3"><label class="form-label fw-bold">Tên lớp</label><input id="cName" class="form-control" value="${esc(c.name)}" required placeholder="Ví dụ: LỚP 8B1"></div><div class="row g-3"><div class="col-md-6"><label class="form-label fw-bold">Khối</label><select id="cGrade" class="form-select">${[1,2,3,4,5,6,7,8,9,10,11,12].map(g=>`<option ${c.grade==='Khối '+g?'selected':''}>Khối ${g}</option>`).join('')}</select></div><div class="col-md-6"><label class="form-label fw-bold">Năm học</label><input id="cYear" class="form-control" value="${esc(c.year)}"></div></div><div class="text-end mt-4"><button class="btn btn-primary"><i class="fa-solid fa-floppy-disk me-1"></i>Lưu lớp</button></div></form>`)}
-function saveClass(e,id){e.preventDefault();if(!isAdminRole())return toast('Chỉ Quản trị cao nhất mới được quản lý lớp học','warning');const data={name:document.getElementById('cName').value.trim(),grade:document.getElementById('cGrade').value,year:document.getElementById('cYear').value.trim()};if(id){Object.assign(state.classes.find(x=>x.id===id),data)}else{const nid=uid('class');state.classes.push({id:nid,...data,color:'#0d9488',logoText:'8B1',logoImage:''});state.seating[nid]={type:'2x7x4',lanes:2,seats:14,mode:'2d',assignments:{}};state.activeClassId=nid}saveState();mainModal.hide();buildNav();renderHeader();renderPage();toast('Đã lưu lớp học')}
+function saveClass(e,id){e.preventDefault();if(!isAdminRole())return toast('Chỉ Quản trị cao nhất mới được quản lý lớp học','warning');const data={name:document.getElementById('cName').value.trim(),grade:document.getElementById('cGrade').value,year:document.getElementById('cYear').value.trim()};if(id){Object.assign(state.classes.find(x=>x.id===id),data)}else{const nid=uid('class');state.classes.push({id:nid,...data,color:'#0d9488',logoText:'8B1',logoImage:''});state.seating[nid]={type:'2x7x4',lanes:2,seats:14,mode:'2d',assignments:{}}; state.classes.find(c=>c.id===nid).teacherPassword='';state.activeClassId=nid}saveState();mainModal.hide();buildNav();renderHeader();renderPage();toast('Đã lưu lớp học')}
 
 async function deleteClass(id){
   const ok = await verifyAdminAccess();
@@ -929,7 +938,7 @@ function studentCard(s){
   const isNeg = displayCoins < 0;
   const monthText = currentFilterMonth === 'all' ? 'Cả năm' : `Tháng ${currentFilterMonth}`;
 
-  return `<div class="card hover-lift student-card" data-name="${esc(s.name.toLowerCase())}">
+  return `<div class="card hover-lift student-card" data-student-id="${esc(s.id)}" data-name="${esc(s.name.toLowerCase())}">
     <div class="student-top">
       ${renderAvatar(s,'student-avatar')}
       <div>
@@ -2726,16 +2735,11 @@ function fmtTime(s){s=Math.max(0,Math.floor(s));const h=Math.floor(s/3600),m=Mat
 function updateCountdownUI(){const t=document.getElementById('countdownTime'),r=document.getElementById('countdownRing'),st=document.getElementById('countdownStatus'),b=document.getElementById('countdownStart');if(t)t.textContent=fmtTime(countdown.left);if(r){const pct=countdown.total?countdown.left/countdown.total*100:0;r.style.setProperty('--progress',pct+'%');r.style.setProperty('--timer-color',state.settings.timerColor||'#0d9488')}if(st)st.textContent=countdown.running?'ĐANG ĐẾM NGƯỢC':'Sẵn sàng';if(b)b.innerHTML=countdown.running?'<i class="fa-solid fa-pause me-1"></i>Tạm dừng':'<i class="fa-solid fa-play me-1"></i>Bắt đầu'}
 function setCountdown(s){clearInterval(countdownInterval);countdown={total:s,left:s,running:false};updateCountdownUI()}function applyTimerInputs(){const s=(+document.getElementById('timerH').value||0)*3600+(+document.getElementById('timerM').value||0)*60+(+document.getElementById('timerS').value||0);setCountdown(Math.max(1,s))}function adjustCountdown(n){countdown.left=Math.max(0,countdown.left+n);countdown.total=Math.max(countdown.total,countdown.left);updateCountdownUI()}function resetCountdown(){clearInterval(countdownInterval);countdown.left=countdown.total;countdown.running=false;updateCountdownUI()}
 function toggleCountdown(){if(countdown.running){clearInterval(countdownInterval);countdown.running=false;updateCountdownUI();return}if(countdown.left<=0)countdown.left=countdown.total;countdown.running=true;updateCountdownUI();clearInterval(countdownInterval);countdownInterval=setInterval(()=>{countdown.left--;if(state.settings.tickLast10&&countdown.left<=10&&countdown.left>0)beep(900,.05,.04);if(countdown.left<=0){clearInterval(countdownInterval);countdown.running=false;beep(880,.5,.18);Swal.fire({icon:'success',title:'Hết giờ!',text:'Đồng hồ đếm ngược đã kết thúc.'})}updateCountdownUI()},1000)}function setTimerColor(c){state.settings.timerColor=c;saveState(false);updateCountdownUI()}
-function renderLinks(){const ls=[...state.links].sort((a,b)=>(b.pinned?1:0)-(a.pinned?1:0));return `<div class="section-head"><div><h2><i class="fa-solid fa-link text-primary me-2"></i>Liên kết Tiện ích</h2><p>Lưu website, học liệu, Google Meet/Zoom và tài liệu hay dùng.</p></div><button class="btn btn-primary" onclick="openLinkModal()"><i class="fa-solid fa-plus me-1"></i>Thêm liên kết</button></div>${ls.length?`<div class="link-grid">${ls.map(l=>`<div class="card link-card hover-lift"><div class="d-flex gap-3"><div class="link-icon"><i class="fa-solid fa-link"></i></div><div class="flex-fill min-width-0"><div class="d-flex justify-content-between"><h5 class="fw-bold mb-1">${esc(l.name)} ${l.pinned?'📌':''}</h5></div><span class="badge text-bg-light">${esc(l.category)}</span><p class="text-muted small mt-2 mb-2">${esc(l.desc||'')}</p><div class="d-flex gap-2"><button class="btn btn-sm btn-primary" onclick="openSafeUrl('${encodeURIComponent(l.url)}')">Mở liên kết</button><button class="icon-btn" onclick="openLinkModal('${l.id}')"><i class="fa-solid fa-pen"></i></button><button class="icon-btn text-danger" onclick="deleteLink('${l.id}')"><i class="fa-solid fa-trash"></i></button></div></div></div></div>`).join('')}</div>`:'<div class="card empty"><i class="fa-solid fa-book-open fs-1 mb-2"></i><h5>Chưa có liên kết tiện ích nào</h5><p>Hãy tạo các liên kết cố định cho lớp học.</p></div>'}`}
+function renderLinks(){const ls=[...state.links].sort((a,b)=>(b.pinned?1:0)-(a.pinned?1:0));const canEditLinks=isAdminRole()||isTeacherRole();const addBtn=canEditLinks?'<button class="btn btn-primary" onclick="openLinkModal()"><i class="fa-solid fa-plus me-1"></i>Thêm liên kết</button>':'';return `<div class="section-head"><div><h2><i class="fa-solid fa-link text-primary me-2"></i>Liên kết Tiện ích</h2><p>Lưu website, học liệu, Google Meet/Zoom và tài liệu hay dùng.</p></div>${addBtn}</div>${ls.length?`<div class="link-grid">${ls.map(l=>{const editButtons=canEditLinks?`<button class="icon-btn" onclick="openLinkModal('${l.id}')"><i class="fa-solid fa-pen"></i></button><button class="icon-btn text-danger" onclick="deleteLink('${l.id}')"><i class="fa-solid fa-trash"></i></button>`:'';return `<div class="card link-card hover-lift"><div class="d-flex gap-3"><div class="link-icon"><i class="fa-solid fa-link"></i></div><div class="flex-fill min-width-0"><div class="d-flex justify-content-between"><h5 class="fw-bold mb-1">${esc(l.name)} ${l.pinned?'📌':''}</h5></div><span class="badge text-bg-light">${esc(l.category)}</span><p class="text-muted small mt-2 mb-2">${esc(l.desc||'')}</p><div class="d-flex gap-2"><button class="btn btn-sm btn-primary" onclick="openSafeUrl('${encodeURIComponent(l.url)}')">Mở liên kết</button>${editButtons}</div></div></div></div>`}).join('')}</div>`:'<div class="card empty"><i class="fa-solid fa-book-open fs-1 mb-2"></i><h5>Chưa có liên kết tiện ích nào</h5><p>Hiện chưa có liên kết tiện ích nào được tạo.</p></div>'}`}
 function openSafeUrl(encoded){let u=decodeURIComponent(encoded);if(!/^https?:\/\//i.test(u))u='https://'+u;window.open(u,'_blank','noopener')}
-function openLinkModal(id=''){const l=state.links.find(x=>x.id===id)||{name:'',url:'https://',category:'Học liệu & SGK',desc:'',pinned:false};showModal(id?'Sửa liên kết':'Thêm Liên Kết Mới',`<form onsubmit="saveLink(event,'${id}')"><div class="mb-3"><label class="form-label fw-bold">Tên liên kết / Trang web *</label><input id="lName" class="form-control" required value="${esc(l.name)}"></div><div class="mb-3"><label class="form-label fw-bold">Địa chỉ URL (Link) *</label><input id="lUrl" class="form-control" required value="${esc(l.url)}"></div><div class="mb-3"><label class="form-label fw-bold">Danh mục</label><select id="lCat" class="form-select">${['Học liệu & SGK','Google Meet / Zoom','Bài tập','Trò chơi học tập','Tài liệu giáo viên','Khác'].map(x=>`<option ${l.category===x?'selected':''}>${x}</option>`).join('')}</select></div><div class="mb-3"><label class="form-label fw-bold">Mô tả ngắn</label><input id="lDesc" class="form-control" value="${esc(l.desc)}"></div><div class="form-check"><input id="lPin" class="form-check-input" type="checkbox" ${l.pinned?'checked':''}><label class="form-check-label fw-bold">Ghim liên kết này lên đầu trang</label></div><div class="text-end mt-4"><button class="btn btn-primary">Thêm / Lưu Liên Kết</button></div></form>`)}
-function saveLink(e,id){e.preventDefault();const d={name:document.getElementById('lName').value.trim(),url:document.getElementById('lUrl').value.trim(),category:document.getElementById('lCat').value,desc:document.getElementById('lDesc').value.trim(),pinned:document.getElementById('lPin').checked};if(id)Object.assign(state.links.find(x=>x.id===id),d);else state.links.push({id:uid('l'),...d});saveState();mainModal.hide();renderPage()}
-
-async function deleteLink(id){
-  const ok = await verifyAdminAccess();
-  if(!ok) return;
-  state.links=state.links.filter(x=>x.id!==id);saveState();renderPage();
-}
+function openLinkModal(id=''){if(!(isAdminRole()||isTeacherRole())){showToast('Chỉ GVCN hoặc Quản trị cao nhất mới được thêm, sửa liên kết.','warning');return;}const l=state.links.find(x=>x.id===id)||{name:'',url:'https://',category:'Học liệu & SGK',desc:'',pinned:false};showModal(id?'Sửa liên kết':'Thêm Liên Kết Mới',`<form onsubmit="saveLink(event,'${id}')"><div class="mb-3"><label class="form-label fw-bold">Tên liên kết / Trang web *</label><input id="lName" class="form-control" required value="${esc(l.name)}"></div><div class="mb-3"><label class="form-label fw-bold">Địa chỉ URL (Link) *</label><input id="lUrl" class="form-control" required value="${esc(l.url)}"></div><div class="mb-3"><label class="form-label fw-bold">Danh mục</label><select id="lCat" class="form-select">${['Học liệu & SGK','Google Meet / Zoom','Bài tập','Trò chơi học tập','Tài liệu giáo viên','Khác'].map(x=>`<option ${l.category===x?'selected':''}>${x}</option>`).join('')}</select></div><div class="mb-3"><label class="form-label fw-bold">Mô tả ngắn</label><input id="lDesc" class="form-control" value="${esc(l.desc)}"></div><div class="form-check"><input id="lPin" class="form-check-input" type="checkbox" ${l.pinned?'checked':''}><label class="form-check-label fw-bold">Ghim liên kết này lên đầu trang</label></div><div class="text-end mt-4"><button class="btn btn-primary">Thêm / Lưu Liên Kết</button></div></form>`)}
+function saveLink(e,id){e.preventDefault();if(!(isAdminRole()||isTeacherRole())){showToast('Bạn không có quyền thêm hoặc sửa liên kết.','warning');return;}const d={name:document.getElementById('lName').value.trim(),url:document.getElementById('lUrl').value.trim(),category:document.getElementById('lCat').value,desc:document.getElementById('lDesc').value.trim(),pinned:document.getElementById('lPin').checked};if(id)Object.assign(state.links.find(x=>x.id===id),d);else state.links.push({id:uid('l'),...d});saveState();mainModal.hide();renderPage()}
+async function deleteLink(id){if(!(isAdminRole()||isTeacherRole())){showToast('Chỉ GVCN hoặc Quản trị cao nhất mới được xóa liên kết.','warning');return;}const ok=await verifyAdminAccess();if(!ok)return;state.links=state.links.filter(x=>x.id!==id);saveState();renderPage()}
 
 function renderStats(){const ss=classStudents(),tx=state.transactions.filter(x=>x.classId===state.activeClassId),total=ss.reduce((a,s)=>a+s.coins,0),plus=tx.filter(x=>x.amount>0).length,minus=tx.filter(x=>x.amount<0).length,male=ss.filter(s=>s.gender==='Nam').length,female=ss.filter(s=>s.gender==='Nữ').length;return `<div class="section-head"><div><h2><i class="fa-solid fa-chart-column text-primary me-2"></i>Thống Kê Điểm Thi Đua & Lịch Sử Tích Đổi</h2><p>Tổng hợp thi đua theo lớp, theo môn và nhật ký cộng/trừ điểm.</p></div><div class="d-flex gap-2"><button class="btn btn-outline-primary" onclick="exportStatsXlsx()"><i class="fa-solid fa-file-excel me-1"></i>Xuất Excel đầy đủ</button><button class="btn btn-primary" onclick="exportStatsPDF()"><i class="fa-solid fa-file-pdf me-1"></i>Xuất PDF</button></div></div><div id="statsReport"><div class="stats-grid"><div class="stat-card"><div class="label">Sĩ số học sinh</div><div class="value">${ss.length}</div><small>${male} Nam · ${female} Nữ</small><i class="fa-solid fa-users"></i></div><div class="stat-card"><div class="label">Tổng điểm thi đua</div><div class="value">${total}</div><small>${ss.length?Math.round(total/ss.length):0} điểm TB/HS</small><i class="fa-solid fa-award"></i></div><div class="stat-card"><div class="label">Lượt cộng (+điểm)</div><div class="value">${plus}</div><small>Khen thưởng ghi nhận</small><i class="fa-solid fa-plus"></i></div><div class="stat-card"><div class="label">Lượt trừ (-điểm)</div><div class="value">${minus}</div><small>Nhắc nhở nề nếp</small><i class="fa-solid fa-minus"></i></div></div><div class="grid-equal mt-3"><div class="card p-3"><h5 class="fw-bold">Bảng Xếp Hạng Điểm Thi Đua</h5>${[...ss].sort((a,b)=>b.coins-a.coins).map((s,i)=>rankRow(s,i)).join('')}</div><div class="card p-3"><h5 class="fw-bold">Cơ Cấu Học Sinh & Tỷ Lệ Thi Đua</h5><div style="height:280px"><canvas id="genderChart"></canvas></div></div></div><div class="grid-equal mt-3"><div class="card p-3"><h5 class="fw-bold">Thống kê theo môn học</h5><div style="height:300px"><canvas id="subjectChart"></canvas></div></div><div class="card p-3"><h5 class="fw-bold">Điểm theo học sinh</h5><div style="height:300px"><canvas id="coinChart"></canvas></div></div></div></div><div class="card p-3 mt-3"><div class="d-flex justify-content-between flex-wrap gap-2"><h5 class="fw-bold">Lịch sử Cộng / Trừ Chi Tiết (${tx.length})</h5><div class="d-flex gap-2"><select id="txSubjectFilter" class="form-select form-select-sm" onchange="filterTxTable()"><option value="">Tất cả môn</option>${state.subjects.map(x=>`<option>${esc(x)}</option>`).join('')}</select><input id="txSearch" class="form-control form-control-sm" placeholder="Tìm tên / lý do" oninput="filterTxTable()"></div></div><div class="table-responsive"><table class="table mt-2" id="txTable"><thead><tr><th>Thời gian</th><th>Học sinh</th><th>Môn</th><th>Lý do</th><th>Điểm</th></tr></thead><tbody>${tx.map(txRow).join('')}</tbody></table></div></div>`}
 function txRow(x){return `<tr data-subject="${esc(x.subject)}" data-search="${esc((x.studentName+' '+x.reason).toLowerCase())}"><td>${new Date(x.time).toLocaleString('vi-VN')}</td><td>${esc(x.studentName)}</td><td>${esc(x.subject)}</td><td>${esc(x.reason)}</td><td><span class="badge ${x.amount>=0?'bg-success':'bg-danger'}">${x.amount>=0?'+':''}${x.amount}</span></td></tr>`}
@@ -2756,14 +2760,14 @@ async function resetAllData(){
   state=defaultState();saveState();buildNav();renderHeader();renderPage();
 }
 
-function renderSettings(){
+function renderSettingsUnlocked(){
   const curCls = activeClass();
   return `<div class="section-head"><div><h2><i class="fa-solid fa-gear text-primary me-2"></i>Cài đặt Hệ Thống & Tùy Chỉnh Lớp</h2><p>Cập nhật logo lớp, bảo mật 2 lớp mật khẩu quản trị và thông tin giáo viên.</p></div></div>
   <div class="grid-2">
     <div>
       <div class="card setting-box mb-3 border-warning shadow-sm">
-        <h5 class="fw-bold text-warning-emphasis"><i class="fa-solid fa-shield-halved text-warning me-2"></i>Bảo Mật 2 Lớp Độc Lập</h5>
-        <p class="small text-muted mb-3">Mật khẩu Lớp 1 bảo vệ Cài đặt & Dữ liệu. Mật khẩu Lớp 2 bảo vệ thao tác cộng/trừ điểm và sửa/xóa.</p>
+        <h5 class="fw-bold text-warning-emphasis"><i class="fa-solid fa-shield-halved text-warning me-2"></i>Bảo Mật Theo Tài Khoản</h5>
+        <p class="small text-muted mb-3">Mật khẩu Quản trị cao nhất bảo vệ Cài đặt & Dữ liệu. Mỗi lớp có một mật khẩu GVCN riêng để quản lý đúng lớp đó.</p>
         
         <div class="p-3 bg-light rounded-3 mb-3 border">
           <div class="d-flex justify-content-between align-items-center mb-1">
@@ -2784,16 +2788,16 @@ function renderSettings(){
 
         <div class="p-3 bg-light rounded-3 border">
           <div class="d-flex justify-content-between align-items-center mb-1">
-            <span class="fw-bold text-success">2. Đổi Mật khẩu Lớp 2 (Thao tác GVCN)</span>
+            <span class="fw-bold text-success">2. Đổi Mật khẩu GVCN cho lớp đang chọn</span>
             <span class="badge bg-success">Thao tác</span>
           </div>
-          <div class="small text-muted mb-2">Dùng để mở khóa quyền Cộng/Trừ điểm, Sửa/Xóa vi phạm và Sửa học sinh.</div>
+          <div class="small text-muted mb-2">Mật khẩu này chỉ cấp quyền quản lý cho lớp đang chọn: ${esc(curCls.name)}. GVCN không có quyền Quản trị cao nhất.</div>
           <form onsubmit="saveAdminPassword(event)">
             <div class="mb-2">
               <input id="newAdminPass" type="password" class="form-control form-control-sm" placeholder="Mật khẩu lớp 2 mới" required autocomplete="new-password">
             </div>
             <div class="text-end">
-              <button class="btn btn-sm btn-success fw-bold px-3"><i class="fa-solid fa-key me-1"></i>Cập nhật Mật khẩu 2</button>
+              <button class="btn btn-sm btn-success fw-bold px-3"><i class="fa-solid fa-key me-1"></i>Cập nhật mật khẩu GVCN</button>
             </div>
           </form>
         </div>
@@ -2868,6 +2872,29 @@ function renderSettings(){
     </div>
   </div>`}
 
+function renderSettings(){
+  if(!isAdminRole()){
+    return `<div class="section-head"><div><h2><i class="fa-solid fa-lock text-warning me-2"></i>Cài đặt Hệ thống</h2><p>Các thiết lập hệ thống chỉ dành cho Quản trị cao nhất.</p></div></div>
+      <div class="card p-5 text-center shadow-sm border-warning" style="max-width:720px;margin:40px auto">
+        <div style="font-size:3.5rem;line-height:1;margin-bottom:18px">🔐</div>
+        <h3 class="fw-bold mb-2">Cài đặt đang được khóa</h3>
+        <p class="text-muted mb-4">Phụ huynh, học sinh và GVCN vẫn có thể xem các Tab khác. Riêng Tab Cài đặt chỉ hiển thị nội dung chỉnh sửa sau khi đăng nhập <b>Quản trị cao nhất</b>.</p>
+        <button type="button" class="btn btn-primary px-4" onclick="unlockSettingsForView()"><i class="fa-solid fa-key me-2"></i>Nhập mật khẩu Quản trị cao nhất</button>
+      </div>`;
+  }
+  return renderSettingsUnlocked();
+}
+
+async function unlockSettingsForView(){
+  const ok=await verifySettingAccess();
+  if(ok){
+    buildNav();
+    renderHeader();
+    renderPage();
+    toast('Đã mở khóa Cài đặt cho Quản trị cao nhất');
+  }
+}
+
 async function saveSettingPassword(e){
   e.preventDefault();
   const oldPass = document.getElementById('oldSettingPass').value.trim();
@@ -2890,12 +2917,16 @@ async function saveSettingPassword(e){
 
 async function saveAdminPassword(e){
   e.preventDefault();
+  if(!isAdminRole()) return toast('Chỉ Quản trị cao nhất mới được đổi mật khẩu GVCN','warning');
   const val = document.getElementById('newAdminPass').value.trim();
-  if(!val) return toast('Mật khẩu mới không được để trống!', 'warning');
-  state.adminPassword = val;
+  if(!val) return toast('Mật khẩu GVCN không được để trống!', 'warning');
+  const c=activeClass();
+  if(!c) return;
+  c.teacherPassword = val;
+  state.adminPassword = val; // giữ tương thích dữ liệu cũ
   saveState();
   document.getElementById('newAdminPass').value = '';
-  toast('Đã cập nhật Mật khẩu Lớp 2 (Thao tác GVCN) thành công!');
+  toast('Đã cập nhật mật khẩu GVCN cho '+c.name+' thành công!');
 }
 
 function handleClassLogoClick(){
@@ -2910,14 +2941,46 @@ async function handleTopClassLogoUpload(input){
 }
 
 async function openStudentSearch(){
-  const {value:q,isConfirmed}=await Swal.fire({title:'🔎 Tìm kiếm học sinh',input:'text',inputPlaceholder:'Nhập họ tên học sinh...',showCancelButton:true,confirmButtonText:'Tìm kiếm',cancelButtonText:'Hủy',inputAttributes:{autocomplete:'off'}});
+  const {value:q,isConfirmed}=await Swal.fire({
+    title:'🔎 Tìm kiếm học sinh',
+    input:'text',
+    inputPlaceholder:'Nhập họ tên học sinh...',
+    showCancelButton:true,
+    confirmButtonText:'Tìm kiếm',
+    cancelButtonText:'Hủy',
+    inputAttributes:{autocomplete:'off'}
+  });
   if(!isConfirmed || !q?.trim()) return;
   const nq=norm(q);
   const matches=state.students.filter(s=>norm(s.name).includes(nq));
   if(!matches.length) return Swal.fire({icon:'info',title:'Không tìm thấy học sinh',text:`Không có học sinh phù hợp với “${q.trim()}”.`});
-  const cards=matches.map(s=>studentSearchCard(s)).join('');
-  Swal.fire({title:`Kết quả tìm kiếm (${matches.length})`,html:`<div class="text-start" style="max-height:68vh;overflow:auto">${cards}</div>`,width:900,confirmButtonText:'Đóng'});
+
+  const cards=matches.map(s=>{
+    const cls=state.classes.find(c=>c.id===s.classId);
+    return `<button type="button" class="w-100 text-start border rounded-3 bg-white p-3 mb-2 hover-lift" onclick="goToStudentFromSearch('${s.id}')">
+      <div class="d-flex align-items-center gap-3">${renderAvatar(s,'student-avatar')}
+        <div><div class="fw-bold fs-6">${esc(s.name)}</div><div class="small text-muted">${esc(cls?.name||'')} · ${esc(s.gender||'')}</div></div>
+        <i class="fa-solid fa-chevron-right ms-auto text-primary"></i>
+      </div></button>`;
+  }).join('');
+  Swal.fire({title:`Kết quả tìm kiếm (${matches.length})`,html:`<div class="text-start" style="max-height:68vh;overflow:auto">${cards}</div>`,width:720,showConfirmButton:false,showCancelButton:true,cancelButtonText:'Đóng'});
 }
+
+function goToStudentFromSearch(studentId){
+  const s=state.students.find(x=>x.id===studentId);
+  if(!s) return;
+  if(s.classId && state.classes.some(c=>c.id===s.classId)) state.activeClassId=s.classId;
+  state.currentPage='students';
+  window._searchStudentId=studentId;
+  saveState(false);
+  buildNav(); renderHeader(); renderPage();
+  Swal.close();
+  setTimeout(()=>{
+    const el=document.querySelector(`[data-student-id="${CSS.escape(studentId)}"]`);
+    if(el){el.scrollIntoView({behavior:'smooth',block:'center'}); el.classList.add('search-highlight'); setTimeout(()=>el.classList.remove('search-highlight'),3500);}
+  },120);
+}
+
 function studentSearchCard(s){
   const cls=state.classes.find(c=>c.id===s.classId); const tx=state.transactions.filter(x=>x.studentId===s.id);
   const att=Object.entries(state.attendance||{}).filter(([k,v])=>k.startsWith(s.classId+'_')).map(([k,v])=>({date:k.split('_').slice(1).join('_'),status:v?.[s.id]||'present'}));
@@ -3184,10 +3247,161 @@ window.addEventListener('pagehide',()=>{
     .nav-locked .nav-lock-icon{font-size:.68rem;color:#94a3b8}
     .class-mini-logo.locked{cursor:not-allowed;opacity:.9}
     #searchBtn{white-space:nowrap}
+    .search-highlight{animation:studentSearchPulse 3.5s ease;border:2px solid #0d9488!important;box-shadow:0 0 0 5px rgba(13,148,136,.14)!important}
+    @keyframes studentSearchPulse{0%,100%{transform:scale(1)}20%{transform:scale(1.015)}}
     @media(max-width:900px){.top-actions{flex-wrap:wrap}.top-actions .teacher-mini{max-width:180px}}
   `;
   document.head.appendChild(st);
 })();
+
+
+/* =========================================================
+   PATCH CUỐI: QUYỀN XEM / QUYỀN SỬA THEO LỚP
+   - Không đăng nhập: xem được TẤT CẢ các Tab, không sửa/xóa/thêm.
+   - Quản trị cao nhất: toàn quyền tất cả lớp.
+   - GVCN: chỉ được sửa lớp đã đăng nhập bằng mật khẩu riêng của lớp.
+   - Tổ trưởng: chỉ thao tác đúng tổ đã cấp mật khẩu.
+   ========================================================= */
+roleCanOpenPage=function(page){ return true; };
+
+buildNav=function(){
+  const n=classStudents().length;
+  document.getElementById('sideNav').innerHTML=NAV.map(([id,ic,label,b])=>
+    `<a class="nav-link ${state.currentPage===id?'active':''}" data-page="${id}" onclick="navigate('${id}')"><i class="fa-solid ${ic}"></i><span>${label}</span>${b==='count'?`<span class="mini-badge new">${n}</span>`:b?`<span class="mini-badge ${b==='NEW'?'new':''}">${b}</span>`:''}</a>`
+  ).join('');
+};
+
+navigate=async function(page){
+  if(state.currentPage==='noise'&&page!=='noise') stopMic();
+  state.currentPage=page;
+  saveState(false);
+  buildNav(); renderHeader(); renderPage();
+  document.getElementById('sidebar').classList.remove('open');
+  window.scrollTo({top:0,behavior:'smooth'});
+};
+
+/* GVCN đăng nhập bằng mật khẩu riêng của từng lớp. */
+loginAsTeacher=async function(){
+  const rows=(state.classes||[]).filter(c=>c.teacherPassword);
+  const result=await Swal.fire({
+    title:'🔐 Đăng nhập GVCN',
+    html:'<p class="small text-muted">Nhập mật khẩu GVCN. Hệ thống sẽ tự xác định đúng lớp được cấp mật khẩu.</p>',
+    input:'password', inputAttributes:{autocomplete:'current-password'}, inputPlaceholder:'Mật khẩu GVCN...',
+    showCancelButton:true, confirmButtonText:'Đăng nhập', cancelButtonText:'Hủy', confirmButtonColor:'#0d9488'
+  });
+  if(!result.isConfirmed) return;
+  const pass=String(result.value||'').trim();
+  const cls=rows.find(c=>c.teacherPassword===pass);
+  if(!cls){ return Swal.fire({icon:'error',title:'Mật khẩu GVCN không chính xác',text:'Mật khẩu không khớp với tài khoản GVCN của lớp nào.'}); }
+  authSession={role:'teacher',classId:cls.id,loginAt:Date.now()};
+  leaderSession=null; isAdminUnlocked=false; saveAuthSession();
+  state.activeClassId=cls.id; state.currentPage='home';
+  buildNav(); renderHeader(); renderPage();
+  toast('Đã mở quyền GVCN cho '+cls.name);
+};
+
+/* Chỉ Quản trị cao nhất được sửa Cài đặt/Dữ liệu; GVCN không thể nâng quyền. */
+verifySettingAccess=async function(){
+  if(isAdminRole()) return true;
+  const now=Date.now();
+  if(now<settingLockUntil){
+    const minutesLeft=Math.ceil((settingLockUntil-now)/60000);
+    await Swal.fire({icon:'error',title:'Quản trị đang bị khóa',text:`Vui lòng thử lại sau ${minutesLeft} phút.`});
+    return false;
+  }
+  const currentPass=state.settingPassword||'admin8b1';
+  const r=await Swal.fire({title:'🔐 Đăng nhập Quản trị cao nhất',input:'password',inputPlaceholder:'Mật khẩu Quản trị cao nhất...',inputAttributes:{autocomplete:'current-password'},showCancelButton:true,confirmButtonText:'Đăng nhập',cancelButtonText:'Hủy'});
+  if(!r.isConfirmed) return false;
+  if(r.value===currentPass){ authSession={role:'admin',loginAt:Date.now()}; leaderSession=null; isAdminUnlocked=true; saveAuthSession(); updateAuthBtnUI(); return true; }
+  settingFailCount++; if(settingFailCount>=5) settingLockUntil=Date.now()+3600000;
+  await Swal.fire({icon:'error',title:'Mật khẩu không chính xác',text:settingFailCount>=5?'Đã khóa Quản trị trong 1 giờ.':`Còn ${5-settingFailCount} lần thử.`});
+  return false;
+};
+
+/* verifyAdminAccess = quyền SỬA của GVCN. Không đăng nhập thì hỏi mật khẩu theo lớp; đã đăng nhập thì khóa theo classId. */
+verifyAdminAccess=async function(){
+  if(isAdminRole()) return true;
+  if(isTeacherRole()){
+    if(authSession.classId!==state.activeClassId){
+      await Swal.fire({icon:'warning',title:'Không có quyền sửa lớp này',text:'Tài khoản GVCN hiện tại chỉ được quản lý lớp đã đăng nhập.'});
+      return false;
+    }
+    return true;
+  }
+  if(isLeaderRole()) return false;
+
+  const result=await Swal.fire({
+    title:'🔐 Đăng nhập GVCN',
+    html:'<p class="small text-muted">Nhập mật khẩu GVCN của lớp hiện tại. Mỗi lớp có mật khẩu riêng.</p>',
+    input:'password',inputAttributes:{autocomplete:'current-password'},inputPlaceholder:'Mật khẩu GVCN của lớp này...',
+    showCancelButton:true,confirmButtonText:'Đăng nhập',cancelButtonText:'Hủy'
+  });
+  if(!result.isConfirmed) return false;
+  const cls=(state.classes||[]).find(c=>c.id===state.activeClassId);
+  if(cls && cls.teacherPassword && String(result.value||'').trim()===cls.teacherPassword){
+    authSession={role:'teacher',classId:cls.id,loginAt:Date.now()}; leaderSession=null; isAdminUnlocked=false; saveAuthSession(); updateAuthBtnUI(); return true;
+  }
+  await Swal.fire({icon:'error',title:'Mật khẩu GVCN không chính xác',text:'Hãy dùng đúng mật khẩu của lớp đang chọn.'});
+  return false;
+};
+
+/* GVCN chỉ nhìn thấy/chọn được lớp của mình; Quản trị cao nhất xem và quản lý tất cả. */
+switchClass=function(id){
+  if(currentAuthRole()==='leader'){
+    if(id!==leaderSession?.classId) return toast('Tổ trưởng không được chuyển lớp','warning');
+    return;
+  }
+  if(isTeacherRole() && authSession.classId!==id) return toast('GVCN chỉ được quản lý lớp đã đăng nhập','warning');
+  state.activeClassId=id; state.wheelExcluded=[]; saveState(); buildNav(); renderHeader(); renderPage();
+};
+
+renderHeader=(function(original){ return function(){
+  original();
+  const sel=document.getElementById('classSwitcher');
+  if(sel && isTeacherRole()){
+    const c=state.classes.find(x=>x.id===authSession.classId);
+    sel.innerHTML=c?`<option value="${c.id}">${esc(c.name)} · ${classStudentsFor(c.id).length} HS</option>`:'';
+    sel.disabled=true;
+  } else if(sel) sel.disabled=false;
+  updateAuthBtnUI();
+};})(renderHeader);
+
+/* Cấu hình mật khẩu GVCN luôn thuộc quyền Quản trị cao nhất. */
+saveAdminPassword=async function(e){
+  e.preventDefault();
+  if(!isAdminRole()) return toast('Chỉ Quản trị cao nhất mới được đổi mật khẩu GVCN','warning');
+  const val=document.getElementById('newAdminPass')?.value.trim();
+  if(!val) return toast('Mật khẩu GVCN không được để trống','warning');
+  const c=activeClass(); if(!c) return;
+  c.teacherPassword=val; state.adminPassword=val; saveState();
+  document.getElementById('newAdminPass').value='';
+  toast('Đã cập nhật mật khẩu GVCN cho '+c.name);
+};
+
+/* Tìm kiếm học sinh: tìm trên toàn bộ dữ liệu và hiển thị ngay thông tin chi tiết. */
+openStudentSearch=async function(){
+  const r=await Swal.fire({title:'🔎 Tìm kiếm học sinh',input:'text',inputPlaceholder:'Nhập họ tên hoặc một phần tên...',showCancelButton:true,confirmButtonText:'Tìm kiếm',cancelButtonText:'Hủy',inputAttributes:{autocomplete:'off'}});
+  if(!r.isConfirmed||!r.value?.trim()) return;
+  const raw=r.value.trim(), q=norm(raw);
+  const matches=(state.students||[]).filter(s=>norm(s.name).includes(q));
+  if(!matches.length) return Swal.fire({icon:'info',title:'Không tìm thấy học sinh',text:`Không có học sinh phù hợp với “${raw}”.`});
+  const details=matches.map(s=>{
+    const c=state.classes.find(x=>x.id===s.classId);
+    const tx=(state.transactions||[]).filter(x=>x.studentId===s.id);
+    return `<div class="card p-3 mb-3 shadow-sm"><div class="d-flex gap-3 align-items-center">${renderAvatar(s,'student-avatar')}<div><h5 class="fw-bold mb-1">${esc(s.name)}</h5><div class="text-muted">${esc(c?.name||'Chưa xác định lớp')} · ${esc(s.gender||'')}</div><span class="coin-pill"><i class="fa-solid fa-award"></i>${s.coins||0} điểm</span></div></div><hr><div class="row g-2 small"><div class="col-md-6"><b>📍 Chỗ ngồi:</b> ${esc(getStudentSeatText(s))}</div><div class="col-md-6"><b>👥 Tổ:</b> ${esc(getStudentTeamText(s))}</div><div class="col-md-6"><b>⭐ Yêu thích:</b> ${s.favorite?'Có':'Không'}</div><div class="col-md-6"><b>📝 Ghi chú:</b> ${esc(s.note||'Không có')}</div><div class="col-12"><b>📊 Thi đua:</b> ${tx.length} lần ghi nhận · Tổng hiện tại ${s.coins||0} điểm</div></div><div class="text-end mt-3"><button type="button" class="btn btn-sm btn-primary" onclick="goToStudentFromSearch('${s.id}')"><i class="fa-solid fa-graduation-cap me-1"></i>Mở trong danh sách học sinh</button></div></div>`;
+  }).join('');
+  Swal.fire({title:`🔎 Thông tin học sinh (${matches.length})`,html:`<div class="text-start" style="max-height:72vh;overflow:auto">${details}</div>`,width:900,showConfirmButton:false,showCancelButton:true,cancelButtonText:'Đóng'});
+};
+function getStudentSeatText(s){
+  const cfg=state.seating?.[s.classId]; if(!cfg) return 'Chưa xếp chỗ';
+  for(const [idx,id] of Object.entries(cfg.assignments||{})) if(id===s.id){const n=+idx,seats=cfg.seats||14;return `Dãy ${Math.floor(n/seats)+1} · Bàn ${Math.floor((n%seats)/4)+1} · Ghế ${(n%4)+1}`;}
+  return 'Chưa xếp chỗ';
+}
+function getStudentTeamText(s){
+  const g=state.groups?.[s.classId]; if(!g) return 'Chưa vào tổ';
+  const t=(g.teams||[]).find(t=>t.studentIds?.includes(s.id));
+  return t ? t.name+(t.leaderId===s.id?' · Tổ trưởng':'') : 'Chưa vào tổ';
+}
 
 document.addEventListener('DOMContentLoaded',()=>{
   mainModal=new bootstrap.Modal(document.getElementById('mainModal'));
