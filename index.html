@@ -551,6 +551,35 @@ function defaultState(){
 }
 
 let state=loadState();
+
+// Hồ sơ giáo viên được lưu RIÊNG theo từng lớp.
+function getClassTeacher(cls){
+  const c=cls||activeClass();
+  if(!c) return {name:'Giáo viên Chủ nhiệm',role:'GVCN',subject:'TOÁN',school:'Trường THCS',avatar:''};
+  if(!c.teacher){
+    const legacy=state.teacher||{};
+    c.teacher={name:i18nTeacherName(c,legacy),role:legacy.role||'GVCN',subject:legacy.subject||'TOÁN',school:legacy.school||'Trường THCS',avatar:''};
+  }
+  return c.teacher;
+}
+function i18nTeacherName(c,legacy){
+  return c===state.classes[0] ? (legacy.name||'Giáo viên Chủ nhiệm') : 'Giáo viên Chủ nhiệm';
+}
+function migrateClassTeachers(){
+  const legacy=state.teacher||{};
+  (state.classes||[]).forEach((c,i)=>{
+    if(!c.teacher){
+      c.teacher={
+        name:i===0?(legacy.name||'Giáo viên Chủ nhiệm'):'Giáo viên Chủ nhiệm',
+        role:legacy.role||'GVCN',
+        subject:legacy.subject||'TOÁN',
+        school:legacy.school||'Trường THCS',
+        avatar:i===0?(legacy.avatar||''):''
+      };
+    }
+  });
+}
+migrateClassTeachers();
 let chartRefs=[]; let mainModal; let countdownInterval=null; let countdown={total:300,left:300,running:false}; let quietInterval=null; let quietLeft=0; let micCtx=null,micStream=null,micRAF=null;
 
 function loadLeaderSession(){
@@ -741,10 +770,11 @@ function renderHeader(){
   document.getElementById('pageTitle').textContent=t;
   document.getElementById('pageSubtitle').textContent=s;
   document.getElementById('classSwitcher').innerHTML=state.classes.map(c=>`<option value="${c.id}" ${c.id===state.activeClassId?'selected':''}>${esc(c.name)} · ${classStudentsFor(c.id).length} HS</option>`).join('');
-  document.getElementById('teacherNameMini').textContent=state.teacher.name;
-  document.getElementById('teacherRoleMini').textContent=state.teacher.role+' · '+state.teacher.subject;
-  document.getElementById('teacherAvatarMini').outerHTML=renderAvatar(state.teacher,'avatar').replace('class="avatar"','class="avatar" id="teacherAvatarMini"');
   const curCls = activeClass();
+  const curTeacher = getClassTeacher(curCls);
+  document.getElementById('teacherNameMini').textContent=curTeacher.name;
+  document.getElementById('teacherRoleMini').textContent=curTeacher.role+' · '+curTeacher.subject;
+  document.getElementById('teacherAvatarMini').outerHTML=renderAvatar(curTeacher,'avatar').replace('class="avatar"','class="avatar" id="teacherAvatarMini"');
   const miniLogo=document.getElementById('classMiniLogo');
   if(miniLogo){
     miniLogo.classList.toggle('locked',!isAdminRole());
@@ -868,7 +898,7 @@ function rankRow(s,i){const max=Math.max(1,...classStudents().map(x=>Math.max(0,
 function drawHomeChart(){const ctx=document.getElementById('homeChart');if(!ctx)return;const ss=[...classStudents()].sort((a,b)=>b.coins-a.coins).slice(0,8);chartRefs.push(new Chart(ctx,{type:'bar',data:{labels:ss.map(s=>s.name.split(' ').slice(-2).join(' ')),datasets:[{label:'Điểm',data:ss.map(s=>s.coins||0),backgroundColor:ss.map(s=>(s.coins||0)<0?'rgba(239, 68, 68, 0.75)':'rgba(13,148,136,.65)'),borderColor:ss.map(s=>(s.coins||0)<0?'#ef4444':'#0d9488'),borderWidth:1,borderRadius:8}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{y:{ticks:{precision:0}}}}}))}
 function renderClasses(){return `<div class="section-head"><div><h2><i class="fa-solid fa-school text-primary me-2"></i>Quản lý Danh sách Lớp học</h2><p>Tạo thêm lớp mới hoặc chuyển nhanh không gian quản lý giữa các lớp học.</p></div><button class="btn btn-primary" onclick="openClassModal()"><i class="fa-solid fa-plus me-1"></i>Tạo lớp học mới</button></div><div class="student-grid">${state.classes.map(c=>`<div class="card hover-lift p-3"><div class="d-flex justify-content-between"><div class="avatar">${esc(c.logoText||c.name)}</div>${c.id===state.activeClassId?'<span class="badge bg-success align-self-start">Lớp đang chọn</span>':''}</div><h4 class="fw-bold mt-3 mb-1">${esc(c.name)}</h4><div class="text-muted">${esc(c.grade)} · Năm học ${esc(c.year)}</div><div class="coin-pill mt-2"><i class="fa-solid fa-users"></i>${classStudentsFor(c.id).length} học sinh</div><div class="d-flex justify-content-between align-items-center mt-3 pt-3 border-top"><button class="btn btn-sm btn-outline-primary" onclick="switchClass('${c.id}')">Vào không gian lớp</button><div><button class="icon-btn d-inline-grid" onclick="openClassModal('${c.id}')"><i class="fa-solid fa-pen"></i></button> <button class="icon-btn d-inline-grid text-danger" onclick="deleteClass('${c.id}')"><i class="fa-solid fa-trash"></i></button></div></div></div>`).join('')}</div>`}
 async function openClassModal(id=''){if(!isAdminRole()){const ok=await verifySettingAccess();if(!ok)return;}const c=state.classes.find(x=>x.id===id)||{name:'',grade:'Khối 8',year:'2026 - 2027',logoText:''};showModal(id?'Sửa lớp học':'Tạo lớp học mới',`<form onsubmit="saveClass(event,'${id}')"><div class="mb-3"><label class="form-label fw-bold">Tên lớp</label><input id="cName" class="form-control" value="${esc(c.name)}" required placeholder="Ví dụ: LỚP 8B1"></div><div class="row g-3"><div class="col-md-6"><label class="form-label fw-bold">Khối</label><select id="cGrade" class="form-select">${[1,2,3,4,5,6,7,8,9,10,11,12].map(g=>`<option ${c.grade==='Khối '+g?'selected':''}>Khối ${g}</option>`).join('')}</select></div><div class="col-md-6"><label class="form-label fw-bold">Năm học</label><input id="cYear" class="form-control" value="${esc(c.year)}"></div></div><div class="text-end mt-4"><button class="btn btn-primary"><i class="fa-solid fa-floppy-disk me-1"></i>Lưu lớp</button></div></form>`)}
-function saveClass(e,id){e.preventDefault();if(!isAdminRole())return toast('Chỉ Quản trị cao nhất mới được quản lý lớp học','warning');const data={name:document.getElementById('cName').value.trim(),grade:document.getElementById('cGrade').value,year:document.getElementById('cYear').value.trim()};if(id){Object.assign(state.classes.find(x=>x.id===id),data)}else{const nid=uid('class');state.classes.push({id:nid,...data,color:'#0d9488',logoText:'8B1',logoImage:''});state.seating[nid]={type:'2x7x4',lanes:2,seats:14,mode:'2d',assignments:{}}; state.classes.find(c=>c.id===nid).teacherPassword='';state.activeClassId=nid}saveState();mainModal.hide();buildNav();renderHeader();renderPage();toast('Đã lưu lớp học')}
+function saveClass(e,id){e.preventDefault();if(!isAdminRole())return toast('Chỉ Quản trị cao nhất mới được quản lý lớp học','warning');const data={name:document.getElementById('cName').value.trim(),grade:document.getElementById('cGrade').value,year:document.getElementById('cYear').value.trim()};if(id){Object.assign(state.classes.find(x=>x.id===id),data)}else{const nid=uid('class');state.classes.push({id:nid,...data,color:'#0d9488',logoText:'8B1',logoImage:'',teacher:{name:'Giáo viên Chủ nhiệm',role:'GVCN',subject:'TOÁN',school:'Trường THCS',avatar:''}});state.seating[nid]={type:'2x7x4',lanes:2,seats:14,mode:'2d',assignments:{}}; state.classes.find(c=>c.id===nid).teacherPassword='';state.activeClassId=nid}saveState();mainModal.hide();buildNav();renderHeader();renderPage();toast('Đã lưu lớp học')}
 
 async function deleteClass(id){
   const ok = await verifyAdminAccess();
@@ -2835,19 +2865,19 @@ function renderSettingsUnlocked(){
       </div>
 
       <div class="card setting-box">
-        <h5 class="fw-bold"><i class="fa-regular fa-user text-primary me-1"></i>Thông Tin & Ảnh Đại Diện Giáo Viên</h5>
+        <h5 class="fw-bold"><i class="fa-regular fa-user text-primary me-1"></i>Thông Tin & Ảnh Đại Diện Giáo Viên (${esc(curCls.name)})</h5>
         <form onsubmit="saveTeacher(event)">
           <div class="d-flex gap-3 align-items-center p-3 mt-3 rounded-4" style="border:2px dashed #99f6e4;background:#f0fdfa">
-            ${renderAvatar(state.teacher,'student-avatar')}
+            ${renderAvatar(getClassTeacher(curCls),'student-avatar')}
             <div class="flex-fill">
               <strong>Ảnh Đại Diện Giáo Viên</strong>
               <div class="small text-muted">JPG, PNG, WEBP. Ảnh được lưu trực tiếp trong trình duyệt.</div>
               <input id="teacherAvatarInput" type="file" accept="image/*" class="form-control mt-2">
             </div>
           </div>
-          <div class="mt-3"><label class="form-label fw-bold">Họ và tên Giáo viên *</label><input id="tName" class="form-control" required value="${esc(state.teacher.name)}"></div>
-          <div class="row g-3 mt-0"><div class="col-md-6"><label class="form-label fw-bold">Vai trò / Chức vụ</label><input id="tRole" class="form-control" value="${esc(state.teacher.role)}"></div><div class="col-md-6"><label class="form-label fw-bold">Môn giảng dạy</label><input id="tSubject" class="form-control" value="${esc(state.teacher.subject)}"></div></div>
-          <div class="mt-3"><label class="form-label fw-bold">Tên trường học</label><input id="tSchool" class="form-control" value="${esc(state.teacher.school)}"></div>
+          <div class="mt-3"><label class="form-label fw-bold">Họ và tên Giáo viên *</label><input id="tName" class="form-control" required value="${esc(getClassTeacher(curCls).name)}"></div>
+          <div class="row g-3 mt-0"><div class="col-md-6"><label class="form-label fw-bold">Vai trò / Chức vụ</label><input id="tRole" class="form-control" value="${esc(getClassTeacher(curCls).role)}"></div><div class="col-md-6"><label class="form-label fw-bold">Môn giảng dạy</label><input id="tSubject" class="form-control" value="${esc(getClassTeacher(curCls).subject)}"></div></div>
+          <div class="mt-3"><label class="form-label fw-bold">Tên trường học</label><input id="tSchool" class="form-control" value="${esc(getClassTeacher(curCls).school)}"></div>
           <div class="text-end mt-4"><button class="btn btn-primary"><i class="fa-solid fa-floppy-disk me-1"></i>Lưu Hồ Sơ Giáo Viên</button></div>
         </form>
       </div>
@@ -3020,7 +3050,24 @@ function resetClassLogo(){
   toast('Đã đặt lại Logo mặc định');
 }
 
-async function saveTeacher(e){e.preventDefault(); if(!isAdminRole()) return toast('Chỉ Quản trị cao nhất mới được thay đổi thông tin GVCN','warning');const f=document.getElementById('teacherAvatarInput').files[0];if(f)state.teacher.avatar=await readFileData(f);state.teacher.name=document.getElementById('tName').value.trim();state.teacher.role=document.getElementById('tRole').value.trim();state.teacher.subject=document.getElementById('tSubject').value.trim();state.teacher.school=document.getElementById('tSchool').value.trim();saveState();renderHeader();renderPage();toast('Đã cập nhật thông tin giáo viên')}
+async function saveTeacher(e){
+  e.preventDefault();
+  if(!isAdminRole()) return toast('Chỉ Quản trị cao nhất mới được thay đổi thông tin GVCN','warning');
+  const curCls=activeClass();
+  if(!curCls) return;
+  const teacher=getClassTeacher(curCls);
+  const f=document.getElementById('teacherAvatarInput').files[0];
+  if(f) teacher.avatar=await readFileData(f);
+  teacher.name=document.getElementById('tName').value.trim();
+  teacher.role=document.getElementById('tRole').value.trim();
+  teacher.subject=document.getElementById('tSubject').value.trim();
+  teacher.school=document.getElementById('tSchool').value.trim();
+  state.teacher=teacher;
+  saveState();
+  renderHeader();
+  renderPage();
+  toast('Đã cập nhật thông tin giáo viên cho '+curCls.name);
+}
 async function editSubjects(){const {value}=await Swal.fire({title:'Tùy chỉnh danh sách môn',input:'textarea',inputValue:state.subjects.join('\n'),inputLabel:'Mỗi dòng một môn / nhóm',showCancelButton:true,confirmButtonText:'Lưu danh sách'});if(value===undefined)return;state.subjects=value.split(/\r?\n/).map(x=>x.trim()).filter(Boolean);saveState();renderPage()}
 function showModal(title,html){document.getElementById('mainModalTitle').textContent=title;document.getElementById('mainModalBody').innerHTML=html;mainModal.show()}
 function showGuide(){Swal.fire({width:760,title:'Hướng dẫn bảo mật',html:`<div class="text-start"><p><b>1. Mật khẩu Lớp 1 (Cài đặt):</b> Mặc định là <code>admin8b1</code>. Chuyên khóa tab Cài đặt & Dữ liệu. Không hiển thị sẵn trong mã nguồn giao diện để bảo mật. Nhập sai quá 5 lần khóa 1 giờ. Khi quên có thể bấm nút gửi về email: <code>${RECOVERY_EMAIL}</code>.</p><p><b>2. Mật khẩu Lớp 2 (Thao tác):</b> Mặc định là <code>123</code>. Dùng để mở quyền thao tác hàng ngày cho GVCN (Cộng/trừ điểm, sửa/xóa vi phạm).</p><p><b>3. Nhật kí tuần:</b> Bấm tab Nhật kí tuần để xem danh sách vi phạm và thành tích theo từng tuần, từng tháng phục vụ sinh hoạt lớp.</p></div>`,confirmButtonText:'Đã hiểu'})}
