@@ -71,7 +71,7 @@
     .page-title h1 { margin:0; font-size:clamp(1.35rem,2.5vw,2rem); font-weight:900; letter-spacing:-.03em; }
     /* Giữ cụm ảnh Banner ổn định giữa mọi Tab, kể cả Tab Sơ đồ lớp có tiêu đề dài. */
     .page-title { flex:0 1 30%; min-width:220px; padding-top:16px; }
-    .banner-notice-link-top { left:18px; top:2px; }
+    .banner-notice-link-top { left:37px; top:6px; }
     .top-actions { flex:1 1 70%; min-width:0; }
     .banner-visual-stack { flex:0 0 265px; width:265px; min-width:265px; }
     @media(max-width:1200px){ .page-title{flex-basis:27%;min-width:205px}.top-actions{flex-basis:73%}.banner-visual-stack{flex-basis:245px;width:245px;min-width:245px} }
@@ -106,7 +106,14 @@
     .notice-card .notice-image { width:100%; max-height:330px; object-fit:contain; display:block; background:rgba(255,255,255,.65); }
     .notice-card .notice-body { padding:17px; }
     .notice-card .notice-text { white-space:pre-wrap; line-height:1.65; color:#334155; }
-    .notice-empty { border:2px dashed #fdba74; background:linear-gradient(135deg,#fff7ed,#fffbeb); }
+    .notice-card.notice-unread{border:3px solid #f97316;box-shadow:0 12px 30px rgba(234,88,12,.22);transform:translateY(-1px);cursor:pointer;}
+.notice-card.notice-unread .notice-color-bar{height:10px;background:linear-gradient(90deg,#ef4444,#f97316,#eab308);}
+.notice-unread-label{position:absolute;right:12px;top:14px;z-index:3;padding:4px 8px;border-radius:999px;background:#dc2626;color:#fff;font-size:10px;font-weight:900;letter-spacing:.02em;box-shadow:0 3px 8px rgba(220,38,38,.25);}
+.notice-unread-label i{font-size:6px;vertical-align:middle;margin-right:2px;}
+.notice-card{cursor:pointer;transition:transform .16s ease,box-shadow .16s ease,border-color .16s ease;}
+.notice-card:hover{transform:translateY(-2px);box-shadow:0 14px 32px rgba(15,23,42,.13);}
+.notice-card:not(.notice-unread){opacity:.96;}
+.notice-empty { border:2px dashed #fdba74; background:linear-gradient(135deg,#fff7ed,#fffbeb); }
     .notice-form-colors { display:flex; flex-wrap:wrap; gap:8px; }
     .notice-color-option { position:relative; }
     .notice-color-option input { position:absolute; opacity:0; pointer-events:none; }
@@ -121,7 +128,7 @@
     .banner-slogan img { width:100px; height:44px; display:block; object-fit:contain; object-position:center; }
     /* Nút liên kết nhanh tới Tab THÔNG BÁO: nhỏ, nổi bật, nằm sát góc trên trái Banner. */
     .banner-notice-link {
-      position:absolute; left:2px; top:2px; z-index:4;
+      position:absolute; left:21px; top:6px; z-index:4;
       display:inline-flex; align-items:center; justify-content:center; gap:4px;
       width:70px; height:20px; padding:0 6px;
       border:1px solid rgba(234,88,12,.55); border-radius:999px;
@@ -131,7 +138,8 @@
       pointer-events:auto; white-space:nowrap;
       transition:transform .16s ease, box-shadow .16s ease, filter .16s ease;
     }
-    .banner-notice-link:hover { transform:translateY(-1px); box-shadow:0 5px 12px rgba(234,88,12,.28); filter:saturate(1.08); }
+    .banner-notice-count{position:absolute;right:-7px;top:-7px;min-width:15px;height:15px;padding:0 4px;border-radius:999px;background:#dc2626;color:#fff;font-size:9px;line-height:15px;font-weight:900;text-align:center;box-shadow:0 2px 6px rgba(0,0,0,.2);display:none;}
+.banner-notice-link:hover { transform:translateY(-1px); box-shadow:0 5px 12px rgba(234,88,12,.28); filter:saturate(1.08); }
     .banner-notice-link:focus-visible { outline:2px solid #f97316; outline-offset:2px; }
     .banner-students { position:absolute; right:0; bottom:0; width:125px; height:72px; display:flex; align-items:flex-end; justify-content:center; overflow:hidden; pointer-events:none; z-index:1; }
     .banner-students img { width:125px; height:72px; display:block; object-fit:contain; object-position:center bottom; }
@@ -416,7 +424,7 @@
   <main class="main-wrap">
     <header class="topbar">
       <button type="button" class="banner-notice-link banner-notice-link-top" onclick="navigate('notices')" title="Mở Tab THÔNG BÁO">
-        <i class="fa-solid fa-bullhorn"></i><span>THÔNG BÁO</span>
+        <i class="fa-solid fa-bullhorn"></i><span>THÔNG BÁO</span><b class="banner-notice-count" id="bannerNoticeCount">0</b>
       </button>
       <div class="page-title"><h1 id="pageTitle">Trang chủ</h1><p id="pageSubtitle">Tổng quan lớp học và hoạt động hôm nay</p></div>
       <div class="top-actions">
@@ -917,7 +925,8 @@ function renderPage(){
   };
   
   const fn = fnMap[state.currentPage] || renderHome;
-  root.innerHTML = fn(); 
+  root.innerHTML = fn();
+  setTimeout(()=>{try{updateBannerNoticeCount()}catch(e){}},0);
   setTimeout(afterRender,0);
 }
 
@@ -2730,9 +2739,30 @@ function noticeColorOptions(selected){
   return colors.map(([c,n],i)=>`<div class="notice-color-option"><input type="radio" name="noticeColor" id="noticeColor${i}" value="${c}" ${selected===c?'checked':''}><label for="noticeColor${i}" style="background:${c}" title="${n}"></label></div>`).join('');
 }
 
+function getNoticeReadIds(){
+  try{return new Set(JSON.parse(localStorage.getItem('lop8b1_notice_read_ids_v1')||'[]'));}
+  catch(e){return new Set();}
+}
+function markNoticeRead(id){
+  const read=getNoticeReadIds();
+  read.add(String(id));
+  localStorage.setItem('lop8b1_notice_read_ids_v1',JSON.stringify([...read]));
+  updateBannerNoticeCount();
+  document.querySelectorAll('[data-notice-id="'+CSS.escape(String(id))+'"]').forEach(el=>el.classList.remove('notice-unread'));
+}
+function updateBannerNoticeCount(){
+  const all=Array.isArray(state?.notices)?state.notices.filter(n=>n.classId===state.activeClassId):[];
+  const read=getNoticeReadIds();
+  const count=all.filter(n=>n?.id&&!read.has(String(n.id))).length;
+  const badge=document.getElementById('bannerNoticeCount');
+  if(badge){badge.textContent=count>99?'99+':String(count);badge.style.display=count?'inline-flex':'none';}
+}
+
 function renderNotices(){
+  const read=getNoticeReadIds();
   const notices=Array.isArray(state.notices)?state.notices.filter(n=>n.classId===state.activeClassId).sort((a,b)=>new Date(b.time)-new Date(a.time)):[];
   const canEdit=isAdminRole()||isTeacherRole();
+  setTimeout(updateBannerNoticeCount,0);
   return `<div class="section-head">
     <div><h2><i class="fa-solid fa-bullhorn me-2" style="color:#ef4444"></i>THÔNG BÁO - ${esc(activeClass().name)}</h2>
     <p>Nơi đăng các thông tin quan trọng cho học sinh và phụ huynh. Có thể đăng văn bản, hình ảnh và chọn màu nổi bật.</p></div>
@@ -2740,13 +2770,15 @@ function renderNotices(){
   </div>
   ${notices.length?`<div class="notice-grid">${notices.map(n=>{
     const date=n.time?new Date(n.time).toLocaleString('vi-VN'):'Không rõ thời gian';
-    return `<article class="notice-card" style="background:${esc(n.color||'#fff7ed')}">
+    const unread=n?.id&&!read.has(String(n.id));
+    return `<article class="notice-card${unread?' notice-unread':''}" data-notice-id="${esc(String(n.id||''))}" style="background:${esc(n.color||'#fff7ed')}" onclick="markNoticeRead('${esc(String(n.id||''))}')">
+      ${unread?`<div class="notice-unread-label"><i class="fa-solid fa-circle"></i> CHƯA XEM</div>`:''}
       <div class="notice-color-bar"></div>
       ${n.image?`<img class="notice-image" src="${n.image}" alt="Hình ảnh thông báo">`:''}
       <div class="notice-body">
         <div class="d-flex justify-content-between align-items-start gap-2">
           <div><h4 class="fw-bold mb-1">${esc(n.title||'Thông báo')}</h4><div class="small text-muted"><i class="fa-regular fa-clock me-1"></i>${esc(date)}</div></div>
-          ${canEdit?`<div class="d-flex gap-1"><button class="icon-btn" onclick="openNoticeModal('${n.id}')" title="Sửa"><i class="fa-solid fa-pen"></i></button><button class="icon-btn text-danger" onclick="deleteNotice('${n.id}')" title="Xóa"><i class="fa-solid fa-trash"></i></button></div>`:''}
+          ${canEdit?`<div class="d-flex gap-1"><button class="icon-btn" onclick="event.stopPropagation();openNoticeModal('${n.id}')" title="Sửa"><i class="fa-solid fa-pen"></i></button><button class="icon-btn text-danger" onclick="event.stopPropagation();deleteNotice('${n.id}')" title="Xóa"><i class="fa-solid fa-trash"></i></button></div>`:''}
         </div>
         ${n.text?`<div class="notice-text mt-3">${esc(n.text)}</div>`:''}
       </div>
@@ -3610,5 +3642,8 @@ document.addEventListener('DOMContentLoaded',()=>{
   initFirebaseSync();
 });
 </script>
+
+
+<script>document.addEventListener('DOMContentLoaded',()=>setTimeout(()=>{try{updateBannerNoticeCount()}catch(e){}},100));</script>
 </body>
 </html>
