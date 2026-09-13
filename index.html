@@ -163,6 +163,15 @@
     }
     .sidebar .nav-link.notice-nav.active::before { background:#fde68a; box-shadow:0 0 12px rgba(253,230,138,.95),0 0 22px rgba(249,115,22,.45); }
     .sidebar .nav-link.notice-nav.active::after { background:#fde68a; box-shadow:0 0 9px rgba(253,230,138,.95); }
+    /* Tab NHẬT KÍ NGÀY: nền cam nhạt để nổi bật so với các Tab khác. */
+    .sidebar .nav-link.diary-nav { background:#ffedd5; color:#c2410c; border:1px solid #fed7aa; font-weight:900; }
+    .sidebar .nav-link.diary-nav:hover { background:#fed7aa; color:#9a3412; }
+    .sidebar .nav-link.diary-nav.active { color:#fff; border-color:transparent; background:linear-gradient(135deg,#fb923c,#f97316); box-shadow:0 8px 18px rgba(251,146,60,.32); }
+    .diary-feed { display:flex; flex-direction:column; gap:16px; }
+    .diary-card { border-radius:18px; border:1px solid rgba(251,146,60,.3); background:#fffaf5; }
+    .diary-card .diary-image { width:100%; max-height:360px; object-fit:contain; border-radius:12px; margin-top:8px; background:#fff; }
+    .diary-card .diary-file { display:inline-flex; align-items:center; padding:9px 14px; border-radius:12px; background:#fff7ed; border:1px solid #fdba74; color:#c2410c; font-weight:700; text-decoration:none; }
+    .diary-card .diary-file:hover { background:#ffedd5; color:#9a3412; }
     .notice-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(300px,1fr)); gap:18px; }
     .notice-card { border-radius:20px; border:2px solid rgba(251,146,60,.35); overflow:hidden; box-shadow:0 10px 28px rgba(15,23,42,.09); position:relative; }
     .notice-card .notice-color-bar { height:8px; background:linear-gradient(90deg,#f97316,#ef4444,#eab308); }
@@ -690,10 +699,10 @@ function initFirebaseSync(){
 const SUBJECTS=['Ghi chung / Nề nếp','TOÁN','VĂN','ANH','KHOA HỌC TỰ NHIÊN','Khoa học','Lịch sử & Địa lý','Tin học','Công nghệ','Mĩ thuật','Âm nhạc','Giáo dục thể chất','Đạo đức','Hoạt động trải nghiệm','Sinh hoạt lớp','Chào cờ'];
 const DAYS=['Thứ Hai','Thứ Ba','Thứ Tư','Thứ Năm','Thứ Sáu','Thứ Bảy'];
 const NAV=[
-  ['home','fa-house','Trang chủ',''],['students','fa-graduation-cap','Học sinh','count'],['groups','fa-people-group','Chia tổ',''],['attendance','fa-clipboard-check','Điểm danh',''],['weekly','fa-calendar-check','Nhật kí tuần','HOT'],['seating','fa-border-all','Sơ đồ lớp',''],['timetable','fa-calendar-days','Thời khóa biểu',''],['rewards','fa-gift','Đổi thưởng',''],['notices','fa-bullhorn','THÔNG BÁO',''],['dailyPhotos','fa-images','Ảnh thường ngày','NEW'],['noise','fa-shield-halved','Chống ồn',''],['countdown','fa-stopwatch','Đếm ngược',''],['links','fa-link','Liên kết',''],['stats','fa-chart-column','Thống kê',''],['data','fa-database','Dữ liệu',''],['classes','fa-school','Lớp học',''],['settings','fa-gear','Cài đặt','']
+  ['home','fa-house','Trang chủ',''],['students','fa-graduation-cap','Học sinh','count'],['groups','fa-people-group','Chia tổ',''],['attendance','fa-clipboard-check','Điểm danh',''],['dailyDiary','fa-book-open','Nhật kí ngày',''],['weekly','fa-calendar-check','Nhật kí tuần','HOT'],['seating','fa-border-all','Sơ đồ lớp',''],['timetable','fa-calendar-days','Thời khóa biểu',''],['rewards','fa-gift','Đổi thưởng',''],['notices','fa-bullhorn','THÔNG BÁO',''],['dailyPhotos','fa-images','Ảnh thường ngày','NEW'],['noise','fa-shield-halved','Chống ồn',''],['countdown','fa-stopwatch','Đếm ngược',''],['links','fa-link','Liên kết',''],['stats','fa-chart-column','Thống kê',''],['data','fa-database','Dữ liệu',''],['classes','fa-school','Lớp học',''],['settings','fa-gear','Cài đặt','']
 ];
 const PAGE_META={
- home:['Trang chủ','Tổng quan nhanh tình hình lớp học hôm nay'],classes:['Quản lý Lớp học','Danh sách các lớp, khối lớp và thông tin chung'],students:['Danh sách học sinh','Quản lý thành viên, nề nếp và điểm thi đua'],groups:['Chia tổ học sinh','Chia lớp thành các tổ, chọn tổ trưởng và cấp mã đăng nhập riêng'],attendance:['Điểm danh','Theo dõi sĩ số, chuyên cần và tình hình đi học hằng ngày'],weekly:['Nhật kí tuần','Tổng hợp thi đua, vi phạm và khen thưởng theo tuần & tháng'],seating:['Sơ đồ Lớp học','Bố trí vị trí chỗ ngồi trực quan và linh hoạt'],timetable:['Thời khóa biểu','Thiết lập lịch dạy Sáng/Chiều và các môn học trong tuần'],rewards:['Đổi thưởng','Tạo phần thưởng và đổi quà bằng điểm thi đua'],notices:['THÔNG BÁO','Thông báo mới nhất dành cho học sinh và phụ huynh'],dailyPhotos:['Ảnh Thường Ngày','Lưu giữ khoảnh khắc và hình ảnh hoạt động của lớp học'],noise:['Công Cụ Chống Ồn','Cảnh báo lớp học, đếm ngược im lặng và đo microphone'],countdown:['Đồng Hồ Đếm Ngược','Thiết lập thời gian, mẫu nhanh và chuông báo'],links:['Liên kết hữu ích','Lưu học liệu, trang web và đường dẫn dùng chung'],stats:['Báo cáo & Thống kê','Biểu đồ phân tích thi đua, nề nếp và điểm rèn luyện'],data:['Quản lý dữ liệu','Sao lưu, khôi phục và làm sạch dữ liệu ứng dụng'],settings:['Cài đặt hệ thống','Thiết lập logo lớp, hồ sơ giáo viên và cấu hình']
+ home:['Trang chủ','Tổng quan nhanh tình hình lớp học hôm nay'],classes:['Quản lý Lớp học','Danh sách các lớp, khối lớp và thông tin chung'],students:['Danh sách học sinh','Quản lý thành viên, nề nếp và điểm thi đua'],groups:['Chia tổ học sinh','Chia lớp thành các tổ, chọn tổ trưởng và cấp mã đăng nhập riêng'],attendance:['Điểm danh','Theo dõi sĩ số, chuyên cần và tình hình đi học hằng ngày'],dailyDiary:['Nhật kí ngày','Gửi ảnh, tin nhắn và tài liệu hằng ngày cho lớp'],weekly:['Nhật kí tuần','Tổng hợp thi đua, vi phạm và khen thưởng theo tuần & tháng'],seating:['Sơ đồ Lớp học','Bố trí vị trí chỗ ngồi trực quan và linh hoạt'],timetable:['Thời khóa biểu','Thiết lập lịch dạy Sáng/Chiều và các môn học trong tuần'],rewards:['Đổi thưởng','Tạo phần thưởng và đổi quà bằng điểm thi đua'],notices:['THÔNG BÁO','Thông báo mới nhất dành cho học sinh và phụ huynh'],dailyPhotos:['Ảnh Thường Ngày','Lưu giữ khoảnh khắc và hình ảnh hoạt động của lớp học'],noise:['Công Cụ Chống Ồn','Cảnh báo lớp học, đếm ngược im lặng và đo microphone'],countdown:['Đồng Hồ Đếm Ngược','Thiết lập thời gian, mẫu nhanh và chuông báo'],links:['Liên kết hữu ích','Lưu học liệu, trang web và đường dẫn dùng chung'],stats:['Báo cáo & Thống kê','Biểu đồ phân tích thi đua, nề nếp và điểm rèn luyện'],data:['Quản lý dữ liệu','Sao lưu, khôi phục và làm sạch dữ liệu ứng dụng'],settings:['Cài đặt hệ thống','Thiết lập logo lớp, hồ sơ giáo viên và cấu hình']
 };
 
 let currentFilterMonth = 'all';
@@ -759,7 +768,7 @@ function defaultState(){
     'C1':'13:30 - 14:05','C2':'14:15 - 14:50','C3':'15:05 - 15:40','C4':'15:50 - 16:25','C5':'16:35 - 17:10'
   },
   rewards:[{id:'r1',name:'Bút',cost:10,emoji:'🖊️',stock:10},{id:'r2',name:'Thước',cost:15,emoji:'📏',stock:8},{id:'r3',name:'Sticker',cost:5,emoji:'🌟',stock:30},{id:'r4',name:'Sổ tay',cost:25,emoji:'📒',stock:5}],
-  redemptions:[],transactions:[],wheelHistory:[],dailyPhotos:[],notices:[],links:[{id:'l1',name:'Học liệu lớp học',url:'https://',category:'Học liệu & SGK',desc:'Liên kết mẫu - hãy chỉnh sửa',pinned:true}],
+  redemptions:[],transactions:[],wheelHistory:[],dailyPhotos:[],notices:[],dailyDiary:[],links:[{id:'l1',name:'Học liệu lớp học',url:'https://',category:'Học liệu & SGK',desc:'Liên kết mẫu - hãy chỉnh sửa',pinned:true}],
   subjects:SUBJECTS.slice(), settings:{wheelExclude:true,tickLast10:false,timerColor:'#0d9488'},
   wheelExcluded:[], groups:{}
  }
@@ -825,6 +834,7 @@ function loadState(){
       if(!Array.isArray(x.wheelHistory)) x.wheelHistory = [];
       if(!Array.isArray(x.dailyPhotos)) x.dailyPhotos = [];
       if(!Array.isArray(x.notices)) x.notices = [];
+      if(!Array.isArray(x.dailyDiary)) x.dailyDiary = [];
       if(!Array.isArray(x.links)) x.links = [];
       if(!Array.isArray(x.subjects)) x.subjects = SUBJECTS.slice();
       if(!x.attendance) x.attendance = {};
@@ -967,7 +977,7 @@ function buildNav(){
     </div>`;
     return;
   }
-  const n=classStudents().length;document.getElementById('sideNav').innerHTML=NAV.map(([id,ic,label,b])=>`<a class="nav-link ${state.currentPage===id?'active':''} ${id==='notices'?'notice-nav':''}" data-page="${id}" onclick="navigate('${id}')"><i class="fa-solid ${ic}"></i><span>${label}</span>${b==='count'?`<span class="mini-badge new">${n}</span>`:b?`<span class="mini-badge ${b==='NEW'?'new':''}">${b}</span>`:''}</a>`).join('')}
+  const n=classStudents().length;document.getElementById('sideNav').innerHTML=NAV.map(([id,ic,label,b])=>`<a class="nav-link ${state.currentPage===id?'active':''} ${id==='notices'?'notice-nav':''} ${id==='dailyDiary'?'diary-nav':''}" data-page="${id}" onclick="navigate('${id}')"><i class="fa-solid ${ic}"></i><span>${label}</span>${b==='count'?`<span class="mini-badge new">${n}</span>`:b?`<span class="mini-badge ${b==='NEW'?'new':''}">${b}</span>`:''}</a>`).join('')}
 
 function renderHeader(){
   if(isLeaderMode()){
@@ -1049,6 +1059,7 @@ function renderPage(){
     students:renderStudents,
     groups:renderGroups,
     attendance:renderAttendance,
+    dailyDiary:renderDailyDiary,
     weekly:renderWeekly,
     seating:renderSeating,
     timetable:renderTimetable,
@@ -2975,6 +2986,154 @@ async function deleteNotice(id){
 }
 
 /* ========================================================
+   TAB: NHẬT KÍ NGÀY
+   - Xem: ai cũng xem được.
+   - Gửi (ảnh / tin nhắn / .docx / .xlsx): chỉ Lớp phó phụ trách học tập
+     hoặc GVCN có mật khẩu riêng (mật khẩu do GVCN/Quản trị cao nhất đặt).
+   - Xóa bài: chỉ GVCN hoặc Quản trị cao nhất.
+   ======================================================== */
+function loadDiarySession(){
+  try{
+    const x=JSON.parse(sessionStorage.getItem('diaryUnlockSession'));
+    return (x && x.classId && x.until>Date.now()) ? x : null;
+  }catch(e){ return null; }
+}
+function saveDiarySession(s){
+  try{
+    if(s) sessionStorage.setItem('diaryUnlockSession', JSON.stringify(s));
+    else sessionStorage.removeItem('diaryUnlockSession');
+  }catch(e){}
+}
+
+/* Chỉ Lớp phó phụ trách học tập (biết mật khẩu riêng) hoặc GVCN/Quản trị mới gửi được. */
+async function verifyDiaryAccess(){
+  if(isAdminRole()) return true;
+  if(isTeacherRole() && authSession.classId===state.activeClassId) return true;
+  const cached=loadDiarySession();
+  if(cached && cached.classId===state.activeClassId) return true;
+  const cls=activeClass();
+  const pass=cls?.diaryPassword||'';
+  if(!pass){
+    await Swal.fire({icon:'info',title:'Chưa đặt mật khẩu Nhật kí ngày',html:'GVCN hoặc Quản trị cao nhất cần bấm "Đặt mật khẩu" ở Tab Nhật kí ngày để cấp mật khẩu riêng cho Lớp phó phụ trách học tập trước.'});
+    return false;
+  }
+  const result=await Swal.fire({
+    title:'🔐 Đăng nhập gửi Nhật kí ngày',
+    html:'<p class="small text-muted">Chỉ Lớp phó phụ trách học tập hoặc GVCN có mật khẩu riêng mới gửi được vào Nhật kí ngày.</p>',
+    input:'password',inputPlaceholder:'Nhập mật khẩu Nhật kí ngày...',inputAttributes:{autocomplete:'current-password'},
+    showCancelButton:true,confirmButtonText:'Xác nhận',cancelButtonText:'Hủy'
+  });
+  if(!result.isConfirmed) return false;
+  if(String(result.value||'').trim()===pass){
+    saveDiarySession({classId:state.activeClassId, until:Date.now()+8*3600000});
+    return true;
+  }
+  await Swal.fire({icon:'error',title:'Sai mật khẩu',text:'Mật khẩu Nhật kí ngày không đúng.'});
+  return false;
+}
+
+/* GVCN/Quản trị cao nhất đặt (hoặc đổi) mật khẩu riêng của lớp cho Lớp phó phụ trách học tập. */
+async function setDiaryPassword(){
+  const ok=await verifyAdminAccess();
+  if(!ok) return;
+  const c=activeClass();
+  const result=await Swal.fire({
+    icon:'question',
+    title:'Đặt mật khẩu Nhật kí ngày',
+    html:`<p class="small text-muted mb-2">Mật khẩu dùng chung cho Lớp phó phụ trách học tập (và GVCN) để gửi Nhật kí ngày cho lớp <b>${esc(c.name)}</b>.</p>
+          <input id="swal-diary-password" class="swal2-input" type="password" autocomplete="new-password" placeholder="Nhập mật khẩu mới">
+          <input id="swal-diary-password-confirm" class="swal2-input" type="password" autocomplete="new-password" placeholder="Nhập lại mật khẩu">`,
+    showCancelButton:true,confirmButtonText:'Lưu mật khẩu',cancelButtonText:'Hủy',focusConfirm:false,
+    preConfirm:()=>{
+      const password=document.getElementById('swal-diary-password')?.value||'';
+      const confirm=document.getElementById('swal-diary-password-confirm')?.value||'';
+      if(password.length<4){ Swal.showValidationMessage('Mật khẩu phải có ít nhất 4 ký tự.'); return false; }
+      if(password!==confirm){ Swal.showValidationMessage('Hai mật khẩu không trùng nhau.'); return false; }
+      return password;
+    }
+  });
+  if(!result.isConfirmed) return;
+  c.diaryPassword=result.value;
+  saveState();
+  Swal.fire({icon:'success',title:'Đã lưu mật khẩu',text:`Hãy cung cấp mật khẩu này cho đúng Lớp phó phụ trách học tập của lớp ${c.name}.`});
+}
+
+function renderDailyDiary(){
+  const canManage=isAdminRole()||isTeacherRole();
+  const entries=Array.isArray(state.dailyDiary)?state.dailyDiary.filter(x=>x.classId===state.activeClassId).sort((a,b)=>new Date(b.time)-new Date(a.time)):[];
+  return `<div class="section-head">
+    <div><h2><i class="fa-solid fa-book-open me-2" style="color:#f97316"></i>Nhật kí ngày - ${esc(activeClass().name)}</h2>
+    <p>Gửi ảnh, tin nhắn văn bản hoặc tệp .docx/.xlsx hằng ngày cho lớp. Chỉ Lớp phó phụ trách học tập hoặc GVCN có mật khẩu riêng mới gửi được.</p></div>
+    <div class="d-flex gap-2 flex-wrap justify-content-end">
+      ${canManage?`<button class="btn btn-outline-secondary" onclick="setDiaryPassword()"><i class="fa-solid fa-key me-1"></i>Đặt mật khẩu</button>`:''}
+      <button class="btn btn-primary" style="background:linear-gradient(135deg,#fb923c,#f97316);border:none" onclick="openDiaryEntryModal()"><i class="fa-solid fa-paper-plane me-1"></i>Gửi Nhật kí</button>
+    </div>
+  </div>
+  ${entries.length?`<div class="diary-feed mt-3">${entries.map(x=>renderDiaryEntry(x,canManage)).join('')}</div>`
+    :`<div class="card p-5 text-center mt-3"><i class="fa-solid fa-book-open fs-1 mb-3" style="color:#fb923c"></i><h5 class="fw-bold">Chưa có Nhật kí ngày nào</h5><p class="text-muted mb-0">Các bài Nhật kí ngày mới sẽ hiển thị tại đây.</p></div>`}`;
+}
+
+function renderDiaryEntry(x,canManage){
+  const date=x.time?new Date(x.time).toLocaleString('vi-VN'):'Không rõ thời gian';
+  return `<div class="card diary-card p-3">
+    <div class="d-flex justify-content-between align-items-start gap-2">
+      <div class="small text-muted"><i class="fa-solid fa-user-pen me-1"></i>${esc(x.author||'Lớp phó phụ trách học tập')} · <i class="fa-regular fa-clock me-1"></i>${esc(date)}</div>
+      ${canManage?`<button class="icon-btn text-danger" onclick="deleteDiaryEntry('${x.id}')" title="Xóa"><i class="fa-solid fa-trash"></i></button>`:''}
+    </div>
+    ${x.text?`<div class="mt-2" style="white-space:pre-wrap">${esc(x.text)}</div>`:''}
+    ${x.image?`<img src="${x.image}" class="diary-image" alt="Ảnh Nhật kí ngày">`:''}
+    ${x.fileData?`<div class="mt-2"><a class="diary-file" href="${x.fileData}" download="${esc(x.fileName||'tai-lieu')}"><i class="fa-solid ${x.fileType==='xlsx'?'fa-file-excel':'fa-file-word'} me-2"></i>${esc(x.fileName||'Tải tệp đính kèm')}</a></div>`:''}
+  </div>`;
+}
+
+async function openDiaryEntryModal(){
+  const ok=await verifyDiaryAccess();
+  if(!ok) return;
+  showModal('Gửi Nhật kí ngày',`<form onsubmit="saveDiaryEntry(event)">
+    <div class="mb-3"><label class="form-label fw-bold">Tin nhắn</label><textarea id="diaryText" class="form-control" rows="4" placeholder="Nhập nội dung Nhật kí, bài tập, dặn dò..."></textarea></div>
+    <div class="mb-3"><label class="form-label fw-bold">Hình ảnh (không bắt buộc)</label><input id="diaryImage" class="form-control" type="file" accept="image/*"></div>
+    <div class="mb-3"><label class="form-label fw-bold">Tệp .docx hoặc .xlsx (không bắt buộc)</label><input id="diaryFile" class="form-control" type="file" accept=".docx,.xlsx"></div>
+    <div class="text-end mt-4"><button class="btn btn-primary" style="background:linear-gradient(135deg,#fb923c,#f97316);border:none"><i class="fa-solid fa-paper-plane me-1"></i>Gửi</button></div>
+  </form>`);
+}
+
+async function saveDiaryEntry(e){
+  e.preventDefault();
+  const ok=await verifyDiaryAccess();
+  if(!ok) return;
+  const text=document.getElementById('diaryText')?.value.trim()||'';
+  const imgFile=document.getElementById('diaryImage')?.files?.[0];
+  const docFile=document.getElementById('diaryFile')?.files?.[0];
+  if(!text && !imgFile && !docFile) return toast('Vui lòng nhập tin nhắn hoặc chọn tệp đính kèm.','warning');
+  try{
+    let image='', fileData='', fileName='', fileType='';
+    if(imgFile){
+      if(imgFile.size>4*1024*1024) throw new Error('Ảnh quá lớn. Vui lòng chọn ảnh dưới 4 MB.');
+      image=await readFileData(imgFile);
+    }
+    if(docFile){
+      const ext=docFile.name.split('.').pop().toLowerCase();
+      if(!['docx','xlsx'].includes(ext)) throw new Error('Chỉ chấp nhận tệp .docx hoặc .xlsx.');
+      if(docFile.size>8*1024*1024) throw new Error('Tệp quá lớn. Vui lòng chọn tệp dưới 8 MB.');
+      fileData=await readFileData(docFile); fileName=docFile.name; fileType=ext;
+    }
+    if(!Array.isArray(state.dailyDiary)) state.dailyDiary=[];
+    const authorLabel=isAdminRole()?'Quản trị cao nhất':(isTeacherRole()?'GVCN':'Lớp phó phụ trách học tập');
+    state.dailyDiary.unshift({id:uid('diary'),classId:state.activeClassId,text,image,fileData,fileName,fileType,time:new Date().toISOString(),author:authorLabel});
+    saveState(); mainModal.hide(); renderPage(); toast('Đã gửi Nhật kí ngày!');
+  }catch(err){
+    Swal.fire({icon:'error',title:'Không thể gửi Nhật kí',text:err.message||'Có lỗi xảy ra.'});
+  }
+}
+
+async function deleteDiaryEntry(id){
+  if(!(isAdminRole()||isTeacherRole())) return toast('Chỉ GVCN hoặc Quản trị cao nhất mới được xóa Nhật kí ngày.','warning');
+  const r=await Swal.fire({icon:'warning',title:'Xóa Nhật kí này?',text:'Bài Nhật kí ngày sẽ bị xóa khỏi lớp.',showCancelButton:true,confirmButtonText:'Đồng ý xóa',cancelButtonText:'Hủy',confirmButtonColor:'#dc2626'});
+  if(!r.isConfirmed) return;
+  state.dailyDiary=(state.dailyDiary||[]).filter(x=>x.id!==id); saveState(); renderPage(); toast('Đã xóa Nhật kí ngày!');
+}
+
+/* ========================================================
    TAB: ẢNH THƯỜNG NGÀY (Có bảo mật GVCN)
    ======================================================== */
 function renderDailyPhotos(){
@@ -3474,7 +3633,7 @@ renderPage=function(){
     addHomeReturnButton(root);
     return;
   }
-  const fnMap={home:renderHome,classes:renderClasses,students:renderStudents,groups:renderGroups,attendance:renderAttendance,weekly:renderWeekly,seating:renderSeating,timetable:renderTimetable,rewards:renderRewards,notices:renderNotices,dailyPhotos:renderDailyPhotos,noise:renderNoise,countdown:renderCountdown,links:renderLinks,stats:renderStats,data:renderData,settings:renderSettings};
+  const fnMap={home:renderHome,classes:renderClasses,students:renderStudents,groups:renderGroups,attendance:renderAttendance,dailyDiary:renderDailyDiary,weekly:renderWeekly,seating:renderSeating,timetable:renderTimetable,rewards:renderRewards,notices:renderNotices,dailyPhotos:renderDailyPhotos,noise:renderNoise,countdown:renderCountdown,links:renderLinks,stats:renderStats,data:renderData,settings:renderSettings};
   const fn=fnMap[state.currentPage]||renderHome;
   root.innerHTML=fn();
   addHomeReturnButton(root);
@@ -3651,7 +3810,7 @@ roleCanOpenPage=function(page){ return true; };
 buildNav=function(){
   const n=classStudents().length;
   document.getElementById('sideNav').innerHTML=NAV.map(([id,ic,label,b])=>
-    `<a class="nav-link ${state.currentPage===id?'active':''} ${id==='notices'?'notice-nav':''}" data-page="${id}" onclick="navigate('${id}')"><i class="fa-solid ${ic}"></i><span>${label}</span>${b==='count'?`<span class="mini-badge new">${n}</span>`:b?`<span class="mini-badge ${b==='NEW'?'new':''}">${b}</span>`:''}</a>`
+    `<a class="nav-link ${state.currentPage===id?'active':''} ${id==='notices'?'notice-nav':''} ${id==='dailyDiary'?'diary-nav':''}" data-page="${id}" onclick="navigate('${id}')"><i class="fa-solid ${ic}"></i><span>${label}</span>${b==='count'?`<span class="mini-badge new">${n}</span>`:b?`<span class="mini-badge ${b==='NEW'?'new':''}">${b}</span>`:''}</a>`
   ).join('');
 };
 
