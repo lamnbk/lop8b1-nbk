@@ -733,6 +733,9 @@ let settingFailCount = 0;
 let settingLockUntil = 0;
 
 function uid(p='id'){return p+'_'+Date.now().toString(36)+'_'+Math.random().toString(36).slice(2,7)}
+/* Làm tròn điểm về tối đa 2 chữ số thập phân để tránh lỗi số thực (VD: 0.1+0.2=0.30000000000000004),
+   phục vụ điểm lẻ 0,25 / 0,5 / 0,75 khi cộng trừ điểm thưởng, vi phạm. */
+function roundPoint(n){ return Math.round((Number(n)||0)*100)/100; }
 function today(){const d=new Date(),z=n=>String(n).padStart(2,'0');return d.getFullYear()+'-'+z(d.getMonth()+1)+'-'+z(d.getDate())}
 function nowTime(){return new Date().toLocaleTimeString('vi-VN',{hour:'2-digit',minute:'2-digit'})}
 function initials(name){return (name||'?').split(/\s+/).filter(Boolean).slice(-2).map(x=>x[0]).join('').toUpperCase()}
@@ -1090,7 +1093,7 @@ function afterRender(){
 function logTransaction(studentId,amount,reason='Điều chỉnh điểm',subject='Ghi chung / Nề nếp'){
   const s=state.students.find(x=>x.id===studentId);
   if(!s)return;
-  s.coins = (s.coins||0) + amount;
+  s.coins = roundPoint((s.coins||0) + amount);
   state.transactions.unshift({
     id:uid('tx'),
     classId:s.classId,
@@ -1346,7 +1349,7 @@ async function editTransaction(txId, studentId){
         </select>
 
         <label class="form-label fw-bold mt-2">Số lượng điểm</label>
-        <input id="editTxAmount" type="number" min="1" class="form-control" value="${absAmount}">
+        <input id="editTxAmount" type="number" min="0.25" step="0.25" class="form-control" value="${absAmount}">
 
         <label class="form-label fw-bold mt-2">Ngày ghi nhận (để tính đúng tuần & tháng)</label>
         <input id="editTxDate" type="date" class="form-control" value="${dateVal}">
@@ -1365,7 +1368,8 @@ async function editTransaction(txId, studentId){
     cancelButtonText: 'Hủy',
     preConfirm: () => {
       const type = parseInt(document.getElementById('editTxType').value, 10);
-      const amt = parseInt(document.getElementById('editTxAmount').value, 10) || 1;
+      const rawAmt = parseFloat(document.getElementById('editTxAmount').value);
+      const amt = (isFinite(rawAmt) && rawAmt > 0) ? roundPoint(rawAmt) : absAmount;
       const date = document.getElementById('editTxDate').value;
       const sub = document.getElementById('editTxSubject').value;
       const rsn = document.getElementById('editTxReason').value.trim();
@@ -1383,7 +1387,7 @@ async function editTransaction(txId, studentId){
     return;
   }
 
-  s.coins = (s.coins || 0) - tx.amount + v.amount;
+  s.coins = roundPoint((s.coins || 0) - tx.amount + v.amount);
 
   let newTime = new Date(tx.time);
   if(v.date){
@@ -1660,7 +1664,7 @@ async function openStudentModal(id=''){
   if(!ok) return;
 
   const s=state.students.find(x=>x.id===id)||{name:'',gender:'Nữ',coins:0,avatar:'',note:'',favorite:false};
-  showModal(id?'Sửa học sinh':'Thêm học sinh',`<form onsubmit="saveStudent(event,'${id}')"><div class="row g-3"><div class="col-md-8"><label class="form-label fw-bold">Họ và tên *</label><input id="sName" class="form-control" required value="${esc(s.name)}"></div><div class="col-md-4"><label class="form-label fw-bold">Giới tính</label><select id="sGender" class="form-select"><option ${s.gender==='Nữ'?'selected':''}>Nữ</option><option ${s.gender==='Nam'?'selected':''}>Nam</option><option ${s.gender==='Khác'?'selected':''}>Khác</option></select></div><div class="col-md-4"><label class="form-label fw-bold">Điểm hiện có (Có thể âm)</label><input id="sCoins" type="number" class="form-control" value="${s.coins||0}"></div><div class="col-md-8"><label class="form-label fw-bold">Ảnh đại diện</label><input id="sAvatar" type="file" accept="image/*" class="form-control"><input id="sAvatarOld" type="hidden" value="${esc(s.avatar||'')}"></div><div class="col-12"><label class="form-label fw-bold">Ghi chú</label><textarea id="sNote" class="form-control">${esc(s.note||'')}</textarea></div><div class="col-12 form-check ms-2"><input id="sFav" class="form-check-input" type="checkbox" ${s.favorite?'checked':''}><label class="form-check-label fw-bold">Thêm vào nhóm yêu thích</label></div></div><div class="text-end mt-4"><button class="btn btn-primary">Lưu học sinh</button></div></form>`);
+  showModal(id?'Sửa học sinh':'Thêm học sinh',`<form onsubmit="saveStudent(event,'${id}')"><div class="row g-3"><div class="col-md-8"><label class="form-label fw-bold">Họ và tên *</label><input id="sName" class="form-control" required value="${esc(s.name)}"></div><div class="col-md-4"><label class="form-label fw-bold">Giới tính</label><select id="sGender" class="form-select"><option ${s.gender==='Nữ'?'selected':''}>Nữ</option><option ${s.gender==='Nam'?'selected':''}>Nam</option><option ${s.gender==='Khác'?'selected':''}>Khác</option></select></div><div class="col-md-4"><label class="form-label fw-bold">Điểm hiện có (Có thể âm)</label><input id="sCoins" type="number" step="0.25" class="form-control" value="${s.coins||0}"></div><div class="col-md-8"><label class="form-label fw-bold">Ảnh đại diện</label><input id="sAvatar" type="file" accept="image/*" class="form-control"><input id="sAvatarOld" type="hidden" value="${esc(s.avatar||'')}"></div><div class="col-12"><label class="form-label fw-bold">Ghi chú</label><textarea id="sNote" class="form-control">${esc(s.note||'')}</textarea></div><div class="col-12 form-check ms-2"><input id="sFav" class="form-check-input" type="checkbox" ${s.favorite?'checked':''}><label class="form-check-label fw-bold">Thêm vào nhóm yêu thích</label></div></div><div class="text-end mt-4"><button class="btn btn-primary">Lưu học sinh</button></div></form>`);
 }
 
 async function saveStudent(e,id){
@@ -1742,15 +1746,10 @@ async function adjustCoins(id,sign){
         Ghi nhận vào: <b>Tuần ${w} - Tháng ${m}</b>
       </div>
       <label class="form-label fw-bold">Số lượng điểm</label>
-      <select id="coinAmount" class="form-select">
-        <option value="1">1 điểm</option>
-        <option value="2">2 điểm</option>
-        <option value="3">3 điểm</option>
-        <option value="5">5 điểm</option>
-        <option value="10">10 điểm</option>
-        <option value="15">15 điểm</option>
-        <option value="20">20 điểm</option>
-      </select>
+      <input id="coinAmount" type="number" step="0.25" min="0.25" class="form-control" value="1">
+      <div class="d-flex flex-wrap gap-1 mt-2">
+        ${[0.25,0.5,0.75,1,1.5,2,2.5,3,5,10,15,20].map(n=>`<button type="button" class="btn btn-sm btn-outline-secondary" onclick="document.getElementById('coinAmount').value=${n}">${String(n).replace('.',',')}</button>`).join('')}
+      </div>
       <label class="form-label fw-bold mt-3">Môn / Nhóm nội dung</label>
       <select id="coinSubject" class="form-select">${state.subjects.map(x=>`<option>${esc(x)}</option>`).join('')}</select>
       <label class="form-label fw-bold mt-3">Lý do / Nội dung vi phạm</label>
@@ -1759,11 +1758,15 @@ async function adjustCoins(id,sign){
     showCancelButton:true,
     confirmButtonText: sign > 0 ? 'Xác nhận thưởng' : 'Xác nhận trừ điểm',
     confirmButtonColor: sign > 0 ? '#0d9488' : '#dc2626',
-    preConfirm:()=>({
-      amount:+document.getElementById('coinAmount').value,
-      subject:document.getElementById('coinSubject').value,
-      reason:document.getElementById('coinReason').value || (sign > 0 ? 'Khen thưởng thi đua' : 'Vi phạm nề nếp')
-    })
+    preConfirm:()=>{
+      const raw=parseFloat(document.getElementById('coinAmount').value);
+      if(!isFinite(raw)||raw<=0){ Swal.showValidationMessage('Vui lòng nhập số điểm lớn hơn 0 (có thể lẻ như 0,25 / 1,5...).'); return false; }
+      return {
+        amount:roundPoint(raw),
+        subject:document.getElementById('coinSubject').value,
+        reason:document.getElementById('coinReason').value || (sign > 0 ? 'Khen thưởng thi đua' : 'Vi phạm nề nếp')
+      };
+    }
   });
   if(!v) return;
   logTransaction(id, sign * v.amount, v.reason, v.subject);
@@ -2823,7 +2826,10 @@ async function leaderAdjustCoins(id, sign){
     title: sign>0 ? `🌟 Thưởng điểm cho ${s.name}` : `🚨 Trừ điểm của ${s.name}`,
     html:`<div class="text-start">
       <label class="form-label fw-bold">Số lượng điểm</label>
-      <select id="coinAmount" class="form-select"><option value="1">1 điểm</option><option value="2">2 điểm</option><option value="3">3 điểm</option><option value="5">5 điểm</option></select>
+      <input id="coinAmount" type="number" step="0.25" min="0.25" class="form-control" value="1">
+      <div class="d-flex flex-wrap gap-1 mt-2">
+        ${[0.25,0.5,0.75,1,1.5,2,2.5,3,5].map(n=>`<button type="button" class="btn btn-sm btn-outline-secondary" onclick="document.getElementById('coinAmount').value=${n}">${String(n).replace('.',',')}</button>`).join('')}
+      </div>
       <label class="form-label fw-bold mt-3">Nội dung khen thưởng / kỷ luật</label>
       <input id="coinReason" class="form-control" required placeholder="${sign>0?'Ví dụ: Phát biểu tốt, giúp đỡ bạn...':'Ví dụ: Nói chuyện riêng, quên vở, vi phạm nề nếp...'}">
     </div>`,
@@ -2831,10 +2837,14 @@ async function leaderAdjustCoins(id, sign){
     confirmButtonText: sign>0 ? 'Xác nhận thưởng' : 'Xác nhận trừ điểm',
     cancelButtonText:'Hủy',
     confirmButtonColor: sign>0 ? '#0d9488' : '#dc2626',
-    preConfirm:()=>({
-      amount:+document.getElementById('coinAmount').value,
-      reason:document.getElementById('coinReason').value || (sign>0?'Khen thưởng thi đua (Tổ trưởng)':'Vi phạm nề nếp (Tổ trưởng)')
-    })
+    preConfirm:()=>{
+      const raw=parseFloat(document.getElementById('coinAmount').value);
+      if(!isFinite(raw)||raw<=0){ Swal.showValidationMessage('Vui lòng nhập số điểm lớn hơn 0 (có thể lẻ như 0,25 / 1,5...).'); return false; }
+      return {
+        amount:roundPoint(raw),
+        reason:document.getElementById('coinReason').value || (sign>0?'Khen thưởng thi đua (Tổ trưởng)':'Vi phạm nề nếp (Tổ trưởng)')
+      };
+    }
   });
   if(!v) return;
   logTransaction(id, sign*v.amount, v.reason, 'Ghi chung / Nề nếp');
@@ -3266,8 +3276,8 @@ function exportStatsXlsx(){const ss=classStudents().map((s,i)=>({STT:i+1,'Học 
 async function exportStatsPDF(){const el=document.getElementById('statsReport');const canvas=await html2canvas(el,{scale:1.5,backgroundColor:'#fff'});const img=canvas.toDataURL('image/jpeg',.92);const {jsPDF}=window.jspdf;const pdf=new jsPDF('p','mm','a4');const w=190,h=canvas.height*w/canvas.width;let y=10;pdf.addImage(img,'JPEG',10,y,w,h);if(h>277){}pdf.save(`bao-cao-${activeClass().name}.pdf`);toast('Đã tạo PDF')}
 function downloadXlsx(sheets,filename){const wb=XLSX.utils.book_new();sheets.forEach(([name,rows])=>{const ws=XLSX.utils.json_to_sheet(rows);XLSX.utils.book_append_sheet(wb,ws,name.slice(0,31))});XLSX.writeFile(wb,filename)}
 function renderData(){const size=(new Blob([JSON.stringify(state)]).size/1024).toFixed(1);return `<div class="section-head"><div><h2><i class="fa-solid fa-database text-primary me-2"></i>Quản lý Dữ liệu</h2><p>Sao lưu dữ liệu định kỳ để chuyển máy hoặc khôi phục khi cần.</p></div></div><div class="grid-equal"><div class="card p-4"><h4 class="fw-bold">📦 Sao lưu toàn bộ</h4><p class="text-muted">Xuất mọi lớp, học sinh, điểm danh, điểm thi đua, lịch, phần thưởng và cài đặt thành một tệp JSON.</p><button class="btn btn-primary" onclick="exportJSON()"><i class="fa-solid fa-download me-1"></i>Xuất file JSON sao lưu</button><div class="mt-3 small text-muted">Kích thước dữ liệu hiện tại: ~${size} KB</div></div><div class="card p-4"><h4 class="fw-bold">♻️ Khôi phục</h4><p class="text-muted">Nhập file JSON đã sao lưu từ ứng dụng này. Dữ liệu hiện tại sẽ được thay thế sau khi xác nhận.</p><button class="btn btn-outline-primary" onclick="document.getElementById('hiddenImport').click()"><i class="fa-solid fa-upload me-1"></i>Nhập file JSON</button></div></div><div class="card p-4 mt-3 border-danger"><h4 class="fw-bold text-danger">⚠️ Vùng dữ liệu nguy hiểm</h4><p class="text-muted">Đặt lại toàn bộ ứng dụng về dữ liệu mẫu ban đầu.</p><button class="btn btn-outline-danger" onclick="resetAllData()"><i class="fa-solid fa-trash-can me-1"></i>Xóa và tạo lại dữ liệu mẫu</button></div>`}
-function exportJSON(){const blob=new Blob([JSON.stringify(state,null,2)],{type:'application/json'});downloadBlob(blob,`lop-hoc-vui-ve-backup-${today()}.json`);toast('Đã xuất bản sao lưu')}
-async function importJSON(file){try{const text=await file.text(),obj=JSON.parse(text);if(!obj.version||!obj.classes||!obj.students)throw new Error('Sai cấu trúc');const r=await Swal.fire({icon:'warning',title:'Khôi phục dữ liệu?',text:'Dữ liệu hiện tại sẽ bị thay thế.',showCancelButton:true,confirmButtonText:'Khôi phục'});if(!r.isConfirmed)return;state=obj;saveState();buildNav();renderHeader();renderPage();toast('Khôi phục thành công')}catch(e){Swal.fire({icon:'error',title:'File không hợp lệ',text:e.message})}}
+async function exportJSON(){const ok=await verifySettingAccess();if(!ok)return;const blob=new Blob([JSON.stringify(state,null,2)],{type:'application/json'});downloadBlob(blob,`lop-hoc-vui-ve-backup-${today()}.json`);toast('Đã xuất bản sao lưu')}
+async function importJSON(file){const ok=await verifySettingAccess();if(!ok)return;try{const text=await file.text(),obj=JSON.parse(text);if(!obj.version||!obj.classes||!obj.students)throw new Error('Sai cấu trúc');const r=await Swal.fire({icon:'warning',title:'Khôi phục dữ liệu?',text:'Dữ liệu hiện tại sẽ bị thay thế.',showCancelButton:true,confirmButtonText:'Khôi phục'});if(!r.isConfirmed)return;state=obj;saveState();buildNav();renderHeader();renderPage();toast('Khôi phục thành công')}catch(e){Swal.fire({icon:'error',title:'File không hợp lệ',text:e.message})}}
 
 async function resetAllData(){
   const ok = await verifyAdminAccess();
@@ -3371,11 +3381,20 @@ function renderSettingsUnlocked(){
     </div>
 
     <div>
+      <div class="card setting-box mb-3 border-primary shadow-sm">
+        <h5 class="fw-bold text-primary"><i class="fa-solid fa-database me-2"></i>Xuất & Nhập Dữ Liệu (Sao lưu/Khôi phục)</h5>
+        <p class="small text-muted mb-3">Xuất toàn bộ dữ liệu hiện có của trang (lớp, học sinh, điểm thưởng/vi phạm, Nhật kí, Thời khóa biểu, Thông báo...) ra một tệp JSON để lưu trữ an toàn. Nếu trang gặp lỗi hoặc được cập nhật thêm Tab mới, bạn có thể nhập lại đúng tệp này để chuyển toàn bộ dữ liệu cũ lên mà không bị mất. Chỉ Quản trị cao nhất mới thực hiện được.</p>
+        <div class="d-flex flex-wrap gap-2">
+          <button class="btn btn-primary" onclick="exportJSON()"><i class="fa-solid fa-download me-1"></i>Xuất dữ liệu (JSON)</button>
+          <button class="btn btn-outline-primary" onclick="document.getElementById('hiddenImport').click()"><i class="fa-solid fa-upload me-1"></i>Nhập dữ liệu (JSON)</button>
+        </div>
+        <div class="mt-2 small text-muted">Kích thước dữ liệu hiện tại: ~${((new Blob([JSON.stringify(state)]).size)/1024).toFixed(1)} KB</div>
+      </div>
       <div class="card setting-box">
         <h5 class="fw-bold text-primary">✨ Cơ Chế Bảo Mật An Toàn</h5>
         <ul class="mt-3">
-          <li class="mb-2"><b>Mật khẩu Lớp 1 (Cài đặt):</b> Mặc định là <code>admin8b1</code>. Chuyên khóa tab Cài đặt & Dữ liệu. Không hiển thị sẵn trong mã nguồn giao diện để bảo mật. Nhập sai quá 5 lần khóa 1 giờ. Khi quên có thể bấm nút gửi về email: <b>${RECOVERY_EMAIL}</b>.</li>
-          <li class="mb-2"><b>Mật khẩu Lớp 2 (Thao tác):</b> Mặc định là <code>123</code>. Dùng mỗi khi cộng/trừ điểm hoặc sửa/xóa các lỗi vi phạm trong tuần.</li>
+          <li class="mb-2"><b>Mật khẩu Lớp 1 (Cài đặt):</b> Mặc định là <code>******</code>. Chuyên khóa tab Cài đặt & Dữ liệu. Không hiển thị sẵn trong mã nguồn giao diện để bảo mật. Nhập sai quá 5 lần khóa 1 giờ. Khi quên có thể bấm nút gửi về email: <b>${RECOVERY_EMAIL}</b>.</li>
+          <li class="mb-2"><b>Mật khẩu Lớp 2 (Thao tác):</b> Mặc định là <code>***</code>. Dùng mỗi khi cộng/trừ điểm hoặc sửa/xóa các lỗi vi phạm trong tuần.</li>
           <li class="mb-2">Học sinh và phụ huynh khi mở trang web sẽ ở chế độ <b>Chỉ xem</b>, không thể mở Cài đặt và không thể xóa hay cộng trừ điểm.</li>
           <li>Xuất file JSON sao lưu định kỳ để dữ liệu của lớp luôn tuyệt đối an toàn.</li>
         </ul>
