@@ -2276,10 +2276,10 @@ async function handleTimetableExcelFile(input){
     const cDay=col([x=>x==='thứ',x=>x==='ngày',x=>x.includes('thứ'),x=>x.includes('ngày')]);
     const cSlot=col([x=>x==='tiết',x=>x.includes('tiết')]);
     const cSession=col([x=>x==='buổi',x=>x.includes('buổi')]);
-    const cSub=col([x=>x.includes('môn'),x=>x.includes('nội dung'),x==='subject']);
-    const cTeacher=col([x=>x.includes('giáo viên'),x==='gv',x.includes('teacher')]);
-    const cTime=col([x=>x.includes('thời gian'),x==='giờ',x==='giờ học',x==='time']);
-    const cClass=col([x=>x==='lớp',x.includes('lớp')]);
+    const cSub=col([x=>x.includes('môn'),x=>x.includes('nội dung'),x=>x==='subject']);
+    const cTeacher=col([x=>x.includes('giáo viên'),x=>x==='gv',x=>x.includes('teacher')]);
+    const cTime=col([x=>x.includes('thời gian'),x=>x==='giờ',x=>x==='giờ học',x=>x==='time']);
+    const cClass=col([x=>x==='lớp',x=>x.includes('lớp')]);
     const rows=[];
     for(let r=best.header+1;r<best.rows.length;r++){
       const row=best.rows[r]||[]; const sub=String(row[cSub]??'').trim(); if(!sub)continue;
