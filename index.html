@@ -3978,5 +3978,96 @@ document.addEventListener('DOMContentLoaded',()=>{
 
 
 <script>document.addEventListener('DOMContentLoaded',()=>setTimeout(()=>{try{updateBannerNoticeCount()}catch(e){}},100));</script>
+<!-- ============================================================ -->
+<!-- BẮT ĐẦU ĐOẠN ĐỒNG BỘ REALTIME FIREBASE TỰ ĐỘNG - LỚP 8B1     -->
+<!-- ============================================================ -->
+<script>
+  // Cấu hình Firebase của bạn
+  const firebaseConfig = {
+    apiKey: "AIzaSyDq2DxzfurfZpDQq6d49QuQVTbJJpdJAKI",
+    authDomain: "doanvanlam-95238.firebaseapp.com",
+    databaseURL: "https://doanvanlam-95238-default-rtdb.asia-southeast1.firebasedatabase.app",
+    projectId: "doanvanlam-95238",
+    storageBucket: "doanvanlam-95238.firebasestorage.app",
+    messagingSenderId: "359527127604",
+    appId: "1:359527127604:web:754b1b472ebd46ba0f8861",
+    measurementId: "G-L4SFFLZV5P"
+  };
+
+  (function() {
+    try {
+      // Khởi tạo Firebase nếu chưa khởi tạo
+      if (!firebase.apps.length) {
+        firebase.initializeApp(firebaseConfig);
+      }
+      const rtdb = firebase.database();
+      const cloudRef = rtdb.ref('CLASSROOM_8B1_DATABASE');
+
+      let isSyncingFromCloud = false;
+
+      // 1. TỰ ĐỘNG BẮT MỌI THAO TÁC LƯU VÀO LOCALSTORAGE ĐỂ ĐẨY LÊN FIREBASE
+      const originalSetItem = localStorage.setItem;
+      localStorage.setItem = function(key, value) {
+        originalSetItem.apply(this, arguments);
+
+        // Đẩy lên đám mây các mục dữ liệu quan trọng của ứng dụng
+        if (!isSyncingFromCloud && typeof value === 'string') {
+          const safeKey = key.replace(/[\.\#\$\[\]\/]/g, '_');
+          cloudRef.child(safeKey).set(value)
+            .then(() => {
+              const savePill = document.getElementById('savePill');
+              if (savePill) {
+                savePill.innerHTML = '<i class="fa-solid fa-cloud-arrow-up me-1"></i>Đã lưu Cloud';
+                savePill.style.display = 'inline-block';
+              }
+            })
+            .catch(err => console.error("Firebase Sync Error:", err));
+        }
+      };
+
+      // 2. TỰ ĐỘNG KÉO DỮ LIỆU TỪ FIREBASE VỀ MÁY KHI TRANG LOAD
+      cloudRef.once('value').then((snapshot) => {
+        const cloudData = snapshot.val();
+        if (cloudData) {
+          isSyncingFromCloud = true;
+          let hasUpdates = false;
+
+          Object.keys(cloudData).forEach(safeKey => {
+            const rawVal = cloudData[safeKey];
+            // So sánh và nạp lại vào máy nếu dữ liệu trên cloud mới hơn
+            if (localStorage.getItem(safeKey) !== rawVal) {
+              originalSetItem.call(localStorage, safeKey, rawVal);
+              hasUpdates = true;
+            }
+          });
+
+          isSyncingFromCloud = false;
+
+          // Nếu có cập nhật từ đám mây, kích hoạt render lại giao diện
+          if (hasUpdates) {
+            const savePill = document.getElementById('savePill');
+            if (savePill) {
+              savePill.innerHTML = '<i class="fa-solid fa-circle-check me-1"></i>Đã đồng bộ';
+            }
+            // Gọi các hàm render sẵn có của trang nếu có
+            if (typeof renderAll === 'function') renderAll();
+            else if (typeof initApp === 'function') initApp();
+            else if (typeof switchClass === 'function' && document.getElementById('classSwitcher')) {
+              switchClass(document.getElementById('classSwitcher').value);
+            }
+          }
+        }
+      }).catch(err => {
+        console.warn("Lỗi đọc dữ liệu đám mây:", err);
+      });
+
+    } catch (e) {
+      console.error("Lỗi tích hợp Firebase:", e);
+    }
+  })();
+</script>
+<!-- ============================================================ -->
+<!-- KẾT THÚC ĐOẠN ĐỒNG BỘ FIREBASE                               -->
+<!-- ============================================================ -->
 </body>
 </html>
