@@ -594,6 +594,7 @@
         <div class="teacher-auth-wrap">
           <div class="teacher-auth-actions">
             <button class="btn btn-sm btn-outline-primary" id="searchBtn" onclick="openStudentSearch()" title="Tìm kiếm thông tin học sinh"><i class="fa-solid fa-magnifying-glass me-1"></i>Tìm kiếm</button>
+            <button class="btn btn-sm btn-outline-success" id="registerBtn" onclick="registerAccount()" title="Tự đăng ký tài khoản (chờ Quản trị cao nhất cấp quyền sau)"><i class="fa-solid fa-user-plus me-1"></i>Đăng ký</button>
             <button class="btn btn-sm btn-primary" id="loginBtn" onclick="openLoginMenu()" title="Đăng nhập và mở khóa chức năng"><i class="fa-solid fa-right-to-bracket me-1"></i>Đăng nhập</button>
           </div>
           <div class="teacher-mini"><div class="avatar" id="teacherAvatarMini"></div><div><strong id="teacherNameMini">Giáo viên</strong><small id="teacherRoleMini">Giáo viên</small></div></div>
@@ -699,10 +700,10 @@ function initFirebaseSync(){
 const SUBJECTS=['Ghi chung / Nề nếp','TOÁN','VĂN','ANH','KHOA HỌC TỰ NHIÊN','Khoa học','Lịch sử & Địa lý','Tin học','Công nghệ','Mĩ thuật','Âm nhạc','Giáo dục thể chất','Đạo đức','Hoạt động trải nghiệm','Sinh hoạt lớp','Chào cờ'];
 const DAYS=['Thứ Hai','Thứ Ba','Thứ Tư','Thứ Năm','Thứ Sáu','Thứ Bảy'];
 const NAV=[
-  ['home','fa-house','Trang chủ',''],['students','fa-graduation-cap','Học sinh','count'],['groups','fa-people-group','Chia tổ',''],['attendance','fa-clipboard-check','Điểm danh',''],['dailyDiary','fa-book-open','Nhật kí ngày',''],['weekly','fa-calendar-check','Nhật kí tuần','HOT'],['seating','fa-border-all','Sơ đồ lớp',''],['timetable','fa-calendar-days','Thời khóa biểu',''],['rewards','fa-gift','Đổi thưởng',''],['notices','fa-bullhorn','THÔNG BÁO',''],['dailyPhotos','fa-images','Ảnh thường ngày','NEW'],['noise','fa-shield-halved','Chống ồn',''],['countdown','fa-stopwatch','Đếm ngược',''],['links','fa-link','Liên kết',''],['stats','fa-chart-column','Thống kê',''],['data','fa-database','Dữ liệu',''],['classes','fa-school','Lớp học',''],['settings','fa-gear','Cài đặt','']
+  ['home','fa-house','Trang chủ',''],['students','fa-graduation-cap','Học sinh','count'],['groups','fa-people-group','Chia tổ',''],['attendance','fa-clipboard-check','Điểm danh',''],['dailyDiary','fa-book-open','Nhật kí ngày',''],['weekly','fa-calendar-check','Nhật kí tuần','HOT'],['seating','fa-border-all','Sơ đồ lớp',''],['timetable','fa-calendar-days','Thời khóa biểu',''],['rewards','fa-gift','Đổi thưởng',''],['notices','fa-bullhorn','THÔNG BÁO',''],['dailyPhotos','fa-images','Ảnh thường ngày','NEW'],['laborAssignment','fa-broom','Phân công lao động',''],['noise','fa-shield-halved','Chống ồn',''],['countdown','fa-stopwatch','Đếm ngược',''],['links','fa-link','Liên kết',''],['stats','fa-chart-column','Thống kê',''],['data','fa-database','Dữ liệu',''],['classes','fa-school','Lớp học',''],['settings','fa-gear','Cài đặt','']
 ];
 const PAGE_META={
- home:['Trang chủ','Tổng quan nhanh tình hình lớp học hôm nay'],classes:['Quản lý Lớp học','Danh sách các lớp, khối lớp và thông tin chung'],students:['Danh sách học sinh','Quản lý thành viên, nề nếp và điểm thi đua'],groups:['Chia tổ học sinh','Chia lớp thành các tổ, chọn tổ trưởng và cấp mã đăng nhập riêng'],attendance:['Điểm danh','Theo dõi sĩ số, chuyên cần và tình hình đi học hằng ngày'],dailyDiary:['Nhật kí ngày','Gửi ảnh, tin nhắn và tài liệu hằng ngày cho lớp'],weekly:['Nhật kí tuần','Tổng hợp thi đua, vi phạm và khen thưởng theo tuần & tháng'],seating:['Sơ đồ Lớp học','Bố trí vị trí chỗ ngồi trực quan và linh hoạt'],timetable:['Thời khóa biểu','Thiết lập lịch dạy Sáng/Chiều và các môn học trong tuần'],rewards:['Đổi thưởng','Tạo phần thưởng và đổi quà bằng điểm thi đua'],notices:['THÔNG BÁO','Thông báo mới nhất dành cho học sinh và phụ huynh'],dailyPhotos:['Ảnh Thường Ngày','Lưu giữ khoảnh khắc và hình ảnh hoạt động của lớp học'],noise:['Công Cụ Chống Ồn','Cảnh báo lớp học, đếm ngược im lặng và đo microphone'],countdown:['Đồng Hồ Đếm Ngược','Thiết lập thời gian, mẫu nhanh và chuông báo'],links:['Liên kết hữu ích','Lưu học liệu, trang web và đường dẫn dùng chung'],stats:['Báo cáo & Thống kê','Biểu đồ phân tích thi đua, nề nếp và điểm rèn luyện'],data:['Quản lý dữ liệu','Sao lưu, khôi phục và làm sạch dữ liệu ứng dụng'],settings:['Cài đặt hệ thống','Thiết lập logo lớp, hồ sơ giáo viên và cấu hình']
+ home:['Trang chủ','Tổng quan nhanh tình hình lớp học hôm nay'],classes:['Quản lý Lớp học','Danh sách các lớp, khối lớp và thông tin chung'],students:['Danh sách học sinh','Quản lý thành viên, nề nếp và điểm thi đua'],groups:['Chia tổ học sinh','Chia lớp thành các tổ, chọn tổ trưởng và cấp mã đăng nhập riêng'],attendance:['Điểm danh','Theo dõi sĩ số, chuyên cần và tình hình đi học hằng ngày'],dailyDiary:['Nhật kí ngày','Gửi ảnh, tin nhắn và tài liệu hằng ngày cho lớp'],laborAssignment:['Phân công lao động','Đăng ảnh hoặc tài liệu phân công trực nhật, lao động cho lớp'],weekly:['Nhật kí tuần','Tổng hợp thi đua, vi phạm và khen thưởng theo tuần & tháng'],seating:['Sơ đồ Lớp học','Bố trí vị trí chỗ ngồi trực quan và linh hoạt'],timetable:['Thời khóa biểu','Thiết lập lịch dạy Sáng/Chiều và các môn học trong tuần'],rewards:['Đổi thưởng','Tạo phần thưởng và đổi quà bằng điểm thi đua'],notices:['THÔNG BÁO','Thông báo mới nhất dành cho học sinh và phụ huynh'],dailyPhotos:['Ảnh Thường Ngày','Lưu giữ khoảnh khắc và hình ảnh hoạt động của lớp học'],noise:['Công Cụ Chống Ồn','Cảnh báo lớp học, đếm ngược im lặng và đo microphone'],countdown:['Đồng Hồ Đếm Ngược','Thiết lập thời gian, mẫu nhanh và chuông báo'],links:['Liên kết hữu ích','Lưu học liệu, trang web và đường dẫn dùng chung'],stats:['Báo cáo & Thống kê','Biểu đồ phân tích thi đua, nề nếp và điểm rèn luyện'],data:['Quản lý dữ liệu','Sao lưu, khôi phục và làm sạch dữ liệu ứng dụng'],settings:['Cài đặt hệ thống','Thiết lập logo lớp, hồ sơ giáo viên và cấu hình']
 };
 
 let currentFilterMonth = 'all';
@@ -714,7 +715,7 @@ let isAdminUnlocked = authSession?.role === 'admin';
 function loadAuthSession(){
   try{
     const x=JSON.parse(sessionStorage.getItem('classAuthSession'));
-    return x && ['admin','teacher','leader'].includes(x.role) ? x : null;
+    return x && ['admin','teacher','leader','president','vice'].includes(x.role) ? x : null;
   }catch(e){ return null; }
 }
 function saveAuthSession(){
@@ -727,6 +728,8 @@ function currentAuthRole(){ return authSession?.role || null; }
 function isAdminRole(){ return currentAuthRole()==='admin'; }
 function isTeacherRole(){ return currentAuthRole()==='teacher'; }
 function isLeaderRole(){ return currentAuthRole()==='leader'; }
+function isPresidentRole(){ return currentAuthRole()==='president' && authSession.classId===state.activeClassId; }
+function isViceRole(){ return currentAuthRole()==='vice' && authSession.classId===state.activeClassId; }
 function hasEditAccess(){ return isAdminRole() || isTeacherRole(); }
 
 let settingFailCount = 0;
@@ -771,7 +774,7 @@ function defaultState(){
     'C1':'13:30 - 14:05','C2':'14:15 - 14:50','C3':'15:05 - 15:40','C4':'15:50 - 16:25','C5':'16:35 - 17:10'
   },
   rewards:[{id:'r1',name:'Bút',cost:10,emoji:'🖊️',stock:10},{id:'r2',name:'Thước',cost:15,emoji:'📏',stock:8},{id:'r3',name:'Sticker',cost:5,emoji:'🌟',stock:30},{id:'r4',name:'Sổ tay',cost:25,emoji:'📒',stock:5}],
-  redemptions:[],transactions:[],wheelHistory:[],dailyPhotos:[],notices:[],dailyDiary:[],links:[{id:'l1',name:'Học liệu lớp học',url:'https://',category:'Học liệu & SGK',desc:'Liên kết mẫu - hãy chỉnh sửa',pinned:true}],
+  redemptions:[],transactions:[],wheelHistory:[],dailyPhotos:[],notices:[],dailyDiary:[],laborAssignments:[],accounts:[],links:[{id:'l1',name:'Học liệu lớp học',url:'https://',category:'Học liệu & SGK',desc:'Liên kết mẫu - hãy chỉnh sửa',pinned:true}],
   subjects:SUBJECTS.slice(), settings:{wheelExclude:true,tickLast10:false,timerColor:'#0d9488'},
   wheelExcluded:[], groups:{}
  }
@@ -838,6 +841,8 @@ function loadState(){
       if(!Array.isArray(x.dailyPhotos)) x.dailyPhotos = [];
       if(!Array.isArray(x.notices)) x.notices = [];
       if(!Array.isArray(x.dailyDiary)) x.dailyDiary = [];
+      if(!Array.isArray(x.laborAssignments)) x.laborAssignments = [];
+      if(!Array.isArray(x.accounts)) x.accounts = [];
       if(!Array.isArray(x.links)) x.links = [];
       if(!Array.isArray(x.subjects)) x.subjects = SUBJECTS.slice();
       if(!x.attendance) x.attendance = {};
@@ -930,22 +935,195 @@ async function verifyAdminAccess(){
 
 function openLoginMenu(){
   if(currentAuthRole()){
-    const roleName={admin:'Quản trị cao nhất',teacher:'GVCN',leader:'Tổ trưởng'}[currentAuthRole()];
-    Swal.fire({icon:'info',title:`Đang đăng nhập: ${roleName}`,html:`<p class="mb-2">Quyền mở khóa chỉ có hiệu lực trên trình duyệt/tab hiện tại.</p><button type="button" class="btn btn-danger" onclick="logoutCurrentAccount();Swal.close()"><i class="fa-solid fa-lock me-1"></i>Đăng xuất & khóa ngay</button>`,showConfirmButton:false,showCancelButton:true,cancelButtonText:'Đóng'});
+    const roleName={admin:'Quản trị cao nhất',teacher:'GVCN',leader:'Tổ trưởng',president:'Lớp trưởng',vice:'Lớp phó'}[currentAuthRole()];
+    const who = authSession?.accountName ? `${esc(authSession.accountName)} (${roleName})` : roleName;
+    Swal.fire({icon:'info',title:`Đang đăng nhập: ${who}`,html:`<p class="mb-2">Quyền mở khóa chỉ có hiệu lực trên trình duyệt/tab hiện tại.</p><button type="button" class="btn btn-danger" onclick="logoutCurrentAccount();Swal.close()"><i class="fa-solid fa-lock me-1"></i>Đăng xuất & khóa ngay</button>`,showConfirmButton:false,showCancelButton:true,cancelButtonText:'Đóng'});
     return;
   }
   Swal.fire({
     title:'🔑 Chọn tài khoản đăng nhập',
     html:`<div class="d-grid gap-2 text-start">
+      <button type="button" class="btn btn-info text-white p-3" onclick="loginWithAccount();Swal.close()"><i class="fa-solid fa-id-card me-2"></i><b>Đăng nhập bằng tài khoản</b><div class="small ms-4" style="opacity:.9">Tên đăng nhập + mật khẩu riêng (GVCN/Lớp trưởng/Lớp phó/Tổ trưởng đã đăng ký)</div></button>
+      <hr class="my-1">
+      <div class="small text-muted mb-1">Hoặc dùng mật khẩu dùng chung theo vai trò:</div>
       <button type="button" class="btn btn-outline-primary p-3" onclick="loginAsAdmin();Swal.close()"><i class="fa-solid fa-crown me-2"></i><b>Quản trị cao nhất</b><div class="small text-muted ms-4">Toàn quyền hệ thống</div></button>
       <button type="button" class="btn btn-outline-success p-3" onclick="loginAsTeacher();Swal.close()"><i class="fa-solid fa-chalkboard-user me-2"></i><b>GVCN</b><div class="small text-muted ms-4">Quyền quản lý lớp và thao tác hằng ngày</div></button>
       <button type="button" class="btn btn-outline-warning p-3" onclick="loginAsLeader();Swal.close()"><i class="fa-solid fa-user-shield me-2"></i><b>Tổ trưởng</b><div class="small text-muted ms-4">Chỉ quyền của tổ được phân công</div></button>
+      <button type="button" class="btn btn-outline-info p-3" onclick="loginAsPresident();Swal.close()"><i class="fa-solid fa-star me-2"></i><b>Lớp trưởng</b><div class="small text-muted ms-4">Thông báo, Nhật kí ngày, Nhật kí tuần, Phân công lao động</div></button>
+      <button type="button" class="btn btn-outline-secondary p-3" onclick="loginAsVice();Swal.close()"><i class="fa-solid fa-user-pen me-2"></i><b>Lớp phó</b><div class="small text-muted ms-4">Nhật kí ngày, Nhật kí tuần</div></button>
     </div>`,showConfirmButton:false,showCancelButton:true,cancelButtonText:'Hủy'
   });
 }
 function loginAsAdmin(){ verifySettingAccess(); }
 function loginAsTeacher(){ verifyAdminAccess(); }
 function loginAsLeader(){ openLeaderLogin(); }
+/* Lớp trưởng/Lớp phó đăng nhập bằng mật khẩu do GVCN/Quản trị cao nhất đặt sẵn trong Cài đặt
+   (không phải mật khẩu mới - chỉ dùng lại đúng mật khẩu đã cấp). */
+async function loginAsPresident(){
+  const cls=activeClass();
+  if(!cls?.presidentPassword){ await Swal.fire({icon:'info',title:'Chưa đặt mật khẩu Lớp trưởng',html:'GVCN hoặc Quản trị cao nhất cần đặt mật khẩu Lớp trưởng trong Tab Cài đặt trước.'}); return; }
+  const {value:enteredPass,isDismissed}=await Swal.fire({
+    title:'🔐 Đăng nhập Lớp trưởng',
+    html:`<p class="small text-muted mb-2">Được: đăng Thông báo, gửi Nhật kí ngày, ghi điểm thưởng/vi phạm (Nhật kí tuần), đăng Phân công lao động cho lớp ${esc(cls.name)}.</p>`,
+    input:'password',inputPlaceholder:'Nhập mật khẩu Lớp trưởng...',inputAttributes:{autocomplete:'current-password'},
+    showCancelButton:true,confirmButtonText:'Đăng nhập',cancelButtonText:'Hủy',confirmButtonColor:'#0d9488'
+  });
+  if(isDismissed) return;
+  if(enteredPass===cls.presidentPassword){
+    authSession={role:'president',classId:cls.id,loginAt:Date.now()}; saveAuthSession(); isAdminUnlocked=false; updateAuthBtnUI();
+    toast('Đăng nhập Lớp trưởng thành công!'); return;
+  }
+  Swal.fire({icon:'error',title:'Mật khẩu Lớp trưởng không chính xác'});
+}
+async function loginAsVice(){
+  const cls=activeClass();
+  if(!cls?.vicePresidentPassword){ await Swal.fire({icon:'info',title:'Chưa đặt mật khẩu Lớp phó',html:'GVCN hoặc Quản trị cao nhất cần đặt mật khẩu Lớp phó trong Tab Cài đặt trước.'}); return; }
+  const {value:enteredPass,isDismissed}=await Swal.fire({
+    title:'🔐 Đăng nhập Lớp phó',
+    html:`<p class="small text-muted mb-2">Được: gửi Nhật kí ngày, ghi điểm thưởng/vi phạm (Nhật kí tuần) cho lớp ${esc(cls.name)}. Không đăng Thông báo, không Phân công lao động.</p>`,
+    input:'password',inputPlaceholder:'Nhập mật khẩu Lớp phó...',inputAttributes:{autocomplete:'current-password'},
+    showCancelButton:true,confirmButtonText:'Đăng nhập',cancelButtonText:'Hủy',confirmButtonColor:'#0d9488'
+  });
+  if(isDismissed) return;
+  if(enteredPass===cls.vicePresidentPassword){
+    authSession={role:'vice',classId:cls.id,loginAt:Date.now()}; saveAuthSession(); isAdminUnlocked=false; updateAuthBtnUI();
+    toast('Đăng nhập Lớp phó thành công!'); return;
+  }
+  Swal.fire({icon:'error',title:'Mật khẩu Lớp phó không chính xác'});
+}
+
+/* ========================================================
+   TÀI KHOẢN CÁ NHÂN (tự đăng ký, Quản trị cao nhất cấp quyền sau)
+   - Bất kỳ ai cũng tự đăng ký được: tự đặt Họ tên, Tên đăng nhập, Mật khẩu.
+   - Tài khoản mới đăng ký CHƯA có quyền gì (role = null / "Chờ cấp quyền").
+   - Quản trị cao nhất vào Tab Cài đặt để cấp quyền (GVCN / Lớp trưởng / Lớp phó / Tổ trưởng) cho từng tài khoản.
+   - Đây là lựa chọn "chuyên nghiệp" thay cho mật khẩu dùng chung theo vai trò (mật khẩu dùng chung vẫn còn
+     hoạt động song song để không làm gián đoạn cách dùng cũ).
+   ======================================================== */
+async function registerAccount(){
+  const cls=activeClass();
+  const result=await Swal.fire({
+    title:'📝 Đăng ký tài khoản',
+    html:`<div class="text-start">
+      <p class="small text-muted mb-2">Tự tạo tài khoản cho lớp <b>${esc(cls.name)}</b>. Sau khi đăng ký, Quản trị cao nhất sẽ cấp quyền (GVCN/Lớp trưởng/Lớp phó/Tổ trưởng) cho tài khoản này.</p>
+      <label class="form-label fw-bold small mb-1">Họ và tên</label>
+      <input id="regName" class="form-control form-control-sm mb-2" placeholder="Ví dụ: Nguyễn Văn A">
+      <label class="form-label fw-bold small mb-1">Tên đăng nhập</label>
+      <input id="regUsername" class="form-control form-control-sm mb-2" placeholder="vd: nguyenvana (không dấu, không khoảng trắng)" autocomplete="off">
+      <label class="form-label fw-bold small mb-1">Mật khẩu</label>
+      <input id="regPassword" type="password" class="form-control form-control-sm mb-2" autocomplete="new-password">
+      <label class="form-label fw-bold small mb-1">Xác nhận mật khẩu</label>
+      <input id="regPasswordConfirm" type="password" class="form-control form-control-sm mb-2" autocomplete="new-password">
+    </div>`,
+    showCancelButton:true,confirmButtonText:'Đăng ký',cancelButtonText:'Hủy',focusConfirm:false,
+    preConfirm:()=>{
+      const name=document.getElementById('regName').value.trim();
+      const username=document.getElementById('regUsername').value.trim().toLowerCase();
+      const password=document.getElementById('regPassword').value;
+      const confirm=document.getElementById('regPasswordConfirm').value;
+      if(!name){ Swal.showValidationMessage('Vui lòng nhập họ và tên.'); return false; }
+      if(!username || username.length<3){ Swal.showValidationMessage('Tên đăng nhập cần ít nhất 3 ký tự.'); return false; }
+      if(!/^[a-z0-9._-]+$/.test(username)){ Swal.showValidationMessage('Tên đăng nhập chỉ gồm chữ thường không dấu, số, dấu chấm, gạch dưới hoặc gạch ngang.'); return false; }
+      if((state.accounts||[]).some(a=>a.classId===cls.id && a.username===username)){ Swal.showValidationMessage('Tên đăng nhập đã tồn tại trong lớp này, vui lòng chọn tên khác.'); return false; }
+      if(!password || password.length<4){ Swal.showValidationMessage('Mật khẩu cần ít nhất 4 ký tự.'); return false; }
+      if(password!==confirm){ Swal.showValidationMessage('Hai mật khẩu không trùng nhau.'); return false; }
+      return {name,username,password};
+    }
+  });
+  if(!result.isConfirmed) return;
+  if(!Array.isArray(state.accounts)) state.accounts=[];
+  state.accounts.push({id:uid('acc'), classId:cls.id, name:result.value.name, username:result.value.username, password:result.value.password, role:null, teamId:''});
+  saveState();
+  Swal.fire({icon:'success',title:'Đăng ký thành công!',text:`Tài khoản "${result.value.username}" đã được tạo. Vui lòng chờ GVCN/Quản trị cao nhất cấp quyền trong Cài đặt trước khi đăng nhập.`});
+}
+
+/* Đăng nhập bằng tài khoản cá nhân đã đăng ký (Tên đăng nhập + Mật khẩu). Chỉ vào được nếu đã được cấp quyền. */
+async function loginWithAccount(){
+  const cls=activeClass();
+  const {value,isConfirmed}=await Swal.fire({
+    title:'🪪 Đăng nhập bằng tài khoản',
+    html:`<div class="text-start">
+      <label class="form-label fw-bold small mb-1">Tên đăng nhập</label>
+      <input id="loginUsername" class="form-control form-control-sm mb-2" autocomplete="username">
+      <label class="form-label fw-bold small mb-1">Mật khẩu</label>
+      <input id="loginPassword" type="password" class="form-control form-control-sm" autocomplete="current-password">
+    </div>`,
+    showCancelButton:true,confirmButtonText:'Đăng nhập',cancelButtonText:'Hủy',focusConfirm:false,
+    preConfirm:()=>({
+      username:document.getElementById('loginUsername').value.trim().toLowerCase(),
+      password:document.getElementById('loginPassword').value
+    })
+  });
+  if(!isConfirmed) return;
+  const acc=(state.accounts||[]).find(a=>a.classId===cls.id && a.username===value.username && a.password===value.password);
+  if(!acc){ Swal.fire({icon:'error',title:'Sai tên đăng nhập hoặc mật khẩu'}); return; }
+  if(!acc.role){ Swal.fire({icon:'info',title:'Tài khoản chưa được cấp quyền',text:'Vui lòng chờ GVCN hoặc Quản trị cao nhất cấp quyền cho tài khoản này trong Cài đặt.'}); return; }
+  if(acc.role==='leader'){
+    const teams=state.groups?.[cls.id]?.teams||[];
+    /* Tổ trưởng được xác định từ Tab Chia tổ (leaderId/studentId), không cho tài khoản tự chọn tổ. */
+    let team = acc.studentId ? teams.find(t=>t.leaderId===acc.studentId) : null;
+    if(!team && acc.teamId) team=teams.find(t=>t.id===acc.teamId && t.leaderId);
+    if(!team){
+      const sameName=teams.filter(t=>t.leaderId && String(state.students.find(st=>st.id===t.leaderId)?.name||'').trim().toLowerCase()===String(acc.name||'').trim().toLowerCase());
+      if(sameName.length===1) team=sameName[0];
+    }
+    if(!team){ Swal.fire({icon:'error',title:'Tài khoản Tổ trưởng chưa hợp lệ',text:'Bạn chưa được chỉ định làm Tổ trưởng trong Tab Chia tổ, hoặc vai trò Tổ trưởng đã bị gỡ. Vui lòng liên hệ GVCN.'}); return; }
+    /* Đồng bộ liên kết tài khoản theo tổ hiện tại. */
+    acc.studentId=team.leaderId||acc.studentId||'';
+    acc.teamId=team.id;
+    authSession={role:'leader',loginAt:Date.now(),classId:cls.id,accountName:acc.name}; saveAuthSession();
+    enterLeaderMode({classId:cls.id, teamId:team.id, leaderId:team.leaderId||'', studentId:team.leaderId||'', accountName:acc.name});
+    toast('Đăng nhập thành công: '+acc.name+' · '+team.name);
+    return;
+  }
+  authSession={role:acc.role,classId:cls.id,loginAt:Date.now(),accountName:acc.name}; isAdminUnlocked=false; saveAuthSession(); updateAuthBtnUI();
+  toast('Đăng nhập thành công: '+acc.name);
+}
+/* Quản trị cao nhất cấp (hoặc đổi) quyền cho một tài khoản đã đăng ký. */
+async function assignAccountRole(id){
+  if(!isAdminRole()) return toast('Chỉ Quản trị cao nhất mới được cấp quyền tài khoản','warning');
+  const cls=activeClass();
+  const acc=(state.accounts||[]).find(a=>a.id===id);
+  if(!acc) return;
+  const teams=(state.groups?.[cls.id]?.teams)||[];
+  const student=(state.students||[]).find(s=>s.id===acc.studentId) || (state.students||[]).find(s=>String(s.name||'').trim().toLowerCase()===String(acc.name||'').trim().toLowerCase());
+  const leaderTeam=student ? teams.find(t=>t.leaderId===student.id) : null;
+  const result=await Swal.fire({
+    title:`🔑 Cấp quyền cho ${esc(acc.name)}`,
+    html:`<div class="text-start">
+      <p class="small text-muted mb-2">Tên đăng nhập: <b>${esc(acc.username)}</b></p>
+      <label class="form-label fw-bold small mb-1">Vai trò</label>
+      <select id="assignRole" class="form-select form-select-sm mb-2" onchange="document.getElementById('assignLeaderInfo').style.display=this.value==='leader'?'block':'none'">
+        <option value="">-- Chưa cấp quyền --</option>
+        <option value="teacher"${acc.role==='teacher'?' selected':''}>GVCN</option>
+        <option value="president"${acc.role==='president'?' selected':''}>Lớp trưởng</option>
+        <option value="vice"${acc.role==='vice'?' selected':''}>Lớp phó</option>
+        <option value="leader"${acc.role==='leader'?' selected':''}>Tổ trưởng</option>
+      </select>
+      <div id="assignLeaderInfo" class="alert ${leaderTeam?'alert-success':'alert-warning'} py-2 px-2 small" style="display:${acc.role==='leader'?'block':'none'}">
+        ${leaderTeam ? `<i class="fa-solid fa-people-group me-1"></i>Hệ thống tự xác định: <b>${esc(leaderTeam.name)}</b> — Tổ trưởng <b>${esc(state.students.find(s=>s.id===leaderTeam.leaderId)?.name||acc.name)}</b>.` : `<i class="fa-solid fa-triangle-exclamation me-1"></i>Chưa tìm thấy học sinh này được chỉ định làm Tổ trưởng trong Tab Chia tổ. Hãy chỉ định Tổ trưởng trước.`}
+      </div>
+    </div>`,
+    showCancelButton:true,confirmButtonText:'Lưu quyền',cancelButtonText:'Hủy',focusConfirm:false,
+    preConfirm:()=>{
+      const role=document.getElementById('assignRole').value;
+      if(role==='leader' && !leaderTeam){ Swal.showValidationMessage('Tài khoản chỉ được cấp quyền Tổ trưởng khi người này đang được chỉ định làm Tổ trưởng trong Tab Chia tổ.'); return false; }
+      return {role:role||null, teamId:role==='leader'?leaderTeam.id:'', studentId:role==='leader'?leaderTeam.leaderId:''};
+    }
+  });
+  if(!result.isConfirmed) return;
+  acc.role=result.value.role; acc.teamId=result.value.teamId; acc.studentId=result.value.studentId;
+  saveState(); renderPage();
+  const roleLabel={teacher:'GVCN',president:'Lớp trưởng',vice:'Lớp phó',leader:'Tổ trưởng'}[acc.role];
+  toast(acc.role?`Đã cấp quyền ${roleLabel} cho ${acc.name}${acc.role==='leader'?' · '+leaderTeam.name:''}`:`Đã gỡ quyền của ${acc.name}`);
+}
+
+async function deleteAccount(id){
+  if(!isAdminRole()) return toast('Chỉ Quản trị cao nhất mới được xóa tài khoản','warning');
+  const r=await Swal.fire({icon:'warning',title:'Xóa tài khoản này?',text:'Người dùng tài khoản này sẽ không thể đăng nhập nữa.',showCancelButton:true,confirmButtonText:'Đồng ý xóa',cancelButtonText:'Hủy',confirmButtonColor:'#dc2626'});
+  if(!r.isConfirmed) return;
+  state.accounts=(state.accounts||[]).filter(a=>a.id!==id); saveState(); renderPage(); toast('Đã xóa tài khoản!');
+}
 function logoutCurrentAccount(){
   authSession=null; isAdminUnlocked=false; saveAuthSession(); leaderSession=null;
   try{sessionStorage.removeItem('leaderSessionKey')}catch(e){}
@@ -955,9 +1133,10 @@ function updateAuthBtnUI(){
   const b=document.getElementById('loginBtn'); if(!b)return;
   const role=currentAuthRole();
   if(role){
-    const names={admin:'Quản trị',teacher:'GVCN',leader:'Tổ trưởng'};
+    const names={admin:'Quản trị',teacher:'GVCN',leader:'Tổ trưởng',president:'Lớp trưởng',vice:'Lớp phó'};
+    const label=authSession?.accountName ? `${esc(authSession.accountName)} (${names[role]})` : names[role];
     b.className='btn btn-sm btn-success text-white';
-    b.innerHTML=`<i class="fa-solid fa-lock-open me-1"></i>${names[role]} · Đăng xuất`;
+    b.innerHTML=`<i class="fa-solid fa-lock-open me-1"></i>${label} · Đăng xuất`;
     b.title='Bấm để đăng xuất và khóa quyền';
   }else{
     b.className='btn btn-sm btn-primary'; b.innerHTML='<i class="fa-solid fa-right-to-bracket me-1"></i>Đăng nhập'; b.title='Chọn loại tài khoản';
@@ -988,7 +1167,7 @@ function renderHeader(){
     document.getElementById('pageTitle').textContent = 'Tổ trưởng - '+(team?team.name:'');
     document.getElementById('pageSubtitle').textContent = 'Nhập điểm thi đua cho các thành viên trong tổ của bạn';
     const cs=document.getElementById('classSwitcher'); if(cs) cs.innerHTML='';
-    const tn=document.getElementById('teacherNameMini'); if(tn) tn.textContent = team?('Tổ trưởng: '+(state.students.find(x=>x.id===team.leaderId)?.name||'')):'';
+    const tn=document.getElementById('teacherNameMini'); if(tn) tn.textContent = team?('Tổ trưởng: '+(leaderSession?.accountName || state.students.find(x=>x.id===team.leaderId)?.name || '')):'';
     const tr=document.getElementById('teacherRoleMini'); if(tr) tr.textContent = cls?cls.name:'';
     const brandName = document.getElementById('brandName'); if(brandName) brandName.textContent = cls?cls.name:'LỚP HỌC';
     const brandSub = document.getElementById('brandSubtitle'); if(brandSub) brandSub.textContent = 'Không gian Tổ trưởng';
@@ -1063,6 +1242,7 @@ function renderPage(){
     groups:renderGroups,
     attendance:renderAttendance,
     dailyDiary:renderDailyDiary,
+    laborAssignment:renderLaborAssignment,
     weekly:renderWeekly,
     seating:renderSeating,
     timetable:renderTimetable,
@@ -1221,8 +1401,8 @@ function studentCard(s){
       </div>
     </div>
     <div class="student-actions">
-      <button class="icon-btn plus-btn" onclick="adjustCoins('${s.id}',1)" title="Thưởng điểm (Cần mật khẩu GVCN)"><i class="fa-solid fa-plus"></i></button>
-      <button class="icon-btn minus-btn" onclick="adjustCoins('${s.id}',-1)" title="Trừ điểm - Vi phạm (Cần mật khẩu GVCN)"><i class="fa-solid fa-minus"></i></button>
+      <button class="icon-btn plus-btn" onclick="adjustCoins('${s.id}',1)" title="Thưởng điểm (GVCN/Lớp trưởng/Lớp phó)"><i class="fa-solid fa-plus"></i></button>
+      <button class="icon-btn minus-btn" onclick="adjustCoins('${s.id}',-1)" title="Trừ điểm - Vi phạm (GVCN/Lớp trưởng/Lớp phó)"><i class="fa-solid fa-minus"></i></button>
       <button class="icon-btn" title="Yêu thích" onclick="toggleFavorite('${s.id}')"><i class="fa-${s.favorite?'solid':'regular'} fa-star"></i></button>
       <button class="icon-btn" title="Xem vi phạm" onclick="viewStudentViolations('${s.id}')"><i class="fa-solid fa-clock-rotate-left"></i></button>
       <button class="icon-btn" title="Sửa thông tin (Cần mật khẩu GVCN)" onclick="openStudentModal('${s.id}')"><i class="fa-solid fa-pen"></i></button>
@@ -1730,7 +1910,7 @@ async function clearAllStudents(){
 async function toggleFavorite(id){const ok=await verifyAdminAccess();if(!ok)return;const s=state.students.find(x=>x.id===id);if(!s)return;s.favorite=!s.favorite;saveState(false);renderPage()}
 
 async function adjustCoins(id,sign){
-  const ok = await verifyAdminAccess();
+  const ok = await verifyOfficerAccess(['president','vice'],'ghi nhận điểm thưởng/vi phạm');
   if(!ok) return;
 
   const s=state.students.find(x=>x.id===id);
@@ -2547,7 +2727,7 @@ const groupKey = `group_${String(team.id||team.name||'').replace(/[^a-zA-Z0-9_-]
       <h4 class="fw-bold mb-1">${esc(team.name)}</h4>
       <span class="badge text-bg-light">${members.length} học sinh</span>
     </div>
-    ${leader ? `<div class="coin-pill mt-1"><i class="fa-solid fa-user-shield"></i> Tổ trưởng: ${esc(leader.name)}</div>` : '<div class="text-muted small mt-1">Chưa có tổ trưởng</div>'}
+    ${leader ? `<div class="d-flex align-items-center gap-2 flex-wrap mt-1"><div class="coin-pill"><i class="fa-solid fa-user-shield"></i> Tổ trưởng: ${esc(leader.name)}</div><button class="btn btn-sm btn-outline-success py-0 px-2" onclick="openLeaderAccount('${team.id}')" title="Cấp hoặc sửa tài khoản cho Tổ trưởng"><i class="fa-solid fa-id-card me-1"></i>Cấp tài khoản</button><button class="btn btn-sm btn-outline-danger py-0 px-2" onclick="removeGroupLeader('${team.id}')" title="Bỏ vai trò Tổ trưởng"><i class="fa-solid fa-user-minus me-1"></i>Bỏ vai trò</button></div>` : '<div class="text-muted small mt-1">Chưa có tổ trưởng</div>'}
     <div class="d-flex gap-2 flex-wrap mt-3">
       <button class="btn btn-sm btn-success" onclick="openImportGroupModal('${team.id}')"><i class="fa-solid fa-file-import me-1"></i>Nhập danh sách</button>
       <button class="btn btn-sm btn-outline-danger" onclick="clearGroupList('${team.id}')"><i class="fa-solid fa-trash-can me-1"></i>Xóa danh sách</button>
@@ -2599,6 +2779,52 @@ async function openGroupCountModal(){
   toast(`Đã tạo ${count} tổ`);
 }
 
+async function openLeaderAccount(teamId){
+  if(!isAdminRole()) return toast('Chỉ Quản trị cao nhất mới được cấp tài khoản Tổ trưởng','warning');
+  const g=currentGroupData(); const team=g.teams.find(t=>t.id===teamId); if(!team||!team.leaderId) return toast('Hãy chỉ định Tổ trưởng trước','warning');
+  const cls=activeClass(); const student=state.students.find(s=>s.id===team.leaderId); if(!student) return;
+  if(!Array.isArray(state.accounts)) state.accounts=[];
+  let acc=state.accounts.find(a=>a.classId===cls.id && (a.studentId===student.id || String(a.name||'').trim().toLowerCase()===String(student.name||'').trim().toLowerCase()));
+  const result=await Swal.fire({
+    title:'🪪 Tài khoản Tổ trưởng',
+    html:`<div class="text-start"><div class="alert alert-success py-2 px-2 small mb-2"><i class="fa-solid fa-user-shield me-1"></i><b>${esc(student.name)}</b> · ${esc(team.name)}</div>
+      ${acc?`<p class="small text-muted mb-2">Tài khoản hiện có: <b>${esc(acc.username)}</b>. Bạn có thể đổi tên đăng nhập/mật khẩu tại đây.</p>`:''}
+      <label class="form-label fw-bold small mb-1">Tên đăng nhập</label><input id="leaderAccUsername" class="form-control form-control-sm mb-2" value="${esc(acc?.username||'')}" placeholder="vd: nguyenvana" autocomplete="off">
+      <label class="form-label fw-bold small mb-1">Mật khẩu</label><input id="leaderAccPassword" type="password" class="form-control form-control-sm mb-2" value="" placeholder="${acc?'Để trống nếu không đổi':''}" autocomplete="new-password">
+      <label class="form-label fw-bold small mb-1">Xác nhận mật khẩu</label><input id="leaderAccPassword2" type="password" class="form-control form-control-sm" value="" placeholder="Nhập lại mật khẩu" autocomplete="new-password">
+    </div>`,
+    showCancelButton:true,confirmButtonText:acc?'Cập nhật tài khoản':'Tạo tài khoản',cancelButtonText:'Hủy',focusConfirm:false,
+    preConfirm:()=>{
+      const username=document.getElementById('leaderAccUsername').value.trim().toLowerCase();
+      const pass=document.getElementById('leaderAccPassword').value; const pass2=document.getElementById('leaderAccPassword2').value;
+      if(!username || !/^[a-z0-9._-]+$/.test(username) || username.length<3){Swal.showValidationMessage('Tên đăng nhập cần ít nhất 3 ký tự, chỉ dùng chữ thường không dấu, số, ., _ hoặc -.');return false;}
+      const duplicate=state.accounts.find(a=>a.classId===cls.id && a.username===username && a.id!==(acc?.id||''));
+      if(duplicate){Swal.showValidationMessage('Tên đăng nhập đã tồn tại trong lớp này.');return false;}
+      if(!acc && pass.length<4){Swal.showValidationMessage('Mật khẩu cần ít nhất 4 ký tự.');return false;}
+      if(pass && pass.length<4){Swal.showValidationMessage('Mật khẩu cần ít nhất 4 ký tự.');return false;}
+      if(pass!==pass2){Swal.showValidationMessage('Hai mật khẩu không trùng nhau.');return false;}
+      return {username,password:pass};
+    }
+  });
+  if(!result.isConfirmed)return;
+  if(acc){ acc.username=result.value.username; if(result.value.password) acc.password=result.value.password; }
+  else { acc={id:uid('acc'),classId:cls.id,name:student.name,username:result.value.username,password:result.value.password,role:'leader',teamId:team.id,studentId:student.id}; state.accounts.push(acc); }
+  acc.name=student.name; acc.role='leader'; acc.teamId=team.id; acc.studentId=student.id;
+  saveState(); renderPage();
+  Swal.fire({icon:'success',title:'Đã cấp tài khoản Tổ trưởng',html:`<p><b>${esc(student.name)}</b> — <b>${esc(team.name)}</b></p><p class="mb-0">Tên đăng nhập: <b>${esc(acc.username)}</b></p><p class="small text-muted mt-1 mb-0">Tài khoản tự động gắn với Tổ trưởng đang được chỉ định trong Tab Chia tổ.</p>`});
+}
+
+async function removeGroupLeader(teamId){
+  if(!isAdminRole()) return toast('Chỉ Quản trị cao nhất mới được bỏ vai trò Tổ trưởng','warning');
+  const g=currentGroupData(); const team=g.teams.find(t=>t.id===teamId); if(!team||!team.leaderId)return;
+  const student=state.students.find(s=>s.id===team.leaderId);
+  const r=await Swal.fire({icon:'warning',title:'Bỏ vai trò Tổ trưởng?',html:`<p><b>${esc(student?.name||'Tổ trưởng')}</b> sẽ không còn là Tổ trưởng của <b>${esc(team.name)}</b>.</p><p class="small text-muted mb-0">Tài khoản Tổ trưởng gắn với tổ này cũng sẽ bị gỡ quyền Tổ trưởng nhưng tài khoản không bị xóa.</p>`,showCancelButton:true,confirmButtonText:'Bỏ vai trò',cancelButtonText:'Hủy',confirmButtonColor:'#dc2626'});
+  if(!r.isConfirmed)return;
+  const oldId=team.leaderId;
+  (state.accounts||[]).forEach(a=>{if(a.classId===activeClass().id && a.role==='leader' && ((a.studentId===oldId)||a.teamId===team.id)){a.role=null;a.teamId='';a.studentId='';}});
+  team.leaderId=''; team.leaderPassword=''; saveState(); renderPage(); toast(`Đã bỏ vai trò Tổ trưởng của ${student?.name||''}`);
+}
+
 async function setGroupLeader(teamId, studentId){
   const ok = await verifyAdminAccess();
   if(!ok) return;
@@ -2626,8 +2852,19 @@ async function setGroupLeader(teamId, studentId){
     }
   });
   if(!result.isConfirmed) return;
+  const oldLeaderId=team.leaderId||'';
   team.leaderId = studentId;
   team.leaderPassword = result.value;
+  /* Gỡ quyền Tổ trưởng khỏi tài khoản cũ của chính tổ này. */
+  (state.accounts||[]).forEach(a=>{
+    if(a.classId===activeClass().id && a.role==='leader' && ((a.studentId&&a.studentId===oldLeaderId) || a.teamId===team.id) && oldLeaderId && oldLeaderId!==studentId){
+      a.role=null; a.teamId=''; a.studentId='';
+    }
+  });
+  /* Nếu người mới đã đăng ký tài khoản, tự gắn tài khoản đó với đúng tổ. */
+  const ns=state.students.find(x=>x.id===studentId);
+  const linked=(state.accounts||[]).find(a=>a.classId===activeClass().id && ((a.studentId&&a.studentId===studentId) || String(a.name||'').trim().toLowerCase()===String(ns?.name||'').trim().toLowerCase()));
+  if(linked){ linked.role='leader'; linked.teamId=team.id; linked.studentId=studentId; }
   saveState();
   renderPage();
   Swal.fire({icon:'success', title:'Đã lưu tổ trưởng', html:`<p><b>${esc(s?.name||'')}</b> là tổ trưởng của <b>${esc(team.name)}</b>.</p><p class="text-success fw-bold"><i class="fa-solid fa-lock me-1"></i>Mật khẩu đã được lưu và ẩn trên giao diện.</p><p class="small text-muted mb-0">Mật khẩu là mật khẩu GVCN vừa đặt. Hãy cung cấp cho đúng tổ trưởng. Muốn đổi mật khẩu, bấm “Đổi mật khẩu”.</p>`});
@@ -2640,7 +2877,10 @@ async function removeStudentFromGroup(teamId, studentId){
   const team = g.teams.find(t=>t.id===teamId);
   if(!team) return;
   team.studentIds = team.studentIds.filter(id=>id!==studentId);
-  if(team.leaderId===studentId){ team.leaderId=''; team.leaderPassword=''; }
+  if(team.leaderId===studentId){
+    (state.accounts||[]).forEach(a=>{ if(a.classId===activeClass().id && a.role==='leader' && ((a.studentId===studentId)||a.teamId===team.id)){ a.role=null; a.teamId=''; a.studentId=''; } });
+    team.leaderId=''; team.leaderPassword='';
+  }
   saveState(); renderPage();
 }
 
@@ -2652,6 +2892,7 @@ async function clearGroupList(teamId){
     const g = currentGroupData();
     const team = g.teams.find(t=>t.id===teamId);
     if(!team) return;
+    (state.accounts||[]).forEach(a=>{ if(a.classId===activeClass().id && a.role==='leader' && a.teamId===team.id){ a.role=null; a.teamId=''; a.studentId=''; } });
     team.studentIds=[]; team.leaderId=''; team.leaderPassword='';
     saveState(); renderPage();
     toast('Đã xóa danh sách tổ');
@@ -2932,8 +3173,8 @@ function renderNotices(){
   setTimeout(updateBannerNoticeCount,0);
   return `<div class="section-head">
     <div><h2><i class="fa-solid fa-bullhorn me-2" style="color:#ef4444"></i>THÔNG BÁO - ${esc(activeClass().name)}</h2>
-    <p>Nơi đăng các thông tin quan trọng cho học sinh và phụ huynh. Có thể đăng văn bản, hình ảnh và chọn màu nổi bật.</p></div>
-    ${canEdit?`<button class="btn btn-primary" style="background:linear-gradient(135deg,#f97316,#ef4444);border:none" onclick="openNoticeModal()"><i class="fa-solid fa-plus me-1"></i>Tạo thông báo</button>`:''}
+    <p>Nơi đăng các thông tin quan trọng cho học sinh và phụ huynh. Có thể đăng văn bản, hình ảnh và chọn màu nổi bật. GVCN hoặc Lớp trưởng mới đăng được.</p></div>
+    <button class="btn btn-primary" style="background:linear-gradient(135deg,#f97316,#ef4444);border:none" onclick="openNoticeModal()"><i class="fa-solid fa-plus me-1"></i>Tạo thông báo</button>
   </div>
   ${notices.length?`<div class="notice-grid">${notices.map(n=>{
     const date=n.time?new Date(n.time).toLocaleString('vi-VN'):'Không rõ thời gian';
@@ -2950,11 +3191,12 @@ function renderNotices(){
         ${n.text?`<div class="notice-text mt-3">${esc(n.text)}</div>`:''}
       </div>
     </article>`;
-  }).join('')}</div>`:`<div class="card notice-empty p-5 text-center"><i class="fa-solid fa-bullhorn fs-1 mb-3" style="color:#f97316"></i><h5 class="fw-bold">Chưa có thông báo</h5><p class="text-muted mb-3">Các thông báo mới của lớp sẽ được hiển thị nổi bật tại đây.</p>${canEdit?`<button class="btn btn-primary" style="background:linear-gradient(135deg,#f97316,#ef4444);border:none" onclick="openNoticeModal()"><i class="fa-solid fa-plus me-1"></i>Tạo thông báo đầu tiên</button>`:''}</div>`}`;
+  }).join('')}</div>`:`<div class="card notice-empty p-5 text-center"><i class="fa-solid fa-bullhorn fs-1 mb-3" style="color:#f97316"></i><h5 class="fw-bold">Chưa có thông báo</h5><p class="text-muted mb-3">Các thông báo mới của lớp sẽ được hiển thị nổi bật tại đây.</p><button class="btn btn-primary" style="background:linear-gradient(135deg,#f97316,#ef4444);border:none" onclick="openNoticeModal()"><i class="fa-solid fa-plus me-1"></i>Tạo thông báo đầu tiên</button></div>`}`;
 }
 
-function openNoticeModal(id=''){
-  if(!(isAdminRole()||isTeacherRole())){showToast('Chỉ GVCN hoặc Quản trị cao nhất mới được thêm, sửa thông báo.','warning');return;}
+async function openNoticeModal(id=''){
+  const ok=await verifyOfficerAccess(['president'],'đăng thông báo');
+  if(!ok) return;
   const n=(state.notices||[]).find(x=>x.id===id)||{title:'',text:'',image:'',color:'#fff7ed'};
   showModal(id?'Sửa thông báo':'Tạo thông báo mới',`<form onsubmit="saveNotice(event,'${id}')">
     <div class="mb-3"><label class="form-label fw-bold">Tiêu đề thông báo *</label><input id="noticeTitle" class="form-control" required maxlength="180" value="${esc(n.title||'')}" placeholder="Ví dụ: Lịch họp phụ huynh, thông báo nghỉ học..."></div>
@@ -2967,13 +3209,14 @@ function openNoticeModal(id=''){
 
 async function saveNotice(e,id){
   e.preventDefault();
-  if(!(isAdminRole()||isTeacherRole())){showToast('Bạn không có quyền thêm hoặc sửa thông báo.','warning');return;}
+  const ok=await verifyOfficerAccess(['president'],'đăng thông báo');
+  if(!ok) return;
   const title=document.getElementById('noticeTitle').value.trim();
   const text=document.getElementById('noticeText').value.trim();
   const color=document.querySelector('input[name="noticeColor"]:checked')?.value||'#fff7ed';
   const file=document.getElementById('noticeImage')?.files?.[0];
   const old=(state.notices||[]).find(x=>x.id===id);
-  if(!title && !text && !file && !(old&&old.image)) return showToast('Vui lòng nhập nội dung hoặc chọn hình ảnh cho thông báo.','warning');
+  if(!title && !text && !file && !(old&&old.image)) return toast('Vui lòng nhập nội dung hoặc chọn hình ảnh cho thông báo.','warning');
   let image=old?.image||'';
   try{
     if(file){
@@ -2996,86 +3239,101 @@ async function deleteNotice(id){
 }
 
 /* ========================================================
-   TAB: NHẬT KÍ NGÀY
-   - Xem: ai cũng xem được.
-   - Gửi (ảnh / tin nhắn / .docx / .xlsx): chỉ Lớp phó phụ trách học tập
-     hoặc GVCN có mật khẩu riêng (mật khẩu do GVCN/Quản trị cao nhất đặt).
-   - Xóa bài: chỉ GVCN hoặc Quản trị cao nhất.
+   PHÂN QUYỀN CÁN BỘ LỚP: LỚP TRƯỞNG & LỚP PHÓ
+   - Mật khẩu Lớp trưởng/Lớp phó do GVCN/Quản trị cao nhất đặt trong Tab Cài đặt (không tạo mật khẩu mới nào khác).
+     Có thể đăng nhập chủ động từ nút "Đăng nhập" (giống Quản trị/GVCN/Tổ trưởng), hoặc hệ thống sẽ tự hỏi
+     ngay tại đúng thao tác cần dùng nếu chưa đăng nhập.
+   - Lớp trưởng: đăng Thông báo, gửi Nhật kí ngày, ghi điểm thưởng/vi phạm (Nhật kí tuần), Phân công lao động.
+   - Lớp phó: gửi Nhật kí ngày, ghi điểm thưởng/vi phạm (Nhật kí tuần). Không Thông báo, không Phân công lao động.
+   - GVCN / Quản trị cao nhất luôn có toàn quyền như trước.
    ======================================================== */
-function loadDiarySession(){
-  try{
-    const x=JSON.parse(sessionStorage.getItem('diaryUnlockSession'));
-    return (x && x.classId && x.until>Date.now()) ? x : null;
-  }catch(e){ return null; }
-}
-function saveDiarySession(s){
-  try{
-    if(s) sessionStorage.setItem('diaryUnlockSession', JSON.stringify(s));
-    else sessionStorage.removeItem('diaryUnlockSession');
-  }catch(e){}
-}
-
-/* Chỉ Lớp phó phụ trách học tập (biết mật khẩu riêng) hoặc GVCN/Quản trị mới gửi được. */
-async function verifyDiaryAccess(){
+/* allowedOfficerRoles: mảng con của ['president','vice'] - vai trò cán bộ lớp được phép cho thao tác này.
+   GVCN/Quản trị cao nhất luôn được phép mà không cần hỏi thêm. */
+async function verifyOfficerAccess(allowedOfficerRoles, actionLabel){
   if(isAdminRole()) return true;
   if(isTeacherRole() && authSession.classId===state.activeClassId) return true;
-  const cached=loadDiarySession();
-  if(cached && cached.classId===state.activeClassId) return true;
-  const cls=activeClass();
-  const pass=cls?.diaryPassword||'';
-  if(!pass){
-    await Swal.fire({icon:'info',title:'Chưa đặt mật khẩu Nhật kí ngày',html:'GVCN hoặc Quản trị cao nhất cần bấm "Đặt mật khẩu" ở Tab Nhật kí ngày để cấp mật khẩu riêng cho Lớp phó phụ trách học tập trước.'});
+  if(isPresidentRole() && allowedOfficerRoles.includes('president')) return true;
+  if(isViceRole() && allowedOfficerRoles.includes('vice')) return true;
+  if(isPresidentRole() || isViceRole()){
+    await Swal.fire({icon:'warning',title:'Không đủ quyền',text:isViceRole()?'Lớp phó không có quyền thao tác này.':'Bạn không có quyền thao tác này.'});
     return false;
   }
+  const cls=activeClass();
   const result=await Swal.fire({
-    title:'🔐 Đăng nhập gửi Nhật kí ngày',
-    html:'<p class="small text-muted">Chỉ Lớp phó phụ trách học tập hoặc GVCN có mật khẩu riêng mới gửi được vào Nhật kí ngày.</p>',
-    input:'password',inputPlaceholder:'Nhập mật khẩu Nhật kí ngày...',inputAttributes:{autocomplete:'current-password'},
+    title:'🔐 Xác nhận quyền',
+    html:`<p class="small text-muted">Nhập mật khẩu GVCN, Lớp trưởng hoặc Lớp phó để ${esc(actionLabel)}.</p>`,
+    input:'password',inputPlaceholder:'Nhập mật khẩu...',inputAttributes:{autocomplete:'current-password'},
     showCancelButton:true,confirmButtonText:'Xác nhận',cancelButtonText:'Hủy'
   });
   if(!result.isConfirmed) return false;
-  if(String(result.value||'').trim()===pass){
-    saveDiarySession({classId:state.activeClassId, until:Date.now()+8*3600000});
+  const entered=String(result.value||'').trim();
+  if(!entered) return false;
+  if(cls?.teacherPassword && entered===cls.teacherPassword){
+    authSession={role:'teacher',classId:cls.id,loginAt:Date.now()}; isAdminUnlocked=false; saveAuthSession(); updateAuthBtnUI();
     return true;
   }
-  await Swal.fire({icon:'error',title:'Sai mật khẩu',text:'Mật khẩu Nhật kí ngày không đúng.'});
+  if(cls?.presidentPassword && entered===cls.presidentPassword){
+    authSession={role:'president',classId:cls.id,loginAt:Date.now()}; isAdminUnlocked=false; saveAuthSession(); updateAuthBtnUI();
+    if(allowedOfficerRoles.includes('president')) return true;
+    await Swal.fire({icon:'warning',title:'Không đủ quyền',text:'Lớp trưởng không có quyền thao tác này.'});
+    return false;
+  }
+  if(cls?.vicePresidentPassword && entered===cls.vicePresidentPassword){
+    authSession={role:'vice',classId:cls.id,loginAt:Date.now()}; isAdminUnlocked=false; saveAuthSession(); updateAuthBtnUI();
+    if(allowedOfficerRoles.includes('vice')) return true;
+    await Swal.fire({icon:'warning',title:'Không đủ quyền',text:'Lớp phó không có quyền thao tác này.'});
+    return false;
+  }
+  await Swal.fire({icon:'error',title:'Sai mật khẩu'});
   return false;
 }
 
-/* GVCN/Quản trị cao nhất đặt (hoặc đổi) mật khẩu riêng của lớp cho Lớp phó phụ trách học tập. */
-async function setDiaryPassword(){
-  const ok=await verifyAdminAccess();
-  if(!ok) return;
-  const c=activeClass();
-  const result=await Swal.fire({
-    icon:'question',
-    title:'Đặt mật khẩu Nhật kí ngày',
-    html:`<p class="small text-muted mb-2">Mật khẩu dùng chung cho Lớp phó phụ trách học tập (và GVCN) để gửi Nhật kí ngày cho lớp <b>${esc(c.name)}</b>.</p>
-          <input id="swal-diary-password" class="swal2-input" type="password" autocomplete="new-password" placeholder="Nhập mật khẩu mới">
-          <input id="swal-diary-password-confirm" class="swal2-input" type="password" autocomplete="new-password" placeholder="Nhập lại mật khẩu">`,
-    showCancelButton:true,confirmButtonText:'Lưu mật khẩu',cancelButtonText:'Hủy',focusConfirm:false,
-    preConfirm:()=>{
-      const password=document.getElementById('swal-diary-password')?.value||'';
-      const confirm=document.getElementById('swal-diary-password-confirm')?.value||'';
-      if(password.length<4){ Swal.showValidationMessage('Mật khẩu phải có ít nhất 4 ký tự.'); return false; }
-      if(password!==confirm){ Swal.showValidationMessage('Hai mật khẩu không trùng nhau.'); return false; }
-      return password;
-    }
-  });
-  if(!result.isConfirmed) return;
-  c.diaryPassword=result.value;
-  saveState();
-  Swal.fire({icon:'success',title:'Đã lưu mật khẩu',text:`Hãy cung cấp mật khẩu này cho đúng Lớp phó phụ trách học tập của lớp ${c.name}.`});
+/* GVCN/Quản trị cao nhất đặt (hoặc đổi) mật khẩu Lớp trưởng cho lớp đang chọn. Dùng trong Tab Cài đặt. */
+function savePresidentPassword(e){
+  e.preventDefault();
+  if(!isAdminRole()) return toast('Chỉ Quản trị cao nhất mới được đổi mật khẩu Lớp trưởng','warning');
+  const val=document.getElementById('newPresidentPass')?.value.trim();
+  if(!val) return toast('Mật khẩu Lớp trưởng không được để trống','warning');
+  const c=activeClass(); if(!c) return;
+  c.presidentPassword=val; saveState();
+  document.getElementById('newPresidentPass').value='';
+  toast('Đã cập nhật mật khẩu Lớp trưởng cho '+c.name);
+}
+/* GVCN/Quản trị cao nhất đặt (hoặc đổi) mật khẩu Lớp phó cho lớp đang chọn. Dùng trong Tab Cài đặt. */
+function saveVicePresidentPassword(e){
+  e.preventDefault();
+  if(!isAdminRole()) return toast('Chỉ Quản trị cao nhất mới được đổi mật khẩu Lớp phó','warning');
+  const val=document.getElementById('newVicePresidentPass')?.value.trim();
+  if(!val) return toast('Mật khẩu Lớp phó không được để trống','warning');
+  const c=activeClass(); if(!c) return;
+  c.vicePresidentPassword=val; saveState();
+  document.getElementById('newVicePresidentPass').value='';
+  toast('Đã cập nhật mật khẩu Lớp phó cho '+c.name);
 }
 
+/* Nhãn hiển thị "ai đã đăng" dựa theo vai trò thực tế đã xác thực trong phiên làm việc. */
+function currentOfficerAuthorLabel(){
+  const nm=authSession?.accountName;
+  if(isAdminRole()) return nm?`${nm} (Quản trị cao nhất)`:'Quản trị cao nhất';
+  if(isTeacherRole()) return nm?`${nm} (GVCN)`:'GVCN';
+  if(isPresidentRole()) return nm?`${nm} (Lớp trưởng)`:'Lớp trưởng';
+  if(isViceRole()) return nm?`${nm} (Lớp phó)`:'Lớp phó';
+  return 'Cán bộ lớp';
+}
+
+/* ========================================================
+   TAB: NHẬT KÍ NGÀY
+   - Xem: ai cũng xem được.
+   - Gửi (ảnh / tin nhắn / .docx / .xlsx): GVCN, Lớp trưởng hoặc Lớp phó.
+   - Xóa bài: chỉ GVCN hoặc Quản trị cao nhất.
+   ======================================================== */
 function renderDailyDiary(){
   const canManage=isAdminRole()||isTeacherRole();
   const entries=Array.isArray(state.dailyDiary)?state.dailyDiary.filter(x=>x.classId===state.activeClassId).sort((a,b)=>new Date(b.time)-new Date(a.time)):[];
   return `<div class="section-head">
     <div><h2><i class="fa-solid fa-book-open me-2" style="color:#f97316"></i>Nhật kí ngày - ${esc(activeClass().name)}</h2>
-    <p>Gửi ảnh, tin nhắn văn bản hoặc tệp .docx/.xlsx hằng ngày cho lớp. Chỉ Lớp phó phụ trách học tập hoặc GVCN có mật khẩu riêng mới gửi được.</p></div>
+    <p>Gửi ảnh, tin nhắn văn bản hoặc tệp .docx/.xlsx hằng ngày cho lớp. GVCN, Lớp trưởng hoặc Lớp phó mới gửi được.</p></div>
     <div class="d-flex gap-2 flex-wrap justify-content-end">
-      ${canManage?`<button class="btn btn-outline-secondary" onclick="setDiaryPassword()"><i class="fa-solid fa-key me-1"></i>Đặt mật khẩu</button>`:''}
       <button class="btn btn-primary" style="background:linear-gradient(135deg,#fb923c,#f97316);border:none" onclick="openDiaryEntryModal()"><i class="fa-solid fa-paper-plane me-1"></i>Gửi Nhật kí</button>
     </div>
   </div>
@@ -3087,7 +3345,7 @@ function renderDiaryEntry(x,canManage){
   const date=x.time?new Date(x.time).toLocaleString('vi-VN'):'Không rõ thời gian';
   return `<div class="card diary-card p-3">
     <div class="d-flex justify-content-between align-items-start gap-2">
-      <div class="small text-muted"><i class="fa-solid fa-user-pen me-1"></i>${esc(x.author||'Lớp phó phụ trách học tập')} · <i class="fa-regular fa-clock me-1"></i>${esc(date)}</div>
+      <div class="small text-muted"><i class="fa-solid fa-user-pen me-1"></i>${esc(x.author||'Cán bộ lớp')} · <i class="fa-regular fa-clock me-1"></i>${esc(date)}</div>
       ${canManage?`<button class="icon-btn text-danger" onclick="deleteDiaryEntry('${x.id}')" title="Xóa"><i class="fa-solid fa-trash"></i></button>`:''}
     </div>
     ${x.text?`<div class="mt-2" style="white-space:pre-wrap">${esc(x.text)}</div>`:''}
@@ -3097,7 +3355,7 @@ function renderDiaryEntry(x,canManage){
 }
 
 async function openDiaryEntryModal(){
-  const ok=await verifyDiaryAccess();
+  const ok=await verifyOfficerAccess(['president','vice'],'gửi Nhật kí ngày');
   if(!ok) return;
   showModal('Gửi Nhật kí ngày',`<form onsubmit="saveDiaryEntry(event)">
     <div class="mb-3"><label class="form-label fw-bold">Tin nhắn</label><textarea id="diaryText" class="form-control" rows="4" placeholder="Nhập nội dung Nhật kí, bài tập, dặn dò..."></textarea></div>
@@ -3109,7 +3367,7 @@ async function openDiaryEntryModal(){
 
 async function saveDiaryEntry(e){
   e.preventDefault();
-  const ok=await verifyDiaryAccess();
+  const ok=await verifyOfficerAccess(['president','vice'],'gửi Nhật kí ngày');
   if(!ok) return;
   const text=document.getElementById('diaryText')?.value.trim()||'';
   const imgFile=document.getElementById('diaryImage')?.files?.[0];
@@ -3128,8 +3386,7 @@ async function saveDiaryEntry(e){
       fileData=await readFileData(docFile); fileName=docFile.name; fileType=ext;
     }
     if(!Array.isArray(state.dailyDiary)) state.dailyDiary=[];
-    const authorLabel=isAdminRole()?'Quản trị cao nhất':(isTeacherRole()?'GVCN':'Lớp phó phụ trách học tập');
-    state.dailyDiary.unshift({id:uid('diary'),classId:state.activeClassId,text,image,fileData,fileName,fileType,time:new Date().toISOString(),author:authorLabel});
+    state.dailyDiary.unshift({id:uid('diary'),classId:state.activeClassId,text,image,fileData,fileName,fileType,time:new Date().toISOString(),author:currentOfficerAuthorLabel()});
     saveState(); mainModal.hide(); renderPage(); toast('Đã gửi Nhật kí ngày!');
   }catch(err){
     Swal.fire({icon:'error',title:'Không thể gửi Nhật kí',text:err.message||'Có lỗi xảy ra.'});
@@ -3141,6 +3398,86 @@ async function deleteDiaryEntry(id){
   const r=await Swal.fire({icon:'warning',title:'Xóa Nhật kí này?',text:'Bài Nhật kí ngày sẽ bị xóa khỏi lớp.',showCancelButton:true,confirmButtonText:'Đồng ý xóa',cancelButtonText:'Hủy',confirmButtonColor:'#dc2626'});
   if(!r.isConfirmed) return;
   state.dailyDiary=(state.dailyDiary||[]).filter(x=>x.id!==id); saveState(); renderPage(); toast('Đã xóa Nhật kí ngày!');
+}
+
+/* ========================================================
+   TAB: PHÂN CÔNG LAO ĐỘNG
+   - Xem: ai cũng xem được.
+   - Gửi (ảnh / .docx / .xlsx / .txt): chỉ GVCN hoặc Lớp trưởng (Lớp phó KHÔNG có quyền).
+   - Xóa bài: chỉ GVCN hoặc Quản trị cao nhất.
+   ======================================================== */
+function renderLaborAssignment(){
+  const canManage=isAdminRole()||isTeacherRole();
+  const entries=Array.isArray(state.laborAssignments)?state.laborAssignments.filter(x=>x.classId===state.activeClassId).sort((a,b)=>new Date(b.time)-new Date(a.time)):[];
+  return `<div class="section-head">
+    <div><h2><i class="fa-solid fa-broom me-2" style="color:#0d9488"></i>Phân công lao động - ${esc(activeClass().name)}</h2>
+    <p>Đăng ảnh hoặc tệp .docx/.xlsx/.txt phân công trực nhật, lao động cho lớp. Chỉ GVCN hoặc Lớp trưởng mới đăng được.</p></div>
+    <div class="d-flex gap-2 flex-wrap justify-content-end">
+      <button class="btn btn-primary" onclick="openLaborEntryModal()"><i class="fa-solid fa-paper-plane me-1"></i>Đăng phân công</button>
+    </div>
+  </div>
+  ${entries.length?`<div class="diary-feed mt-3">${entries.map(x=>renderLaborEntry(x,canManage)).join('')}</div>`
+    :`<div class="card p-5 text-center mt-3"><i class="fa-solid fa-broom fs-1 mb-3" style="color:#0d9488"></i><h5 class="fw-bold">Chưa có phân công nào</h5><p class="text-muted mb-0">Các bài phân công lao động mới sẽ hiển thị tại đây.</p></div>`}`;
+}
+
+function renderLaborEntry(x,canManage){
+  const date=x.time?new Date(x.time).toLocaleString('vi-VN'):'Không rõ thời gian';
+  const fileIcon = x.fileType==='xlsx' ? 'fa-file-excel' : x.fileType==='txt' ? 'fa-file-lines' : 'fa-file-word';
+  return `<div class="card diary-card p-3">
+    <div class="d-flex justify-content-between align-items-start gap-2">
+      <div class="small text-muted"><i class="fa-solid fa-user-pen me-1"></i>${esc(x.author||'Cán bộ lớp')} · <i class="fa-regular fa-clock me-1"></i>${esc(date)}</div>
+      ${canManage?`<button class="icon-btn text-danger" onclick="deleteLaborEntry('${x.id}')" title="Xóa"><i class="fa-solid fa-trash"></i></button>`:''}
+    </div>
+    ${x.text?`<div class="mt-2" style="white-space:pre-wrap">${esc(x.text)}</div>`:''}
+    ${x.image?`<img src="${x.image}" class="diary-image" alt="Ảnh Phân công lao động">`:''}
+    ${x.fileData?`<div class="mt-2"><a class="diary-file" href="${x.fileData}" download="${esc(x.fileName||'tai-lieu')}"><i class="fa-solid ${fileIcon} me-2"></i>${esc(x.fileName||'Tải tệp đính kèm')}</a></div>`:''}
+  </div>`;
+}
+
+async function openLaborEntryModal(){
+  const ok=await verifyOfficerAccess(['president'],'đăng Phân công lao động');
+  if(!ok) return;
+  showModal('Đăng Phân công lao động',`<form onsubmit="saveLaborEntry(event)">
+    <div class="mb-3"><label class="form-label fw-bold">Nội dung / Ghi chú</label><textarea id="laborText" class="form-control" rows="4" placeholder="Ví dụ: Phân công trực nhật tuần này, lịch lao động..."></textarea></div>
+    <div class="mb-3"><label class="form-label fw-bold">Hình ảnh (không bắt buộc)</label><input id="laborImage" class="form-control" type="file" accept="image/*"></div>
+    <div class="mb-3"><label class="form-label fw-bold">Tệp .docx, .xlsx hoặc .txt (không bắt buộc)</label><input id="laborFile" class="form-control" type="file" accept=".docx,.xlsx,.txt"></div>
+    <div class="text-end mt-4"><button class="btn btn-primary"><i class="fa-solid fa-paper-plane me-1"></i>Đăng</button></div>
+  </form>`);
+}
+
+async function saveLaborEntry(e){
+  e.preventDefault();
+  const ok=await verifyOfficerAccess(['president'],'đăng Phân công lao động');
+  if(!ok) return;
+  const text=document.getElementById('laborText')?.value.trim()||'';
+  const imgFile=document.getElementById('laborImage')?.files?.[0];
+  const docFile=document.getElementById('laborFile')?.files?.[0];
+  if(!text && !imgFile && !docFile) return toast('Vui lòng nhập nội dung hoặc chọn tệp đính kèm.','warning');
+  try{
+    let image='', fileData='', fileName='', fileType='';
+    if(imgFile){
+      if(imgFile.size>4*1024*1024) throw new Error('Ảnh quá lớn. Vui lòng chọn ảnh dưới 4 MB.');
+      image=await readFileData(imgFile);
+    }
+    if(docFile){
+      const ext=docFile.name.split('.').pop().toLowerCase();
+      if(!['docx','xlsx','txt'].includes(ext)) throw new Error('Chỉ chấp nhận tệp .docx, .xlsx hoặc .txt.');
+      if(docFile.size>8*1024*1024) throw new Error('Tệp quá lớn. Vui lòng chọn tệp dưới 8 MB.');
+      fileData=await readFileData(docFile); fileName=docFile.name; fileType=ext;
+    }
+    if(!Array.isArray(state.laborAssignments)) state.laborAssignments=[];
+    state.laborAssignments.unshift({id:uid('labor'),classId:state.activeClassId,text,image,fileData,fileName,fileType,time:new Date().toISOString(),author:currentOfficerAuthorLabel()});
+    saveState(); mainModal.hide(); renderPage(); toast('Đã đăng Phân công lao động!');
+  }catch(err){
+    Swal.fire({icon:'error',title:'Không thể đăng',text:err.message||'Có lỗi xảy ra.'});
+  }
+}
+
+async function deleteLaborEntry(id){
+  if(!(isAdminRole()||isTeacherRole())) return toast('Chỉ GVCN hoặc Quản trị cao nhất mới được xóa Phân công lao động.','warning');
+  const r=await Swal.fire({icon:'warning',title:'Xóa bài phân công này?',showCancelButton:true,confirmButtonText:'Đồng ý xóa',cancelButtonText:'Hủy',confirmButtonColor:'#dc2626'});
+  if(!r.isConfirmed) return;
+  state.laborAssignments=(state.laborAssignments||[]).filter(x=>x.id!==id); saveState(); renderPage(); toast('Đã xóa Phân công lao động!');
 }
 
 /* ========================================================
@@ -3279,6 +3616,109 @@ function renderData(){const size=(new Blob([JSON.stringify(state)]).size/1024).t
 async function exportJSON(){const ok=await verifySettingAccess();if(!ok)return;const blob=new Blob([JSON.stringify(state,null,2)],{type:'application/json'});downloadBlob(blob,`lop-hoc-vui-ve-backup-${today()}.json`);toast('Đã xuất bản sao lưu')}
 async function importJSON(file){const ok=await verifySettingAccess();if(!ok)return;try{const text=await file.text(),obj=JSON.parse(text);if(!obj.version||!obj.classes||!obj.students)throw new Error('Sai cấu trúc');const r=await Swal.fire({icon:'warning',title:'Khôi phục dữ liệu?',text:'Dữ liệu hiện tại sẽ bị thay thế.',showCancelButton:true,confirmButtonText:'Khôi phục'});if(!r.isConfirmed)return;state=obj;saveState();buildNav();renderHeader();renderPage();toast('Khôi phục thành công')}catch(e){Swal.fire({icon:'error',title:'File không hợp lệ',text:e.message})}}
 
+/* ========================================================
+   SAO LƯU TỰ ĐỘNG HÀNG TUẦN (Chủ nhật)
+   - Trình duyệt KHÔNG cho phép JavaScript ghi thẳng vào một đường dẫn ổ đĩa bất kỳ (như D:\Web 8B1) mà không có
+     sự đồng ý của người dùng, và cũng không thể chạy nền khi trang web đang đóng. Đây là quy định bảo mật của
+     mọi trình duyệt, không phải giới hạn riêng của trang này.
+   - Cách hoạt động thực tế: Quản trị cao nhất bấm "Chọn thư mục sao lưu" MỘT LẦN (yêu cầu Chrome/Edge phiên bản
+     mới), duyệt tới đúng thư mục D:\Web 8B1 và chọn nó. Trình duyệt sẽ nhớ quyền ghi vào thư mục đó cho lần sau.
+   - Mỗi khi trang được MỞ vào đúng Chủ nhật (và chưa sao lưu trong ngày hôm đó), hệ thống tự động ghi 1 file
+     JSON sao lưu vào đúng thư mục đã chọn. Máy cần bật và có mở trang này (hoặc để sẵn 1 tab) vào Chủ nhật.
+   - Nếu trình duyệt không hỗ trợ (Firefox/Safari) hoặc chưa chọn thư mục, hệ thống sẽ tự tải file .json về
+     thư mục Downloads mặc định của trình duyệt như một bản sao lưu dự phòng.
+   ======================================================== */
+function openBackupDB(){
+  return new Promise((resolve,reject)=>{
+    if(!window.indexedDB){ reject(new Error('Trình duyệt không hỗ trợ IndexedDB')); return; }
+    const req=indexedDB.open('lop8b1BackupDB',1);
+    req.onupgradeneeded=()=>{ req.result.createObjectStore('handles'); };
+    req.onsuccess=()=>resolve(req.result);
+    req.onerror=()=>reject(req.error);
+  });
+}
+async function idbSet(key,val){
+  const db=await openBackupDB();
+  return new Promise((resolve,reject)=>{
+    const tx=db.transaction('handles','readwrite');
+    tx.objectStore('handles').put(val,key);
+    tx.oncomplete=()=>resolve();
+    tx.onerror=()=>reject(tx.error);
+  });
+}
+async function idbGet(key){
+  const db=await openBackupDB();
+  return new Promise((resolve,reject)=>{
+    const tx=db.transaction('handles','readonly');
+    const req=tx.objectStore('handles').get(key);
+    req.onsuccess=()=>resolve(req.result);
+    req.onerror=()=>reject(req.error);
+  });
+}
+
+/* Quản trị cao nhất chọn thư mục sao lưu (một lần). Trình duyệt chỉ cho biết TÊN thư mục (vd "Web 8B1"),
+   không tiết lộ đường dẫn ổ đĩa đầy đủ cho JavaScript vì lý do bảo mật - hãy chọn đúng thư mục theo tên. */
+async function pickAutoBackupFolder(){
+  const ok=await verifySettingAccess();
+  if(!ok) return;
+  if(!window.showDirectoryPicker){
+    await Swal.fire({icon:'warning',title:'Trình duyệt không hỗ trợ chọn thư mục',html:'Tính năng này cần Chrome hoặc Edge bản mới. Cách thay thế: mở Cài đặt trình duyệt → Tải xuống → đặt thư mục tải xuống mặc định là <b>D:\\Web 8B1</b> và tắt "Hỏi vị trí lưu mỗi lần tải" - hệ thống vẫn sẽ tự tải file sao lưu đúng vào thư mục đó mỗi Chủ nhật.'});
+    return;
+  }
+  try{
+    const handle=await window.showDirectoryPicker({mode:'readwrite'});
+    await idbSet('autoBackupDirHandle', handle);
+    localStorage.setItem('autoBackupFolderName', handle.name);
+    toast('Đã chọn thư mục sao lưu: '+handle.name);
+    renderPage();
+  }catch(e){
+    if(e.name!=='AbortError') Swal.fire({icon:'error',title:'Không thể chọn thư mục',text:e.message||'Có lỗi xảy ra.'});
+  }
+}
+
+/* Thực hiện sao lưu: ghi vào thư mục đã chọn nếu còn quyền, nếu không thì tự tải file về Downloads. */
+async function performAutoBackup(manual){
+  const blob=new Blob([JSON.stringify(state,null,2)],{type:'application/json'});
+  const filename=`lop-hoc-vui-ve-backup-CN-${today()}.json`;
+  let savedToFolder=false;
+  try{
+    const handle=await idbGet('autoBackupDirHandle');
+    if(handle){
+      let perm=await handle.queryPermission({mode:'readwrite'});
+      if(perm!=='granted' && manual){ perm=await handle.requestPermission({mode:'readwrite'}); }
+      if(perm==='granted'){
+        const fileHandle=await handle.getFileHandle(filename,{create:true});
+        const writable=await fileHandle.createWritable();
+        await writable.write(blob);
+        await writable.close();
+        savedToFolder=true;
+      }
+    }
+  }catch(e){ console.warn('Sao lưu vào thư mục đã chọn thất bại, dùng phương án tải file:', e); }
+  if(!savedToFolder){ downloadBlob(blob, filename); }
+  localStorage.setItem('lastAutoBackupDate', today());
+  if(manual) toast(savedToFolder?'Đã sao lưu vào thư mục đã chọn!':'Đã tải file sao lưu về (chưa chọn được thư mục).');
+  renderPage();
+  return savedToFolder;
+}
+
+/* Quản trị cao nhất bấm để sao lưu ngay (dùng để thử nghiệm hoặc sao lưu thêm bất cứ lúc nào). */
+async function runManualBackupNow(){
+  const ok=await verifySettingAccess();
+  if(!ok) return;
+  await performAutoBackup(true);
+}
+
+/* Tự kiểm tra mỗi khi trang được mở: nếu là Chủ nhật và chưa sao lưu hôm nay thì tự sao lưu (không hỏi mật khẩu
+   vì đây là thao tác tự động, chỉ ghi file cục bộ trên máy, không gửi dữ liệu đi đâu). */
+async function checkWeeklyAutoBackup(){
+  try{
+    if(new Date().getDay()!==0) return; // 0 = Chủ nhật
+    if(localStorage.getItem('lastAutoBackupDate')===today()) return;
+    await performAutoBackup(false);
+  }catch(e){ console.warn('Kiểm tra sao lưu tự động hàng tuần thất bại:', e); }
+}
+
 async function resetAllData(){
   const ok = await verifyAdminAccess();
   if(!ok) return;
@@ -3328,6 +3768,45 @@ function renderSettingsUnlocked(){
             </div>
           </form>
         </div>
+      </div>
+
+      <div class="card setting-box mb-3 border-success shadow-sm">
+        <h5 class="fw-bold text-success"><i class="fa-solid fa-user-graduate me-2"></i>Mật khẩu Cán bộ lớp (Lớp trưởng / Lớp phó)</h5>
+        <p class="small text-muted mb-3">Đặt mật khẩu riêng cho Lớp trưởng và Lớp phó của lớp <b>${esc(curCls.name)}</b> để hai bạn tự đăng bài mà không cần mượn mật khẩu GVCN. Hai mật khẩu này <b>không</b> hiển thị ở khu vực Đăng nhập chung - hệ thống chỉ hỏi ngay tại đúng thao tác cần dùng (Thông báo, Nhật kí ngày, Nhật kí tuần, Phân công lao động).</p>
+        <div class="p-3 bg-light rounded-3 mb-3 border">
+          <div class="fw-bold text-primary mb-1">Lớp trưởng</div>
+          <div class="small text-muted mb-2">Được phép: đăng Thông báo, gửi Nhật kí ngày, ghi điểm thưởng/vi phạm (Nhật kí tuần), đăng Phân công lao động.</div>
+          <form onsubmit="savePresidentPassword(event)">
+            <input id="newPresidentPass" type="password" class="form-control form-control-sm mb-2" placeholder="Mật khẩu Lớp trưởng mới" required autocomplete="new-password">
+            <div class="text-end"><button class="btn btn-sm btn-primary fw-bold px-3"><i class="fa-solid fa-key me-1"></i>Cập nhật</button></div>
+          </form>
+        </div>
+        <div class="p-3 bg-light rounded-3 border">
+          <div class="fw-bold text-success mb-1">Lớp phó</div>
+          <div class="small text-muted mb-2">Được phép: gửi Nhật kí ngày, ghi điểm thưởng/vi phạm (Nhật kí tuần). Không đăng Thông báo, không đăng Phân công lao động.</div>
+          <form onsubmit="saveVicePresidentPassword(event)">
+            <input id="newVicePresidentPass" type="password" class="form-control form-control-sm mb-2" placeholder="Mật khẩu Lớp phó mới" required autocomplete="new-password">
+            <div class="text-end"><button class="btn btn-sm btn-success fw-bold px-3"><i class="fa-solid fa-key me-1"></i>Cập nhật</button></div>
+          </form>
+        </div>
+      </div>
+
+      <div class="card setting-box mb-3 border-info shadow-sm">
+        <h5 class="fw-bold text-info"><i class="fa-solid fa-id-card-clip me-2"></i>Tài khoản đã đăng ký (${esc(curCls.name)})</h5>
+        <p class="small text-muted mb-3">Danh sách tài khoản do mọi người tự đăng ký (nút "Đăng ký" ở đầu trang). Tài khoản mới đăng ký <b>chưa có quyền gì</b> - bấm "Cấp quyền" để chọn vai trò. Riêng Tổ trưởng phải được chỉ định trước trong Tab Chia tổ; có thể cấp/sửa tài khoản trực tiếp ngay tại từng tổ.</p>
+        ${(()=>{ const accs=(state.accounts||[]).filter(a=>a.classId===curCls.id); const roleLabel={teacher:'GVCN',president:'Lớp trưởng',vice:'Lớp phó',leader:'Tổ trưởng'};
+          if(!accs.length) return `<div class="text-muted small">Chưa có tài khoản nào được đăng ký.</div>`;
+          return `<div class="d-flex flex-column gap-2">${accs.map(a=>{
+            const team=a.role==='leader'?((state.groups?.[curCls.id]?.teams||[]).find(t=>a.studentId&&t.leaderId===a.studentId) || (state.groups?.[curCls.id]?.teams||[]).find(t=>t.id===a.teamId && t.leaderId)):null;
+            return `<div class="d-flex justify-content-between align-items-center p-2 bg-light rounded-3 border">
+              <div class="small"><b>${esc(a.name)}</b> <span class="text-muted">· ${esc(a.username)}</span><br>${a.role?`<span class="badge bg-secondary">${roleLabel[a.role]||a.role}</span>${team?` <span class="badge bg-info text-dark">${esc(team.name)}</span>`:''}`:'<span class="badge bg-warning text-dark">Chờ cấp quyền</span>'}</div>
+              <div class="d-flex gap-1">
+                <button class="btn btn-sm ${a.role?'btn-outline-primary':'btn-primary'} py-0 px-2" onclick="assignAccountRole('${a.id}')" title="Cấp/đổi quyền"><i class="fa-solid fa-key"></i></button>
+                <button class="icon-btn text-danger" onclick="deleteAccount('${a.id}')" title="Xóa tài khoản"><i class="fa-solid fa-trash"></i></button>
+              </div>
+            </div>`;
+          }).join('')}</div>`;
+        })()}
       </div>
 
       <div class="card setting-box mb-3">
@@ -3390,11 +3869,25 @@ function renderSettingsUnlocked(){
         </div>
         <div class="mt-2 small text-muted">Kích thước dữ liệu hiện tại: ~${((new Blob([JSON.stringify(state)]).size)/1024).toFixed(1)} KB</div>
       </div>
+
+      <div class="card setting-box mb-3 border-primary shadow-sm">
+        <h5 class="fw-bold text-primary"><i class="fa-solid fa-clock-rotate-left me-2"></i>Sao Lưu Tự Động Hàng Tuần (Chủ nhật)</h5>
+        <p class="small text-muted mb-2">Chọn một thư mục trên máy (ví dụ <code>D:\Web 8B1</code>) để hệ thống tự động ghi 1 file sao lưu JSON vào đó mỗi khi mở trang vào Chủ nhật.</p>
+        <p class="small text-muted mb-3"><i class="fa-solid fa-triangle-exclamation text-warning me-1"></i>Lưu ý: trình duyệt không cho phép trang web ghi file khi trang đang đóng, nên máy cần mở trang này (hoặc để sẵn 1 tab) vào đúng Chủ nhật thì mới tự sao lưu được. Tính năng chọn thư mục cần Chrome/Edge bản mới; nếu trình duyệt không hỗ trợ, hệ thống sẽ tự tải file .json về thư mục Downloads mặc định thay thế.</p>
+        <div class="p-3 bg-light rounded-3 border mb-3">
+          <div class="small"><b>Thư mục đã chọn:</b> ${localStorage.getItem('autoBackupFolderName') ? `<span class="text-success">${esc(localStorage.getItem('autoBackupFolderName'))}</span>` : `<span class="text-muted">Chưa chọn - sẽ tự tải về Downloads</span>`}</div>
+          <div class="small"><b>Lần sao lưu gần nhất:</b> ${localStorage.getItem('lastAutoBackupDate') ? esc(localStorage.getItem('lastAutoBackupDate')) : 'Chưa có lần nào'}</div>
+        </div>
+        <div class="d-flex flex-wrap gap-2">
+          <button class="btn btn-primary" onclick="pickAutoBackupFolder()"><i class="fa-solid fa-folder-open me-1"></i>Chọn thư mục sao lưu</button>
+          <button class="btn btn-outline-primary" onclick="runManualBackupNow()"><i class="fa-solid fa-cloud-arrow-up me-1"></i>Sao lưu ngay</button>
+        </div>
+      </div>
       <div class="card setting-box">
         <h5 class="fw-bold text-primary">✨ Cơ Chế Bảo Mật An Toàn</h5>
         <ul class="mt-3">
-          <li class="mb-2"><b>Mật khẩu Lớp 1 (Cài đặt):</b> Mặc định là <code>******</code>. Chuyên khóa tab Cài đặt & Dữ liệu. Không hiển thị sẵn trong mã nguồn giao diện để bảo mật. Nhập sai quá 5 lần khóa 1 giờ. Khi quên có thể bấm nút gửi về email: <b>${RECOVERY_EMAIL}</b>.</li>
-          <li class="mb-2"><b>Mật khẩu Lớp 2 (Thao tác):</b> Mặc định là <code>***</code>. Dùng mỗi khi cộng/trừ điểm hoặc sửa/xóa các lỗi vi phạm trong tuần.</li>
+          <li class="mb-2"><b>Mật khẩu Lớp 1 (Cài đặt):</b> Mặc định là <code>admin8b1</code>. Chuyên khóa tab Cài đặt & Dữ liệu. Không hiển thị sẵn trong mã nguồn giao diện để bảo mật. Nhập sai quá 5 lần khóa 1 giờ. Khi quên có thể bấm nút gửi về email: <b>${RECOVERY_EMAIL}</b>.</li>
+          <li class="mb-2"><b>Mật khẩu Lớp 2 (Thao tác):</b> Mặc định là <code>123</code>. Dùng mỗi khi cộng/trừ điểm hoặc sửa/xóa các lỗi vi phạm trong tuần.</li>
           <li class="mb-2">Học sinh và phụ huynh khi mở trang web sẽ ở chế độ <b>Chỉ xem</b>, không thể mở Cài đặt và không thể xóa hay cộng trừ điểm.</li>
           <li>Xuất file JSON sao lưu định kỳ để dữ liệu của lớp luôn tuyệt đối an toàn.</li>
         </ul>
@@ -3576,7 +4069,30 @@ async function saveTeacher(e){
 }
 async function editSubjects(){const {value}=await Swal.fire({title:'Tùy chỉnh danh sách môn',input:'textarea',inputValue:state.subjects.join('\n'),inputLabel:'Mỗi dòng một môn / nhóm',showCancelButton:true,confirmButtonText:'Lưu danh sách'});if(value===undefined)return;state.subjects=value.split(/\r?\n/).map(x=>x.trim()).filter(Boolean);saveState();renderPage()}
 function showModal(title,html){document.getElementById('mainModalTitle').textContent=title;document.getElementById('mainModalBody').innerHTML=html;mainModal.show()}
-function showGuide(){Swal.fire({width:760,title:'Hướng dẫn bảo mật',html:`<div class="text-start"><p><b>1. Mật khẩu Lớp 1 (Cài đặt):</b> Mặc định là <code>admin8b1</code>. Chuyên khóa tab Cài đặt & Dữ liệu. Không hiển thị sẵn trong mã nguồn giao diện để bảo mật. Nhập sai quá 5 lần khóa 1 giờ. Khi quên có thể bấm nút gửi về email: <code>${RECOVERY_EMAIL}</code>.</p><p><b>2. Mật khẩu Lớp 2 (Thao tác):</b> Mặc định là <code>123</code>. Dùng để mở quyền thao tác hàng ngày cho GVCN (Cộng/trừ điểm, sửa/xóa vi phạm).</p><p><b>3. Nhật kí tuần:</b> Bấm tab Nhật kí tuần để xem danh sách vi phạm và thành tích theo từng tuần, từng tháng phục vụ sinh hoạt lớp.</p></div>`,confirmButtonText:'Đã hiểu'})}
+function showGuide(){
+  const sections=[
+    ['1. Đăng ký tài khoản mới','<ol class="mb-0"><li>Bấm nút <b>Đăng nhập</b> trên giao diện.</li><li>Chọn chức năng <b>Đăng ký tài khoản mới</b>.</li><li>Nhập <b>Họ tên</b>, <b>Tên đăng nhập</b> và <b>Mật khẩu</b>, sau đó xác nhận đăng ký.</li><li>Tài khoản mới được tạo ở trạng thái <b>Chờ cấp quyền</b>. Người dùng chưa thể thao tác các chức năng cần quyền cho đến khi được cấp vai trò.</li><li>Với <b>Tổ trưởng</b>: sau khi học sinh được chỉ định làm Tổ trưởng trong <b>Chia tổ</b>, Quản trị cao nhất có thể bấm <b>Cấp tài khoản</b> ngay tại tổ để tạo/sửa tài khoản Tổ trưởng.</li></ol>'],
+    ['2. Đăng nhập','<ol class="mb-0"><li>Bấm <b>Đăng nhập</b>.</li><li>Nhập <b>Tên đăng nhập</b> và <b>Mật khẩu</b> như một website thông thường.</li><li>Hệ thống tự nhận diện quyền đã được cấp cho tài khoản.</li><li>Nếu tài khoản chưa được cấp quyền, hệ thống sẽ thông báo và không cho đăng nhập vào các chức năng có quyền.</li><li><b>Quản trị cao nhất</b> không đăng nhập bằng nút Đăng nhập chung; quyền này được xác thực khi mở <b>Cài đặt</b>.</li><li>Khi đang đăng nhập, bấm lại nút Đăng nhập để xem trạng thái và <b>Đăng xuất & khóa</b>.</li></ol>'],
+    ['3. Trang chủ','<p class="mb-0">Tổng quan nhanh về lớp: thông tin thống kê, tình hình thi đua, học sinh nổi bật, thời khóa biểu và các thao tác truy cập nhanh. Các biểu tượng chức năng trên trang chủ có chuyển động để dễ nhận biết và truy cập.</p>'],
+    ['4. Học sinh','<p class="mb-0">Quản lý danh sách học sinh của lớp: xem thông tin, tìm kiếm/lọc, thêm hoặc chỉnh sửa dữ liệu học sinh và thực hiện các thao tác quản lý theo quyền được cấp.</p>'],
+    ['5. Chia tổ','<p class="mb-0">Tạo và quản lý các tổ, sắp xếp học sinh vào từng tổ và <b>chỉ định Tổ trưởng</b>. Khi một học sinh được chọn làm Tổ trưởng, hệ thống có thể liên kết tài khoản Tổ trưởng với đúng học sinh và đúng tổ. Tại mỗi tổ, Quản trị cao nhất có thể <b>Cấp tài khoản</b>, sửa thông tin đăng nhập hoặc <b>Bỏ vai trò</b> Tổ trưởng.</p>'],
+    ['6. Điểm danh','<p class="mb-0">Theo dõi tình trạng đi học của học sinh theo ngày; ghi nhận các trạng thái điểm danh và xem lại dữ liệu để phục vụ quản lý nề nếp.</p>'],
+    ['7. Nhật kí tuần','<p class="mb-0">Theo dõi thành tích, vi phạm và điểm thi đua theo tuần/tháng; dùng để tổng hợp kết quả, phục vụ sinh hoạt lớp và đánh giá nề nếp.</p>'],
+    ['8. Sơ đồ chỗ ngồi','<p class="mb-0">Thiết lập và xem sơ đồ chỗ ngồi của lớp. Có thể sắp xếp học sinh theo dãy/bàn/ghế và sử dụng các chức năng nhập dữ liệu theo mẫu khi cần.</p>'],
+    ['9. Thời khóa biểu','<p class="mb-0">Quản lý thời khóa biểu theo thứ, buổi và tiết; xem lịch học của lớp và nhập dữ liệu theo mẫu Excel khi cần.</p>'],
+    ['10. Thi đua & Điểm','<p class="mb-0">Ghi nhận điểm thưởng, điểm vi phạm và theo dõi kết quả thi đua của học sinh; hỗ trợ tổng hợp điểm để đánh giá nề nếp và thi đua.</p>'],
+    ['11. Thông báo','<p class="mb-0">Đăng và xem các thông báo mới dành cho học sinh/phụ huynh; dùng để truyền đạt những nội dung cần lưu ý của lớp.</p>'],
+    ['12. Ảnh Thường Ngày','<p class="mb-0">Lưu giữ và xem hình ảnh hoạt động, sinh hoạt và những khoảnh khắc của lớp theo từng ngày.</p>'],
+    ['13. Công Cụ Chống Ồn','<p class="mb-0">Hỗ trợ kiểm soát âm thanh trong lớp, cảnh báo khi lớp ồn, đếm ngược thời gian im lặng và sử dụng microphone khi thiết bị/trình duyệt cho phép.</p>'],
+    ['14. Đồng Hồ Đếm Ngược','<p class="mb-0">Thiết lập thời gian đếm ngược, dùng các mốc thời gian mẫu nhanh và phát chuông/thông báo khi hết giờ.</p>'],
+    ['15. Liên kết hữu ích','<p class="mb-0">Lưu và mở các đường dẫn, học liệu, website hoặc tài nguyên dùng chung cho lớp.</p>'],
+    ['16. Báo cáo & Thống kê','<p class="mb-0">Xem các biểu đồ và số liệu tổng hợp về thi đua, nề nếp, điểm rèn luyện và tình hình hoạt động của lớp.</p>'],
+    ['17. Quản lý dữ liệu','<p class="mb-0">Quản lý dữ liệu của ứng dụng như sao lưu, khôi phục và các thao tác làm sạch dữ liệu. Khu vực này thuộc quyền quản trị cao nhất.</p>'],
+    ['Lưu ý chung','<ul class="mb-0"><li>Dữ liệu và quyền thao tác phụ thuộc vào tài khoản đang đăng nhập.</li><li>Riêng <b>Cài đặt</b> không hướng dẫn trong mục này theo yêu cầu.</li><li>Nên sao lưu dữ liệu định kỳ trước các thao tác lớn như nhập lại dữ liệu hoặc làm sạch dữ liệu.</li></ul>']
+  ];
+  const html=`<div class="text-start guide-content">${sections.map(([title,body])=>`<div class="mb-3"><h6 class="fw-bold text-primary mb-1">${title}</h6><div class="small">${body}</div></div>`).join('')}</div>`;
+  Swal.fire({width:900,title:'📘 Hướng dẫn sử dụng',html,confirmButtonText:'Đã hiểu',customClass:{popup:'guide-popup'}});
+}
 function downloadBlob(blob,name){const u=URL.createObjectURL(blob),a=document.createElement('a');a.href=u;a.download=name;a.click();setTimeout(()=>URL.revokeObjectURL(u),1000)}
 function confettiLite(){for(let i=0;i<24;i++){const p=document.createElement('i');p.style.cssText=`position:fixed;z-index:100000;left:${Math.random()*100}vw;top:-10px;width:8px;height:12px;background:hsl(${Math.random()*360} 80% 55%);transform:rotate(${Math.random()*180}deg);transition:all ${1+Math.random()*1.4}s ease-in;pointer-events:none`;document.body.appendChild(p);requestAnimationFrame(()=>{p.style.top='105vh';p.style.transform+=` translateX(${(Math.random()-.5)*160}px) rotate(720deg)`});setTimeout(()=>p.remove(),2600)}}
 
@@ -3652,7 +4168,7 @@ renderPage=function(){
     addHomeReturnButton(root);
     return;
   }
-  const fnMap={home:renderHome,classes:renderClasses,students:renderStudents,groups:renderGroups,attendance:renderAttendance,dailyDiary:renderDailyDiary,weekly:renderWeekly,seating:renderSeating,timetable:renderTimetable,rewards:renderRewards,notices:renderNotices,dailyPhotos:renderDailyPhotos,noise:renderNoise,countdown:renderCountdown,links:renderLinks,stats:renderStats,data:renderData,settings:renderSettings};
+  const fnMap={home:renderHome,classes:renderClasses,students:renderStudents,groups:renderGroups,attendance:renderAttendance,dailyDiary:renderDailyDiary,laborAssignment:renderLaborAssignment,weekly:renderWeekly,seating:renderSeating,timetable:renderTimetable,rewards:renderRewards,notices:renderNotices,dailyPhotos:renderDailyPhotos,noise:renderNoise,countdown:renderCountdown,links:renderLinks,stats:renderStats,data:renderData,settings:renderSettings};
   const fn=fnMap[state.currentPage]||renderHome;
   root.innerHTML=fn();
   addHomeReturnButton(root);
@@ -3683,7 +4199,7 @@ renderGroups=function(){
     <div class="d-flex gap-2"><span class="badge bg-success align-self-center">${members.length} học sinh</span>
     <button class="btn btn-outline-danger" onclick="logoutCurrentAccount()"><i class="fa-solid fa-lock me-1"></i>Khóa</button></div>
   </div>
-  <div class="card p-3 mb-3 border-success"><div class="fw-bold text-success"><i class="fa-solid fa-user-shield me-1"></i>Tổ trưởng: ${esc(leader?.name||'Chưa xác định')}</div>
+  <div class="card p-3 mb-3 border-success"><div class="fw-bold text-success"><i class="fa-solid fa-user-shield me-1"></i>Tổ trưởng: ${esc(leaderSession?.accountName || leader?.name || 'Chưa xác định')}</div>
   <div class="small text-muted mt-1">Tài khoản này chỉ được mở khóa cho ${esc(team.name)}. Không thể chuyển sang tổ khác.</div></div>
   <div class="student-grid">${members.length?members.map(s=>`<div class="card hover-lift p-3"><div class="d-flex align-items-center gap-2">${renderAvatar(s,'mini-avatar')}<div class="flex-fill"><div class="fw-bold">${esc(s.name)}</div><div class="small text-muted">${esc(cls?.name||'')} · ${esc(s.gender||'')}</div></div><span class="coin-pill">${s.coins||0} điểm</span></div>
   <div class="d-flex gap-2 mt-3"><button class="btn btn-sm btn-success" onclick="leaderAdjustPoints('${s.id}',1)"><i class="fa-solid fa-plus me-1"></i>Điểm cộng</button><button class="btn btn-sm btn-outline-danger" onclick="leaderAdjustPoints('${s.id}',-1)"><i class="fa-solid fa-minus me-1"></i>Điểm trừ</button></div></div>`).join(''):'<div class="card empty">Tổ chưa có học sinh.</div>'}</div>`;
@@ -3755,18 +4271,12 @@ loginAsLeader=async function(){ await openLeaderLogin(); };
 openLoginMenu=function(){
   const role=currentAuthRole();
   if(role){
-    Swal.fire({icon:'info',title:'Đang đăng nhập: '+roleLabel(role),html:`<p class="mb-2">Quyền mở khóa chỉ có hiệu lực trên tab/trình duyệt hiện tại.</p>`,showCancelButton:true,showConfirmButton:true,confirmButtonText:'🔒 Đăng xuất & khóa',cancelButtonText:'Đóng',confirmButtonColor:'#dc2626'}).then(r=>{if(r.isConfirmed)logoutCurrentAccount();});
+    Swal.fire({icon:'info',title:'Đang đăng nhập: '+roleLabel(role),html:`<p class="mb-2">Quyền đăng nhập chỉ có hiệu lực trên tab/trình duyệt hiện tại.</p>`,showCancelButton:true,showConfirmButton:true,confirmButtonText:'🔒 Đăng xuất & khóa',cancelButtonText:'Đóng',confirmButtonColor:'#dc2626'}).then(r=>{if(r.isConfirmed)logoutCurrentAccount();});
     return;
   }
-  Swal.fire({title:'🔐 Chọn loại tài khoản',html:`<div class="d-grid gap-2 text-start">
-    <button type="button" class="btn btn-outline-danger p-3" id="pickAdminLogin"><i class="fa-solid fa-crown me-2"></i><b>Quản trị cao nhất</b><div class="small text-muted ms-4">Toàn quyền, gồm Cài đặt và Dữ liệu</div></button>
-    <button type="button" class="btn btn-outline-primary p-3" id="pickTeacherLogin"><i class="fa-solid fa-chalkboard-user me-2"></i><b>GVCN</b><div class="small text-muted ms-4">Quản lý và thao tác hằng ngày</div></button>
-    <button type="button" class="btn btn-outline-success p-3" id="pickLeaderLogin"><i class="fa-solid fa-user-shield me-2"></i><b>Tổ trưởng</b><div class="small text-muted ms-4">Chỉ mở đúng tổ được cấp mật khẩu</div></button>
-  </div>`,showConfirmButton:false,showCancelButton:true,cancelButtonText:'Hủy',didOpen:()=>{
-    document.getElementById('pickAdminLogin')?.addEventListener('click',()=>{Swal.close();setTimeout(loginAsAdmin,80)});
-    document.getElementById('pickTeacherLogin')?.addEventListener('click',()=>{Swal.close();setTimeout(loginAsTeacher,80)});
-    document.getElementById('pickLeaderLogin')?.addEventListener('click',()=>{Swal.close();setTimeout(loginAsLeader,80)});
-  }});
+  /* Đăng nhập chung như các website thông thường: chỉ hỏi Tên đăng nhập + Mật khẩu.
+     Quản trị cao nhất KHÔNG đăng nhập tại nút này; chỉ đăng nhập khi vào Tab Cài đặt. */
+  loginWithAccount();
 };
 
 logoutCurrentAccount=function(){
@@ -3973,101 +4483,12 @@ document.addEventListener('DOMContentLoaded',()=>{
   renderPage();
   document.getElementById('hiddenImport').addEventListener('change',e=>{if(e.target.files[0])importJSON(e.target.files[0]);e.target.value=''});
   initFirebaseSync();
+  setTimeout(()=>{try{checkWeeklyAutoBackup()}catch(e){}},1500);
+  setInterval(()=>{try{checkWeeklyAutoBackup()}catch(e){}},60*60*1000);
 });
 </script>
 
 
 <script>document.addEventListener('DOMContentLoaded',()=>setTimeout(()=>{try{updateBannerNoticeCount()}catch(e){}},100));</script>
-<!-- ============================================================ -->
-<!-- BẮT ĐẦU ĐOẠN ĐỒNG BỘ REALTIME FIREBASE TỰ ĐỘNG - LỚP 8B1     -->
-<!-- ============================================================ -->
-<script>
-  // Cấu hình Firebase của bạn
-  const firebaseConfig = {
-    apiKey: "AIzaSyDq2DxzfurfZpDQq6d49QuQVTbJJpdJAKI",
-    authDomain: "doanvanlam-95238.firebaseapp.com",
-    databaseURL: "https://doanvanlam-95238-default-rtdb.asia-southeast1.firebasedatabase.app",
-    projectId: "doanvanlam-95238",
-    storageBucket: "doanvanlam-95238.firebasestorage.app",
-    messagingSenderId: "359527127604",
-    appId: "1:359527127604:web:754b1b472ebd46ba0f8861",
-    measurementId: "G-L4SFFLZV5P"
-  };
-
-  (function() {
-    try {
-      // Khởi tạo Firebase nếu chưa khởi tạo
-      if (!firebase.apps.length) {
-        firebase.initializeApp(firebaseConfig);
-      }
-      const rtdb = firebase.database();
-      const cloudRef = rtdb.ref('CLASSROOM_8B1_DATABASE');
-
-      let isSyncingFromCloud = false;
-
-      // 1. TỰ ĐỘNG BẮT MỌI THAO TÁC LƯU VÀO LOCALSTORAGE ĐỂ ĐẨY LÊN FIREBASE
-      const originalSetItem = localStorage.setItem;
-      localStorage.setItem = function(key, value) {
-        originalSetItem.apply(this, arguments);
-
-        // Đẩy lên đám mây các mục dữ liệu quan trọng của ứng dụng
-        if (!isSyncingFromCloud && typeof value === 'string') {
-          const safeKey = key.replace(/[\.\#\$\[\]\/]/g, '_');
-          cloudRef.child(safeKey).set(value)
-            .then(() => {
-              const savePill = document.getElementById('savePill');
-              if (savePill) {
-                savePill.innerHTML = '<i class="fa-solid fa-cloud-arrow-up me-1"></i>Đã lưu Cloud';
-                savePill.style.display = 'inline-block';
-              }
-            })
-            .catch(err => console.error("Firebase Sync Error:", err));
-        }
-      };
-
-      // 2. TỰ ĐỘNG KÉO DỮ LIỆU TỪ FIREBASE VỀ MÁY KHI TRANG LOAD
-      cloudRef.once('value').then((snapshot) => {
-        const cloudData = snapshot.val();
-        if (cloudData) {
-          isSyncingFromCloud = true;
-          let hasUpdates = false;
-
-          Object.keys(cloudData).forEach(safeKey => {
-            const rawVal = cloudData[safeKey];
-            // So sánh và nạp lại vào máy nếu dữ liệu trên cloud mới hơn
-            if (localStorage.getItem(safeKey) !== rawVal) {
-              originalSetItem.call(localStorage, safeKey, rawVal);
-              hasUpdates = true;
-            }
-          });
-
-          isSyncingFromCloud = false;
-
-          // Nếu có cập nhật từ đám mây, kích hoạt render lại giao diện
-          if (hasUpdates) {
-            const savePill = document.getElementById('savePill');
-            if (savePill) {
-              savePill.innerHTML = '<i class="fa-solid fa-circle-check me-1"></i>Đã đồng bộ';
-            }
-            // Gọi các hàm render sẵn có của trang nếu có
-            if (typeof renderAll === 'function') renderAll();
-            else if (typeof initApp === 'function') initApp();
-            else if (typeof switchClass === 'function' && document.getElementById('classSwitcher')) {
-              switchClass(document.getElementById('classSwitcher').value);
-            }
-          }
-        }
-      }).catch(err => {
-        console.warn("Lỗi đọc dữ liệu đám mây:", err);
-      });
-
-    } catch (e) {
-      console.error("Lỗi tích hợp Firebase:", e);
-    }
-  })();
-</script>
-<!-- ============================================================ -->
-<!-- KẾT THÚC ĐOẠN ĐỒNG BỘ FIREBASE                               -->
-<!-- ============================================================ -->
 </body>
 </html>
