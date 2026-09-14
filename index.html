@@ -1145,6 +1145,18 @@ async function assignAccountRole(id){
   toast(acc.role?`Đã cấp quyền ${roleLabel} cho ${acc.name}${acc.role==='leader'?' · '+leaderTeam.name:''}`:`Đã gỡ quyền của ${acc.name}`);
 }
 
+async function changeAccountPassword(id){
+  if(!isAdminRole()) return toast('Chỉ Quản trị cao nhất mới được đổi mật khẩu tài khoản','warning');
+  const acc=(state.accounts||[]).find(a=>a.id===id); if(!acc) return;
+  const r=await Swal.fire({
+    title:`🔐 Đổi mật khẩu — ${esc(acc.name)}`,
+    html:`<div class="text-start"><p class="small text-muted mb-2">Tài khoản: <b>${esc(acc.username)}</b></p><label class="form-label fw-bold small mb-1">Mật khẩu mới</label><div class="password-eye-wrap"><input id="changeAccPass" type="password" class="form-control form-control-sm" minlength="4" placeholder="Nhập mật khẩu mới" autocomplete="new-password"><button type="button" class="password-eye-btn" onclick="togglePasswordVisibility('changeAccPass',this)" title="Hiển thị mật khẩu" aria-label="Hiển thị mật khẩu"><i class="fa-solid fa-eye"></i></button></div><label class="form-label fw-bold small mt-2 mb-1">Nhập lại mật khẩu mới</label><div class="password-eye-wrap"><input id="changeAccPassConfirm" type="password" class="form-control form-control-sm" minlength="4" placeholder="Nhập lại mật khẩu mới" autocomplete="new-password"><button type="button" class="password-eye-btn" onclick="togglePasswordVisibility('changeAccPassConfirm',this)" title="Hiển thị mật khẩu" aria-label="Hiển thị mật khẩu"><i class="fa-solid fa-eye"></i></button></div></div>`,
+    showCancelButton:true,confirmButtonText:'Lưu mật khẩu',cancelButtonText:'Hủy',focusConfirm:false,
+    preConfirm:()=>{const a=document.getElementById('changeAccPass').value,b=document.getElementById('changeAccPassConfirm').value;if(!a||a.length<4){Swal.showValidationMessage('Mật khẩu mới cần ít nhất 4 ký tự.');return false}if(a!==b){Swal.showValidationMessage('Hai mật khẩu không trùng nhau.');return false}return a}
+  });
+  if(!r.isConfirmed)return; acc.password=r.value; saveState(); renderPage(); toast('Đã đổi mật khẩu cho '+acc.name);
+}
+
 async function deleteAccount(id){
   if(!isAdminRole()) return toast('Chỉ Quản trị cao nhất mới được xóa tài khoản','warning');
   const r=await Swal.fire({icon:'warning',title:'Xóa tài khoản này?',text:'Người dùng tài khoản này sẽ không thể đăng nhập nữa.',showCancelButton:true,confirmButtonText:'Đồng ý xóa',cancelButtonText:'Hủy',confirmButtonColor:'#dc2626'});
@@ -3793,6 +3805,7 @@ function renderSettingsUnlocked(){
               <div class="small"><b>${esc(a.name)}</b> <span class="text-muted">· ${esc(a.username)}</span><br>${a.role?`<span class="badge bg-secondary">${roleLabel[a.role]||a.role}</span>${team?` <span class="badge bg-info text-dark">${esc(team.name)}</span>`:''}`:'<span class="badge bg-warning text-dark">Chờ cấp quyền</span>'}</div>
               <div class="d-flex gap-1">
                 <button class="btn btn-sm ${a.role?'btn-outline-primary':'btn-primary'} py-0 px-2" onclick="assignAccountRole('${a.id}')" title="Cấp/đổi quyền"><i class="fa-solid fa-key"></i></button>
+                <button class="btn btn-sm btn-outline-warning py-0 px-2" onclick="changeAccountPassword('${a.id}')" title="Đổi mật khẩu"><i class="fa-solid fa-lock"></i></button>
                 <button class="icon-btn text-danger" onclick="deleteAccount('${a.id}')" title="Xóa tài khoản"><i class="fa-solid fa-trash"></i></button>
               </div>
             </div>`;
