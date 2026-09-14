@@ -3761,7 +3761,7 @@ function renderSettingsUnlocked(){
     <div>
       <div class="card setting-box mb-3 border-warning shadow-sm">
         <h5 class="fw-bold text-warning-emphasis"><i class="fa-solid fa-shield-halved text-warning me-2"></i>Bảo Mật Theo Tài Khoản</h5>
-        <p class="small text-muted mb-3">Mật khẩu Quản trị cao nhất bảo vệ Cài đặt & Dữ liệu. Mỗi lớp có một mật khẩu GVCN riêng để quản lý đúng lớp đó.</p>
+        <p class="small text-muted mb-3">Mật khẩu Quản trị cao nhất bảo vệ Cài đặt & Dữ liệu. Quyền của từng người dùng được quản lý bằng tài khoản cá nhân và vai trò được cấp trong hệ thống.</p>
         
         <div class="p-3 bg-light rounded-3 mb-3 border">
           <div class="d-flex justify-content-between align-items-center mb-1">
@@ -3780,47 +3780,11 @@ function renderSettingsUnlocked(){
           </form>
         </div>
 
-        <div class="p-3 bg-light rounded-3 border">
-          <div class="d-flex justify-content-between align-items-center mb-1">
-            <span class="fw-bold text-success">2. Đổi Mật khẩu GVCN cho lớp đang chọn</span>
-            <span class="badge bg-success">Thao tác</span>
-          </div>
-          <div class="small text-muted mb-2">Mật khẩu này chỉ cấp quyền quản lý cho lớp đang chọn: ${esc(curCls.name)}. GVCN không có quyền Quản trị cao nhất.</div>
-          <form onsubmit="saveAdminPassword(event)">
-            <div class="mb-2">
-              <input id="newAdminPass" type="password" class="form-control form-control-sm" placeholder="Mật khẩu lớp 2 mới" required autocomplete="new-password">
-            </div>
-            <div class="text-end">
-              <button class="btn btn-sm btn-success fw-bold px-3"><i class="fa-solid fa-key me-1"></i>Cập nhật mật khẩu GVCN</button>
-            </div>
-          </form>
-        </div>
-      </div>
-
-      <div class="card setting-box mb-3 border-success shadow-sm">
-        <h5 class="fw-bold text-success"><i class="fa-solid fa-user-graduate me-2"></i>Mật khẩu Cán bộ lớp (Lớp trưởng / Lớp phó)</h5>
-        <p class="small text-muted mb-3">Đặt mật khẩu riêng cho Lớp trưởng và Lớp phó của lớp <b>${esc(curCls.name)}</b> để hai bạn tự đăng bài mà không cần mượn mật khẩu GVCN. Hai mật khẩu này <b>không</b> hiển thị ở khu vực Đăng nhập chung - hệ thống chỉ hỏi ngay tại đúng thao tác cần dùng (Thông báo, Nhật kí ngày, Nhật kí tuần, Phân công lao động).</p>
-        <div class="p-3 bg-light rounded-3 mb-3 border">
-          <div class="fw-bold text-primary mb-1">Lớp trưởng</div>
-          <div class="small text-muted mb-2">Được phép: đăng Thông báo, gửi Nhật kí ngày, ghi điểm thưởng/vi phạm (Nhật kí tuần), đăng Phân công lao động.</div>
-          <form onsubmit="savePresidentPassword(event)">
-            <input id="newPresidentPass" type="password" class="form-control form-control-sm mb-2" placeholder="Mật khẩu Lớp trưởng mới" required autocomplete="new-password">
-            <div class="text-end"><button class="btn btn-sm btn-primary fw-bold px-3"><i class="fa-solid fa-key me-1"></i>Cập nhật</button></div>
-          </form>
-        </div>
-        <div class="p-3 bg-light rounded-3 border">
-          <div class="fw-bold text-success mb-1">Lớp phó</div>
-          <div class="small text-muted mb-2">Được phép: gửi Nhật kí ngày, ghi điểm thưởng/vi phạm (Nhật kí tuần). Không đăng Thông báo, không đăng Phân công lao động.</div>
-          <form onsubmit="saveVicePresidentPassword(event)">
-            <input id="newVicePresidentPass" type="password" class="form-control form-control-sm mb-2" placeholder="Mật khẩu Lớp phó mới" required autocomplete="new-password">
-            <div class="text-end"><button class="btn btn-sm btn-success fw-bold px-3"><i class="fa-solid fa-key me-1"></i>Cập nhật</button></div>
-          </form>
-        </div>
       </div>
 
       <div class="card setting-box mb-3 border-info shadow-sm">
-        <h5 class="fw-bold text-info"><i class="fa-solid fa-id-card-clip me-2"></i>Tài khoản đã đăng ký (${esc(curCls.name)})</h5>
-        <p class="small text-muted mb-3">Danh sách tài khoản do mọi người tự đăng ký (nút "Đăng ký" ở đầu trang). Tài khoản mới đăng ký <b>chưa có quyền gì</b> - bấm "Cấp quyền" để chọn vai trò. Riêng Tổ trưởng phải được chỉ định trước trong Tab Chia tổ; có thể cấp/sửa tài khoản trực tiếp ngay tại từng tổ.</p>
+        <h5 class="fw-bold text-info"><i class="fa-solid fa-id-card-clip me-2"></i>Tài khoản đã đăng ký — ${esc(curCls.name)}</h5>
+        <p class="small text-muted mb-3">Danh sách tài khoản của lớp đang chọn do mọi người tự đăng ký (nút "Đăng ký" ở đầu trang). Tài khoản mới đăng ký <b>chưa có quyền gì</b> - bấm "Cấp quyền" để chọn vai trò. Riêng Tổ trưởng phải được chỉ định trước trong Tab Chia tổ; có thể cấp/sửa tài khoản trực tiếp ngay tại từng tổ.</p>
         ${(()=>{ const accs=(state.accounts||[]).filter(a=>a.classId===curCls.id); const roleLabel={teacher:'GVCN',president:'Lớp trưởng',vice:'Lớp phó',leader:'Tổ trưởng'};
           if(!accs.length) return `<div class="text-muted small">Chưa có tài khoản nào được đăng ký.</div>`;
           return `<div class="d-flex flex-column gap-2">${accs.map(a=>{
