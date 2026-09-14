@@ -4495,95 +4495,109 @@ document.addEventListener('DOMContentLoaded',()=>{
 
 <script>document.addEventListener('DOMContentLoaded',()=>setTimeout(()=>{try{updateBannerNoticeCount()}catch(e){}},100));</script>
 <!-- ============================================================ -->
-<!-- BẮT ĐẦU ĐOẠN ĐỒNG BỘ REALTIME FIREBASE TỰ ĐỘNG - LỚP 8B1     -->
+<!-- BẮT ĐẦU ĐOẠN ĐỒNG BỘ & NÉN DỮ LIỆU CHỐNG TRÀN BỘ NHỚ LỚP 8B1  -->
 <!-- ============================================================ -->
 <script>
-  // Cấu hình Firebase của bạn
-  const firebaseConfig = {
-    apiKey: "AIzaSyDq2DxzfurfZpDQq6d49QuQVTbJJpdJAKI",
-    authDomain: "doanvanlam-95238.firebaseapp.com",
-    databaseURL: "https://doanvanlam-95238-default-rtdb.asia-southeast1.firebasedatabase.app",
-    projectId: "doanvanlam-95238",
-    storageBucket: "doanvanlam-95238.firebasestorage.app",
-    messagingSenderId: "359527127604",
-    appId: "1:359527127604:web:754b1b472ebd46ba0f8861",
-    measurementId: "G-L4SFFLZV5P"
+  // 1. Tự động nén ảnh trước khi lưu để chống tràn bộ nhớ 5MB
+  window.compressBase64Image = function(base64Str, maxWidth = 900, quality = 0.65) {
+    return new Promise((resolve) => {
+      if (!base64Str || !base64Str.startsWith('data:image')) return resolve(base64Str);
+      const img = new Image();
+      img.src = base64Str;
+      img.onload = () => {
+        let w = img.width, h = img.height;
+        if (w > maxWidth) {
+          h = Math.round((h * maxWidth) / w);
+          w = maxWidth;
+        }
+        const canvas = document.createElement('canvas');
+        canvas.width = w;
+        canvas.height = h;
+        const ctx = canvas.getContext('2d');
+        ctx.drawImage(img, 0, 0, w, h);
+        resolve(canvas.toDataURL('image/jpeg', quality));
+      };
+      img.onerror = () => resolve(base64Str);
+    });
   };
 
+  // 2. Tự động đồng bộ Firebase Realtime
   (function() {
+    const firebaseConfig = {
+      apiKey: "AIzaSyDq2DxzfurfZpDQq6d49QuQVTbJJpdJAKI",
+      authDomain: "doanvanlam-95238.firebaseapp.com",
+      databaseURL: "https://doanvanlam-95238-default-rtdb.asia-southeast1.firebasedatabase.app",
+      projectId: "doanvanlam-95238",
+      storageBucket: "doanvanlam-95238.firebasestorage.app",
+      messagingSenderId: "359527127604",
+      appId: "1:359527127604:web:754b1b472ebd46ba0f8861",
+      measurementId: "G-L4SFFLZV5P"
+    };
+
     try {
-      // Khởi tạo Firebase nếu chưa khởi tạo
-      if (!firebase.apps.length) {
-        firebase.initializeApp(firebaseConfig);
-      }
-      const rtdb = firebase.database();
-      const cloudRef = rtdb.ref('CLASSROOM_8B1_DATABASE');
-
-      let isSyncingFromCloud = false;
-
-      // 1. TỰ ĐỘNG BẮT MỌI THAO TÁC LƯU VÀO LOCALSTORAGE ĐỂ ĐẨY LÊN FIREBASE
-      const originalSetItem = localStorage.setItem;
-      localStorage.setItem = function(key, value) {
-        originalSetItem.apply(this, arguments);
-
-        // Đẩy lên đám mây các mục dữ liệu quan trọng của ứng dụng
-        if (!isSyncingFromCloud && typeof value === 'string') {
-          const safeKey = key.replace(/[\.\#\$\[\]\/]/g, '_');
-          cloudRef.child(safeKey).set(value)
-            .then(() => {
-              const savePill = document.getElementById('savePill');
-              if (savePill) {
-                savePill.innerHTML = '<i class="fa-solid fa-cloud-arrow-up me-1"></i>Đã lưu Cloud';
-                savePill.style.display = 'inline-block';
-              }
-            })
-            .catch(err => console.error("Firebase Sync Error:", err));
+      if (typeof firebase !== 'undefined') {
+        if (!firebase.apps.length) {
+          firebase.initializeApp(firebaseConfig);
         }
-      };
+        const db = firebase.database();
+        const rootRef = db.ref("CLASSROOM_8B1_DATA");
 
-      // 2. TỰ ĐỘNG KÉO DỮ LIỆU TỪ FIREBASE VỀ MÁY KHI TRANG LOAD
-      cloudRef.once('value').then((snapshot) => {
-        const cloudData = snapshot.val();
-        if (cloudData) {
-          isSyncingFromCloud = true;
-          let hasUpdates = false;
+        let isFromCloud = false;
 
-          Object.keys(cloudData).forEach(safeKey => {
-            const rawVal = cloudData[safeKey];
-            // So sánh và nạp lại vào máy nếu dữ liệu trên cloud mới hơn
-            if (localStorage.getItem(safeKey) !== rawVal) {
-              originalSetItem.call(localStorage, safeKey, rawVal);
-              hasUpdates = true;
-            }
-          });
+        // Bắt sự kiện lưu từ localStorage
+        const origSetItem = localStorage.setItem;
+        localStorage.setItem = function(key, val) {
+          try {
+            origSetItem.apply(this, arguments);
+          } catch(e) {
+            console.warn("Bộ nhớ máy đầy, ưu tiên lưu thẳng lên Firebase:", e);
+          }
 
-          isSyncingFromCloud = false;
+          if (!isFromCloud && typeof val === 'string') {
+            const cleanKey = key.replace(/[\.\#\$\[\]\/]/g, '_');
+            rootRef.child(cleanKey).set(val).then(() => {
+              const pill = document.getElementById('savePill');
+              if (pill) {
+                pill.innerHTML = '<i class="fa-solid fa-cloud-arrow-up me-1"></i>Đã lưu Cloud';
+                pill.style.display = 'inline-block';
+              }
+            }).catch(err => console.error("Lỗi đẩy Cloud:", err));
+          }
+        };
 
-          // Nếu có cập nhật từ đám mây, kích hoạt render lại giao diện
-          if (hasUpdates) {
-            const savePill = document.getElementById('savePill');
-            if (savePill) {
-              savePill.innerHTML = '<i class="fa-solid fa-circle-check me-1"></i>Đã đồng bộ';
-            }
-            // Gọi các hàm render sẵn có của trang nếu có
-            if (typeof renderAll === 'function') renderAll();
-            else if (typeof initApp === 'function') initApp();
-            else if (typeof switchClass === 'function' && document.getElementById('classSwitcher')) {
-              switchClass(document.getElementById('classSwitcher').value);
+        // Lắng nghe dữ liệu thời gian thực từ Cloud
+        rootRef.on('value', (snap) => {
+          const data = snap.val();
+          if (data) {
+            isFromCloud = true;
+            let needReRender = false;
+            Object.keys(data).forEach(k => {
+              if (localStorage.getItem(k) !== data[k]) {
+                try {
+                  origSetItem.call(localStorage, k, data[k]);
+                  needReRender = true;
+                } catch(err) {
+                  console.warn("Tràn cache cục bộ:", err);
+                }
+              }
+            });
+            isFromCloud = false;
+
+            if (needReRender) {
+              const pill = document.getElementById('savePill');
+              if (pill) pill.innerHTML = '<i class="fa-solid fa-circle-check me-1"></i>Đã đồng bộ';
+              // Tự động tải lại giao diện trang chủ
+              if (typeof renderAll === 'function') renderAll();
+              else if (typeof initApp === 'function') initApp();
             }
           }
-        }
-      }).catch(err => {
-        console.warn("Lỗi đọc dữ liệu đám mây:", err);
-      });
-
-    } catch (e) {
-      console.error("Lỗi tích hợp Firebase:", e);
+        });
+      }
+    } catch(err) {
+      console.error("Lỗi khởi tạo Firebase:", err);
     }
   })();
 </script>
-<!-- ============================================================ -->
-<!-- KẾT THÚC ĐOẠN ĐỒNG BỘ FIREBASE                               -->
 <!-- ============================================================ -->
 </body>
 </html>
