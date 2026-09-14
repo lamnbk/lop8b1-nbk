@@ -554,6 +554,14 @@
       .home-return-btn{top:2px;right:2px;width:27px;height:25px;border-radius:8px;}
       .home-return-btn:hover{width:105px;}
     }
+
+/* Nút con mắt hiển thị/ẩn mật khẩu trong hộp đăng ký và đăng nhập */
+.password-eye-wrap{position:relative;}
+.password-eye-wrap .form-control{padding-right:38px;}
+.password-eye-btn{position:absolute;right:4px;top:50%;transform:translateY(-50%);width:30px;height:30px;border:0;background:transparent;color:#64748b;border-radius:7px;display:flex;align-items:center;justify-content:center;cursor:pointer;z-index:2;}
+.password-eye-btn:hover{background:#f1f5f9;color:#0f766e;}
+.password-eye-btn:focus{outline:2px solid rgba(13,148,136,.25);outline-offset:1px;}
+
 </style>
 </head>
 <body>
@@ -1000,6 +1008,16 @@ async function loginAsVice(){
    - Đây là lựa chọn "chuyên nghiệp" thay cho mật khẩu dùng chung theo vai trò (mật khẩu dùng chung vẫn còn
      hoạt động song song để không làm gián đoạn cách dùng cũ).
    ======================================================== */
+function togglePasswordVisibility(inputId, button){
+  const input=document.getElementById(inputId);
+  if(!input) return;
+  const showing=input.type==='text';
+  input.type=showing?'password':'text';
+  const icon=button?.querySelector('i');
+  if(icon) icon.className=showing?'fa-solid fa-eye':'fa-solid fa-eye-slash';
+  if(button) button.title=showing?'Hiển thị mật khẩu':'Ẩn mật khẩu';
+}
+
 async function registerAccount(){
   const cls=activeClass();
   const result=await Swal.fire({
@@ -1011,9 +1029,15 @@ async function registerAccount(){
       <label class="form-label fw-bold small mb-1">Tên đăng nhập</label>
       <input id="regUsername" class="form-control form-control-sm mb-2" placeholder="vd: nguyenvana (không dấu, không khoảng trắng)" autocomplete="off">
       <label class="form-label fw-bold small mb-1">Mật khẩu</label>
-      <input id="regPassword" type="password" class="form-control form-control-sm mb-2" autocomplete="new-password">
+      <div class="password-eye-wrap mb-2">
+        <input id="regPassword" type="password" class="form-control form-control-sm" autocomplete="new-password">
+        <button type="button" class="password-eye-btn" onclick="togglePasswordVisibility('regPassword',this)" title="Hiển thị mật khẩu" aria-label="Hiển thị mật khẩu"><i class="fa-solid fa-eye"></i></button>
+      </div>
       <label class="form-label fw-bold small mb-1">Xác nhận mật khẩu</label>
-      <input id="regPasswordConfirm" type="password" class="form-control form-control-sm mb-2" autocomplete="new-password">
+      <div class="password-eye-wrap mb-2">
+        <input id="regPasswordConfirm" type="password" class="form-control form-control-sm" autocomplete="new-password">
+        <button type="button" class="password-eye-btn" onclick="togglePasswordVisibility('regPasswordConfirm',this)" title="Hiển thị mật khẩu" aria-label="Hiển thị mật khẩu"><i class="fa-solid fa-eye"></i></button>
+      </div>
     </div>`,
     showCancelButton:true,confirmButtonText:'Đăng ký',cancelButtonText:'Hủy',focusConfirm:false,
     preConfirm:()=>{
@@ -1046,7 +1070,10 @@ async function loginWithAccount(){
       <label class="form-label fw-bold small mb-1">Tên đăng nhập</label>
       <input id="loginUsername" class="form-control form-control-sm mb-2" autocomplete="username">
       <label class="form-label fw-bold small mb-1">Mật khẩu</label>
-      <input id="loginPassword" type="password" class="form-control form-control-sm" autocomplete="current-password">
+      <div class="password-eye-wrap">
+        <input id="loginPassword" type="password" class="form-control form-control-sm" autocomplete="current-password">
+        <button type="button" class="password-eye-btn" onclick="togglePasswordVisibility('loginPassword',this)" title="Hiển thị mật khẩu" aria-label="Hiển thị mật khẩu"><i class="fa-solid fa-eye"></i></button>
+      </div>
     </div>`,
     showCancelButton:true,confirmButtonText:'Đăng nhập',cancelButtonText:'Hủy',focusConfirm:false,
     preConfirm:()=>({
