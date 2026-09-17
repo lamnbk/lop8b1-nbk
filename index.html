@@ -637,7 +637,8 @@ const firebaseConfig = {
   projectId: "doanvanlam-95238",
   storageBucket: "doanvanlam-95238.firebasestorage.app",
   messagingSenderId: "359527127604",
-  appId: "1:359527127604:web:754b1b472ebd46ba0f8861"
+  appId: "1:359527127604:web:754b1b472ebd46ba0f8861",
+  measurementId: "G-L4SFFLZV5P"
 };
 const FIREBASE_DB_PATH = 'classroom_8b1_v3';
 
@@ -681,7 +682,11 @@ function initFirebaseSync(){
       if(!Array.isArray(remote.redemptions)) remote.redemptions = [];
       if(!Array.isArray(remote.wheelHistory)) remote.wheelHistory = [];
       if(!Array.isArray(remote.dailyPhotos)) remote.dailyPhotos = [];
+      if(!Array.isArray(remote.dailyDiary)) remote.dailyDiary = [];
+      if(!Array.isArray(remote.laborAssignments)) remote.laborAssignments = [];
       if(!Array.isArray(remote.notices)) remote.notices = [];
+      if(!Array.isArray(remote.accounts)) remote.accounts = [];
+      if(!Array.isArray(remote.wheelExcluded)) remote.wheelExcluded = [];
       if(!Array.isArray(remote.links)) remote.links = [];
       if(!Array.isArray(remote.subjects)) remote.subjects = SUBJECTS.slice();
       if(!remote.attendance) remote.attendance = {};
@@ -708,7 +713,7 @@ function initFirebaseSync(){
 const SUBJECTS=['Ghi chung / Nề nếp','TOÁN','VĂN','ANH','KHOA HỌC TỰ NHIÊN','Khoa học','Lịch sử & Địa lý','Tin học','Công nghệ','Mĩ thuật','Âm nhạc','Giáo dục thể chất','Đạo đức','Hoạt động trải nghiệm','Sinh hoạt lớp','Chào cờ'];
 const DAYS=['Thứ Hai','Thứ Ba','Thứ Tư','Thứ Năm','Thứ Sáu','Thứ Bảy'];
 const NAV=[
-  ['home','fa-house','Trang chủ',''],['students','fa-graduation-cap','Học sinh','count'],['groups','fa-people-group','Chia tổ',''],['attendance','fa-clipboard-check','Điểm danh',''],['dailyDiary','fa-book-open','Nhật kí ngày',''],['weekly','fa-calendar-check','Nhật kí tuần','HOT'],['seating','fa-border-all','Sơ đồ lớp',''],['timetable','fa-calendar-days','Thời khóa biểu',''],['rewards','fa-gift','Đổi thưởng',''],['notices','fa-bullhorn','THÔNG BÁO',''],['dailyPhotos','fa-images','Ảnh thường ngày','NEW'],['laborAssignment','fa-broom','Phân công lao động',''],['noise','fa-shield-halved','Chống ồn',''],['countdown','fa-stopwatch','Đếm ngược',''],['links','fa-link','Liên kết',''],['stats','fa-chart-column','Thống kê',''],['data','fa-database','Dữ liệu',''],['classes','fa-school','Lớp học',''],['settings','fa-gear','Cài đặt','']
+  ['home','fa-house','Trang chủ',''],['students','fa-graduation-cap','Học sinh','count'],['groups','fa-people-group','Chia tổ',''],['attendance','fa-clipboard-check','Điểm danh',''],['dailyDiary','fa-book-open','Nhật kí ngày',''],['weekly','fa-calendar-check','Nhật kí tuần','HOT'],['seating','fa-border-all','Sơ đồ lớp',''],['timetable','fa-calendar-days','Thời khóa biểu',''],['rewards','fa-gift','Đổi thưởng',''],['notices','fa-bullhorn','THÔNG BÁO',''],['dailyPhotos','fa-images','Ảnh thường ngày','NEW'],['laborAssignment','fa-broom','Phân công lao động',''],['links','fa-link','Liên kết',''],['stats','fa-chart-column','Thống kê',''],['classes','fa-school','Lớp học',''],['settings','fa-gear','Cài đặt','']
 ];
 const PAGE_META={
  home:['Trang chủ','Tổng quan nhanh tình hình lớp học hôm nay'],classes:['Quản lý Lớp học','Danh sách các lớp, khối lớp và thông tin chung'],students:['Danh sách học sinh','Quản lý thành viên, nề nếp và điểm thi đua'],groups:['Chia tổ học sinh','Chia lớp thành các tổ, chọn tổ trưởng và cấp mã đăng nhập riêng'],attendance:['Điểm danh','Theo dõi sĩ số, chuyên cần và tình hình đi học hằng ngày'],dailyDiary:['Nhật kí ngày','Gửi ảnh, tin nhắn và tài liệu hằng ngày cho lớp'],laborAssignment:['Phân công lao động','Đăng ảnh hoặc tài liệu phân công trực nhật, lao động cho lớp'],weekly:['Nhật kí tuần','Tổng hợp thi đua, vi phạm và khen thưởng theo tuần & tháng'],seating:['Sơ đồ Lớp học','Bố trí vị trí chỗ ngồi trực quan và linh hoạt'],timetable:['Thời khóa biểu','Thiết lập lịch dạy Sáng/Chiều và các môn học trong tuần'],rewards:['Đổi thưởng','Tạo phần thưởng và đổi quà bằng điểm thi đua'],notices:['THÔNG BÁO','Thông báo mới nhất dành cho học sinh và phụ huynh'],dailyPhotos:['Ảnh Thường Ngày','Lưu giữ khoảnh khắc và hình ảnh hoạt động của lớp học'],noise:['Công Cụ Chống Ồn','Cảnh báo lớp học, đếm ngược im lặng và đo microphone'],countdown:['Đồng Hồ Đếm Ngược','Thiết lập thời gian, mẫu nhanh và chuông báo'],links:['Liên kết hữu ích','Lưu học liệu, trang web và đường dẫn dùng chung'],stats:['Báo cáo & Thống kê','Biểu đồ phân tích thi đua, nề nếp và điểm rèn luyện'],data:['Quản lý dữ liệu','Sao lưu, khôi phục và làm sạch dữ liệu ứng dụng'],settings:['Cài đặt hệ thống','Thiết lập logo lớp, hồ sơ giáo viên và cấu hình']
@@ -880,6 +885,8 @@ function saveState(show=true){
     if(p) p.innerHTML='<i class="fa-solid fa-cloud-arrow-up fa-fade me-1"></i>Đang lưu...';
 
     if(fbDbRef){
+      // Ghi toàn bộ trạng thái dùng chung lên Realtime Database.
+      // currentPage vẫn chỉ thuộc về từng thiết bị nên không đồng bộ.
       fbLastPushedJSON = syncJSON;
       fbDbRef.set(syncState).then(()=>{
         if(p) p.innerHTML='<i class="fa-solid fa-circle-check me-1"></i>Đã lưu '+nowTime();
@@ -4599,5 +4606,71 @@ document.addEventListener('DOMContentLoaded',()=>{
   })();
 </script>
 <!-- ============================================================ -->
+
+<style id="menu-darkblue-bold-override">
+/* ===== MENU DỌC: CHỮ XANH ĐEN + IN ĐẬM ===== */
+.sidebar .nav-link,
+.sidebar .nav-link span,
+.sidebar .nav-link i {
+  color:#0f2942 !important;
+  font-weight:900 !important;
+}
+.sidebar .nav-link {
+  letter-spacing:.01em;
+  text-shadow:0 .3px 0 rgba(15,41,66,.18);
+}
+.sidebar .nav-link:hover,
+.sidebar .nav-link:hover span,
+.sidebar .nav-link:hover i {
+  color:#071d31 !important;
+}
+/* Tab đang chọn vẫn dùng nền nổi bật, chữ giữ trắng để dễ đọc */
+.sidebar .nav-link.active,
+.sidebar .nav-link.active span,
+.sidebar .nav-link.active i {
+  color:#fff !important;
+  font-weight:900 !important;
+}
+.sidebar .nav-link .mini-badge {
+  font-weight:900 !important;
+}
+</style>
+
+<style id="menu-3d-hover-depth">
+/* ===== MENU DỌC: HOVER 3D CHÌM XUỐNG RÕ HƠN ===== */
+.sidebar .nav-link:not(.active){
+  box-shadow:4px 4px 9px rgba(15,41,66,.13),
+             -3px -3px 8px rgba(255,255,255,.92) !important;
+  transition:box-shadow .18s ease, transform .18s ease, background .18s ease, color .18s ease !important;
+}
+.sidebar .nav-link:not(.active):hover{
+  background:#e8f0f7 !important;
+  color:#071d31 !important;
+  transform:translateY(2px) scale(.985) !important;
+  box-shadow:
+    inset 5px 5px 11px rgba(15,41,66,.26),
+    inset -4px -4px 10px rgba(255,255,255,.95),
+    0 1px 2px rgba(15,41,66,.12) !important;
+}
+.sidebar .nav-link:not(.active):hover i,
+.sidebar .nav-link:not(.active):hover span{
+  color:#071d31 !important;
+}
+/* Nhấn chuột: chìm sâu thêm một nhịp để cảm giác vật lý rõ ràng */
+.sidebar .nav-link:not(.active):active{
+  transform:translateY(4px) scale(.97) !important;
+  box-shadow:
+    inset 7px 7px 14px rgba(15,41,66,.31),
+    inset -5px -5px 12px rgba(255,255,255,.92) !important;
+}
+/* Tab đang chọn vẫn nổi bật; hover chỉ tạo cảm giác nhấn nhẹ */
+.sidebar .nav-link.active:hover{
+  transform:translateY(1px) scale(.99) !important;
+  box-shadow:
+    inset 3px 3px 7px rgba(0,0,0,.22),
+    inset -3px -3px 7px rgba(255,255,255,.18),
+    5px 7px 15px rgba(13,148,136,.24) !important;
+}
+</style>
 </body>
 </html>
