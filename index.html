@@ -5426,7 +5426,12 @@ document.addEventListener('DOMContentLoaded',()=>{
   }
 
   if(!IS_PUBLIC_VIEW){
-    ['openLoginMenu','verifySettingAccess','verifyAdminAccess','loginAsLeader','loginAsPresident','loginAsVice','loginWithAccount','registerAccount']
+    /*
+       QUẢN TRỊ CAO NHẤT: đăng nhập trực tiếp tại Tab Cài đặt.
+       Không bắt buộc đăng nhập tài khoản GVCN/Firebase Authentication trước.
+       Các luồng đăng nhập tài khoản/GVCN/Tổ trưởng vẫn giữ bước xác thực máy chủ.
+    */
+    ['openLoginMenu','verifyAdminAccess','loginAsLeader','loginAsPresident','loginAsVice','loginWithAccount','registerAccount']
       .forEach(function(n){ wrapLogin(n, n.indexOf('verify') === 0 ? false : undefined); });
 
     /* Đăng xuất vai trò thì đăng xuất luôn máy chủ trên trình duyệt này */
