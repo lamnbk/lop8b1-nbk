@@ -1770,7 +1770,7 @@ async function registerAccount(){
   if(!Array.isArray(state.accounts)) state.accounts=[];
   state.accounts.push({id:uid('acc'), classId:cls.id, name:result.value.name, username:result.value.username, password:result.value.password, role:null, teamId:''});
   saveState();
-  Swal.fire({icon:'success',title:'Đăng ký thành công!',text:`Tài khoản "${result.value.username}" đã được tạo. Vui lòng chờ GVCN/Quản trị cao nhất cấp quyền trong Cài đặt trước khi đăng nhập.`});
+  Swal.fire({icon:'success',title:'Đăng ký thành công!',text:`Tài khoản "${result.value.username}" đã được tạo. Bạn có thể dùng ngay Tên đăng nhập và Mật khẩu vừa tạo để đăng nhập.`});
 }
 
 /* Đăng nhập bằng tài khoản cá nhân đã đăng ký (Tên đăng nhập + Mật khẩu). Chỉ vào được nếu đã được cấp quyền. */
@@ -1796,7 +1796,9 @@ async function loginWithAccount(){
   if(!isConfirmed) return;
   const acc=(state.accounts||[]).find(a=>a.classId===cls.id && a.username===value.username && a.password===value.password);
   if(!acc){ Swal.fire({icon:'error',title:'Sai tên đăng nhập hoặc mật khẩu'}); return; }
-  if(!acc.role){ Swal.fire({icon:'info',title:'Tài khoản chưa được cấp quyền',text:'Vui lòng chờ GVCN hoặc Quản trị cao nhất cấp quyền cho tài khoản này trong Cài đặt.'}); return; }
+  /* Tài khoản cá nhân được phép đăng nhập ngay sau khi đăng ký.
+     Nếu chưa được cấp vai trò quản lý, hệ thống cho đăng nhập ở quyền cơ bản 'user'. */
+  if(!acc.role) acc.role='user';
   if(acc.role==='leader'){
     const teams=state.groups?.[cls.id]?.teams||[];
     /* Tổ trưởng được xác định từ Tab Chia tổ (leaderId/studentId), không cho tài khoản tự chọn tổ. */
@@ -4863,7 +4865,7 @@ function confettiLite(){for(let i=0;i<24;i++){const p=document.createElement('i'
    ========================================================= */
 
 function roleLabel(role){
-  return ({admin:'Quản trị cao nhất',teacher:'GVCN',leader:'Tổ trưởng'}[role] || 'Chưa đăng nhập');
+  return ({admin:'Quản trị cao nhất',teacher:'GVCN',leader:'Tổ trưởng',president:'Lớp trưởng',vice:'Lớp phó',user:'Tài khoản'}[role] || 'Chưa đăng nhập');
 }
 
 function roleCanOpenPage(page){
@@ -5410,43 +5412,15 @@ document.addEventListener('DOMContentLoaded',()=>{
   }
   window.ensureServerLogin = ensureServerLogin;
 
-  /* Bọc các hàm đăng nhập: phải qua đăng nhập máy chủ trước */
-  function wrapLogin(name, fallback){
-    const orig = window[name];
-    if(typeof orig !== 'function') return;
-    window[name] = async function(){
-      if(!window.serverAuthed()){
-        const ok = await ensureServerLogin();
-        if(!ok) return fallback;
-        let role = null; try{ role = currentAuthRole(); }catch(e){}
-        if(!role){ try{ await preloadLoginCredentials(); }catch(e){} }
-      }
-      return orig.apply(this, arguments);
-    };
-  }
-
+  /*
+     ĐĂNG NHẬP TÀI KHOẢN ỨNG DỤNG ĐỘC LẬP VỚI FIREBASE AUTHENTICATION
+     - Người dùng đăng ký tài khoản ngay trong ứng dụng bằng Tên đăng nhập + Mật khẩu.
+     - Tài khoản đã đăng ký hoặc vừa đăng ký đều được phép đăng nhập ngay.
+     - Firebase Authentication/Email máy chủ KHÔNG còn là bước bắt buộc trước khi đăng nhập.
+     - Quyền Quản trị cao nhất vẫn xác thực riêng bằng mật khẩu trong Tab Cài đặt.
+     */
   if(!IS_PUBLIC_VIEW){
-    /*
-       QUẢN TRỊ CAO NHẤT: đăng nhập trực tiếp tại Tab Cài đặt.
-       Không bắt buộc đăng nhập tài khoản GVCN/Firebase Authentication trước.
-       Các luồng đăng nhập tài khoản/GVCN/Tổ trưởng vẫn giữ bước xác thực máy chủ.
-    */
-    ['openLoginMenu','verifyAdminAccess','loginAsLeader','loginAsPresident','loginAsVice','loginWithAccount','registerAccount']
-      .forEach(function(n){ wrapLogin(n, n.indexOf('verify') === 0 ? false : undefined); });
-
-    /* Đăng xuất vai trò thì đăng xuất luôn máy chủ trên trình duyệt này */
-    const origLogout = window.logoutCurrentAccount;
-    if(typeof origLogout === 'function'){
-      window.logoutCurrentAccount = function(){
-        const r = origLogout.apply(this, arguments);
-        try{ if(firebase.apps.length) firebase.auth().signOut(); }catch(e){}
-        return r;
-      };
-    }
-    /* Tải lại trang khi đang đăng nhập vai trò: khôi phục phiên máy chủ */
-    document.addEventListener('DOMContentLoaded', function(){
-      try{ if(typeof authSession !== 'undefined' && authSession) getFbApp(true); }catch(e){}
-    });
+    /* Không bọc openLoginMenu/loginWithAccount/registerAccount bằng ensureServerLogin nữa. */
   }
 
   /* ---------- CHẾ ĐỘ XEM CÔNG KHAI (CHỈ ĐỌC) ---------- */
